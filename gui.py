@@ -121,27 +121,52 @@ class ResumeGeneratorGUI:
 
     def add_suboptions(self, parent, options, section_title):
         if section_title == "Core Competencies":
-            # Special case: Display Core Competencies in multiple columns
-            num_columns = 4  # Define the number of columns
-            num_rows = ceil(len(options) / num_columns)  # Calculate rows per column
+            # Sort options by string length (longest first)
+            sorted_options = sorted(options, key=len, reverse=True)
+            n = len(sorted_options)  # Total number of options
+
+            # Initialize the rearranged list with placeholders
+            rearranged_options = [None] * n
+
+            # Fill middle column indexes: Start at 1, increment by 3
+            middle_column_indexes = range(1, n, 3)
+            for i, index in enumerate(middle_column_indexes):
+                if index < n:
+                    rearranged_options[index] = sorted_options[i]
+
+            # Fill first column indexes: Start at 0, increment by 3
+            first_column_indexes = range(0, n, 3)
+            for i, index in enumerate(first_column_indexes):
+                if index < n:
+                    rearranged_options[index] = sorted_options[len(middle_column_indexes) + i]
+
+            # Fill last column indexes: Start at 2, increment by 3
+            last_column_indexes = range(2, n, 3)
+            for i, index in enumerate(last_column_indexes):
+                if index < n:
+                    rearranged_options[index] = sorted_options[len(middle_column_indexes) + len(first_column_indexes) + i]
+
+            # Split rearranged options into three columns
+            num_columns = 3
+            columns = [[] for _ in range(num_columns)]
+
+            for idx, option in enumerate(rearranged_options):
+                if option:  # Skip None placeholders
+                    columns[idx % num_columns].append(option)
 
             # Create a frame for Core Competencies
             core_frame = ttk.Frame(parent)
             core_frame.pack(fill="x", padx=20)
 
-            # Distribute options across columns
-            for col in range(num_columns):
+            # Add columns to the GUI
+            for col_idx, column in enumerate(columns):
                 column_frame = ttk.Frame(core_frame)
                 column_frame.pack(side="left", padx=10, anchor="n")  # Align to the top
 
-                # Add checkboxes for items in this column
-                for i in range(num_rows):
-                    idx = col * num_rows + i
-                    if idx < len(options):
-                        option = options[idx]
-                        var = tk.BooleanVar(value=True)
-                        self.subsection_vars[(section_title, option)] = var
-                        ttk.Checkbutton(column_frame, text=option, variable=var).pack(anchor="w")
+                for option in column:
+                    var = tk.BooleanVar(value=True)
+                    self.subsection_vars[(section_title, option)] = var
+                    ttk.Checkbutton(column_frame, text=option, variable=var).pack(anchor="w")
         else:
             # Default behavior for other sections
             for option in options:
