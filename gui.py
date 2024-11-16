@@ -1,6 +1,6 @@
-import os
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk
+import os
 from data import master_resume
 from generator import generate_resume
 
@@ -50,6 +50,7 @@ class ResumeGeneratorGUI:
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
 
+
     def add_section_widgets(self, parent, section):
         # Add the main section checkbox
         section_var = tk.BooleanVar(value=True)
@@ -65,16 +66,24 @@ class ResumeGeneratorGUI:
 
         # Add sub-options (if applicable)
         if "content" in section and isinstance(section["content"], list):
+            # Special case: Personal Information has no sub-options
+            if section["title"] == "Personal Information":
+                return  # Skip adding sub-options for this section
+
             subsection_frame = ttk.Frame(section_frame)
             subsection_frame.pack(fill="x", padx=20)
 
-            # Handle Objective (special case for prefab and custom input)
             if section["title"] == "Objective":
                 self.add_objective_options(subsection_frame, section["content"])
             elif section["title"] == "Education":
                 self.add_education_options(subsection_frame, section["content"], section["title"])
             else:
                 self.add_suboptions(subsection_frame, section["content"], section["title"])
+
+    def add_personal_info(self, parent, content):
+        for line in content:
+            # Display each line as a wrapped label
+            ttk.Label(parent, text=line, wraplength=500).pack(anchor="w", pady=2)
 
     def add_objective_options(self, parent, options):
         # Create radio buttons for prefab options
@@ -132,7 +141,10 @@ class ResumeGeneratorGUI:
 
         for section in master_resume:
             if self.section_vars[section["title"]].get():
-                if section["title"] == "Objective":
+                # Automatically include all fields for Personal Information
+                if section["title"] == "Personal Information":
+                    section_data = {"title": section["title"], "content": section["content"]}
+                elif section["title"] == "Objective":
                     selected_objectives = []
                     if self.selected_objective.get() == "Custom" and self.custom_objective_var.get():
                         selected_objectives.append(self.custom_objective_var.get())
@@ -180,10 +192,8 @@ class ResumeGeneratorGUI:
         except Exception as e:
             print(f"An error occurred while trying to open the file: {e}")
 
-    
 # Run the GUI
 if __name__ == "__main__":
     root = tk.Tk()
     app = ResumeGeneratorGUI(root)
     root.mainloop()
-
