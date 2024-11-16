@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 import os
+from math import ceil
 from data import master_resume
 from generator import generate_resume
 
@@ -119,16 +120,40 @@ class ResumeGeneratorGUI:
             ttk.Checkbutton(parent, text=main_entry, variable=var).pack(anchor="w")
 
     def add_suboptions(self, parent, options, section_title):
-        for option in options:
-            if isinstance(option, dict):  # Handle dictionaries (e.g., Professional Experience)
-                subtitle = option["subtitle"]
-                var = tk.BooleanVar(value=True)
-                self.subsection_vars[(section_title, subtitle)] = var
-                ttk.Checkbutton(parent, text=subtitle, variable=var).pack(anchor="w")
-            else:  # Handle regular strings
-                var = tk.BooleanVar(value=True)
-                self.subsection_vars[(section_title, option)] = var
-                ttk.Checkbutton(parent, text=option, variable=var).pack(anchor="w")
+        if section_title == "Core Competencies":
+            # Special case: Display Core Competencies in multiple columns
+            num_columns = 4  # Define the number of columns
+            num_rows = ceil(len(options) / num_columns)  # Calculate rows per column
+
+            # Create a frame for Core Competencies
+            core_frame = ttk.Frame(parent)
+            core_frame.pack(fill="x", padx=20)
+
+            # Distribute options across columns
+            for col in range(num_columns):
+                column_frame = ttk.Frame(core_frame)
+                column_frame.pack(side="left", padx=10, anchor="n")  # Align to the top
+
+                # Add checkboxes for items in this column
+                for i in range(num_rows):
+                    idx = col * num_rows + i
+                    if idx < len(options):
+                        option = options[idx]
+                        var = tk.BooleanVar(value=True)
+                        self.subsection_vars[(section_title, option)] = var
+                        ttk.Checkbutton(column_frame, text=option, variable=var).pack(anchor="w")
+        else:
+            # Default behavior for other sections
+            for option in options:
+                if isinstance(option, dict):  # Handle dictionaries (e.g., Professional Experience)
+                    subtitle = option["subtitle"]
+                    var = tk.BooleanVar(value=True)
+                    self.subsection_vars[(section_title, subtitle)] = var
+                    ttk.Checkbutton(parent, text=subtitle, variable=var).pack(anchor="w")
+                else:  # Handle regular strings
+                    var = tk.BooleanVar(value=True)
+                    self.subsection_vars[(section_title, option)] = var
+                    ttk.Checkbutton(parent, text=option, variable=var).pack(anchor="w")
 
     def toggle_suboptions(self, section_title, enabled):
         # Enable or disable sub-options when the main section is toggled
