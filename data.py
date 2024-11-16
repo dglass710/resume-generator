@@ -1,5 +1,12 @@
 master_resume = [
     {
+        "title": "Personal Information",
+        "content": [
+            "DAVID GLASS",
+            "Chicago, IL 60618 ⋄ 847.764.9200 ⋄ dglass2525@gmail.com ⋄ thedavidglass.com ⋄ github.com/dglass710 ⋄ linkedin.com/in/david-a-glass"
+        ]
+    },
+    {
         "title": "Objective",
         "content": [
             "Highly motivated IT professional with a strong foundation in mathematics, computer science, and cybersecurity."
@@ -37,6 +44,13 @@ master_resume = [
                     "Enhanced security of iPads used in instruction by implementing guided access controls."
                 ]
             }
+        ]
+    },
+    {
+        "title": "Technical Projects",
+        "content": [
+            "Conducted penetration tests and network traffic analysis using Metasploit, Nmap, and Wireshark.",
+            "Developed and implemented firewall policies using UFW and firewalld to ensure network security."
         ]
     }
 ]
