@@ -1,3 +1,4 @@
+import os
 import tkinter as tk
 from tkinter import ttk, messagebox
 from data import master_resume
@@ -8,7 +9,7 @@ class ResumeGeneratorGUI:
     def __init__(self, root):
         self.root = root
         self.root.title("Resume Generator")
-        self.root.geometry("800x600")
+        self.root.geometry("800x1000")
 
         # Variables to track selections
         self.section_vars = {}  # Main section checkboxes
@@ -167,11 +168,22 @@ class ResumeGeneratorGUI:
         # Get output file name
         output_file_name = f"{self.output_file_name_var.get().strip()}.docx"
         generate_resume(selected_sections, output_file=output_file_name)
-        messagebox.showinfo("Success", f"Resume generated as {output_file_name}")
 
+        # Open the generated file using the 'open' command
+        try:
+            if os.name == 'posix':  # macOS/Linux
+                os.system(f'open "{output_file_name}"')
+            elif os.name == 'nt':  # Windows
+                os.startfile(output_file_name)
+            else:
+                print(f"Resume generated as {output_file_name}. Please open it manually.")
+        except Exception as e:
+            print(f"An error occurred while trying to open the file: {e}")
 
+    
 # Run the GUI
 if __name__ == "__main__":
     root = tk.Tk()
     app = ResumeGeneratorGUI(root)
     root.mainloop()
+
