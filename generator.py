@@ -57,6 +57,20 @@ def generate_resume(selected_sections, output_file="Custom_Resume.docx"):
                     indented_para = doc.add_paragraph(f"    {detail}")
                     set_single_spacing(indented_para)
 
+        elif section["title"] == "Professional Experience":
+            for item in section["content"]:
+                # Add the title and date as a bold paragraph
+                title_para = doc.add_paragraph()
+                title_run = title_para.add_run(f"{item['subtitle']} ({item['date']})")
+                title_run.bold = True
+                title_run.font.size = Pt(11)  # Same size as regular text
+                set_single_spacing(title_para)
+
+                # Add the bullet points (details)
+                for detail in item["details"]:
+                    detail_para = doc.add_paragraph(detail, style='List Bullet')  # Standard bullet
+                    set_single_spacing(detail_para)
+
         else:
             for item in section["content"]:
                 if isinstance(item, dict):  # For sections with subtitles, dates, and details
