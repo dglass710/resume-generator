@@ -21,9 +21,9 @@ master_resume = [
     {
         "title": "Education",
         "content": [
-            "Northwestern University Cybersecurity Program: Graduated June 2024",
-            "DePaul University: Graduated March 2022",
-            "B.S. in Applied and Computational Mathematics; Minors in Computer Science and Physics."
+            ["Northwestern University Cybersecurity Program: Graduated June 2024"],
+            ["DePaul University: Graduated March 2022", 
+             "B.S. in Applied and Computational Mathematics; Minors in Computer Science and Physics."]
         ]
     },
     {

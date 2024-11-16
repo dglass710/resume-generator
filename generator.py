@@ -22,10 +22,9 @@ def generate_resume(selected_sections, output_file="Custom_Resume.docx"):
         # Handle Personal Information as a special case
         if section["title"] == "Personal Information":
             for index, line in enumerate(section["content"]):
-                # Add personal information without a blank line after
                 para = doc.add_paragraph(line, style='Title' if index == 0 else None)
                 set_single_spacing(para)
-            continue  # Skip the blank line that was being added previously
+            continue
 
         # Add section title as a heading
         title_para = doc.add_heading(section["title"], level=1)
@@ -36,6 +35,19 @@ def generate_resume(selected_sections, output_file="Custom_Resume.docx"):
             core_competencies = ", ".join(section["content"]) + "."
             para = doc.add_paragraph(core_competencies)
             set_single_spacing(para)
+
+        # Handle Education section
+        elif section["title"] == "Education":
+            for item in section["content"]:
+                # First line (non-indented)
+                para = doc.add_paragraph(item[0])
+                set_single_spacing(para)
+                # Subsequent lines (indented)
+                for detail in item[1:]:
+                    indented_para = doc.add_paragraph(f"    {detail}")
+                    set_single_spacing(indented_para)
+
+        # Handle other sections
         else:
             for item in section["content"]:
                 if isinstance(item, dict):  # For sections with subtitles, dates, and details
