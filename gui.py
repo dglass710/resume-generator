@@ -97,13 +97,17 @@ class ResumeGeneratorGUI:
             ).pack(side="left")
             ttk.Label(label_frame, text=option, wraplength=500).pack(side="left")
 
-        # Custom objective option
+        # Custom objective option with a Text widget
         custom_frame = ttk.Frame(parent)
         custom_frame.pack(anchor="w", pady=5)
         ttk.Radiobutton(
             custom_frame, variable=self.selected_objective, value="Custom"
         ).pack(side="left")
-        ttk.Entry(custom_frame, textvariable=self.custom_objective_var, width=40).pack(side="left")
+        ttk.Label(custom_frame, text="Custom Objective:").pack(side="left")
+
+        # Use a Text widget for multi-line input
+        self.custom_objective_text = tk.Text(custom_frame, height=5, width=50, wrap="word")
+        self.custom_objective_text.pack(side="left", padx=5)
 
         # Set default selection to the first prefab option
         if options:
@@ -196,8 +200,11 @@ class ResumeGeneratorGUI:
                     section_data = {"title": section["title"], "content": section["content"]}
                 elif section["title"] == "Objective":
                     selected_objectives = []
-                    if self.selected_objective.get() == "Custom" and self.custom_objective_var.get():
-                        selected_objectives.append(self.custom_objective_var.get())
+                    if self.selected_objective.get() == "Custom":
+                        # Fetch text from the Text widget and strip unnecessary whitespace
+                        custom_text = self.custom_objective_text.get("1.0", tk.END).strip()
+                        if custom_text:  # Only add if custom text is not empty
+                            selected_objectives.append(custom_text)
                     else:
                         selected_objectives.append(self.selected_objective.get())
                     section_data = {"title": section["title"], "content": selected_objectives}
