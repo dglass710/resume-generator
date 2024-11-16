@@ -9,7 +9,9 @@ master_resume = [
     {
         "title": "Objective",
         "content": [
-            "Highly motivated IT professional with a strong foundation in mathematics, computer science, and cybersecurity."
+            "Highly motivated IT professional with a strong foundation in mathematics, computer science, and cybersecurity.",
+            "Seeking a challenging role in IT operations, leveraging my cybersecurity and troubleshooting skills to ensure seamless system performance.",
+            "Dedicated to providing innovative solutions and streamlining IT processes to meet dynamic business needs."
         ]
     },
     {
