@@ -43,6 +43,14 @@ master_resume = [
                     "Instructed 370 students in mathematical concepts.",
                     "Enhanced security of iPads used in instruction by implementing guided access controls."
                 ]
+            },
+            {
+                "subtitle": "DePaul University Math Department – Undergraduate Student Researcher",
+                "date": "November 2020 – May 2022, Chicago, IL",
+                "details": [
+                    "Developed Python tools for research, focusing on preventing rounding errors in fraction representations.",
+                    "Advanced the understanding of the Frobenius coin problem and computed symmetry in large data sets."
+                ]
             }
         ]
     },
