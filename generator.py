@@ -1,5 +1,6 @@
 from docx import Document
-from docx.shared import Pt, RGBColor
+from docx.shared import Pt
+
 
 def set_single_spacing(paragraph):
     """Set single spacing and remove extra space after a paragraph."""
@@ -8,12 +9,6 @@ def set_single_spacing(paragraph):
     paragraph_format.space_after = Pt(0)  # Remove extra space after the paragraph
     paragraph_format.space_before = Pt(0)  # Remove extra space before the paragraph
 
-def format_subtitle(paragraph):
-    """Format subtitles (like job titles) to make them smaller and less prominent."""
-    run = paragraph.runs[0]
-    run.font.size = Pt(11)  # Slightly smaller font size
-    run.font.color.rgb = RGBColor(64, 64, 64)  # Neutral dark gray color
-    run.bold = False  # Remove bold styling
 
 def generate_resume(selected_sections, output_file="Custom_Resume.docx"):
     """
@@ -29,9 +24,14 @@ def generate_resume(selected_sections, output_file="Custom_Resume.docx"):
         # Handle Personal Information as a special case
         if section["title"] == "Personal Information":
             for index, line in enumerate(section["content"]):
-                para = doc.add_paragraph(line, style='Title' if index == 0 else None)
+                # Remove "Title" style to avoid the horizontal line
+                para = doc.add_paragraph(line)
+                if index == 0:  # First line (name): bold and larger font
+                    run = para.runs[0]
+                    run.bold = True
+                    run.font.size = Pt(14)
                 set_single_spacing(para)
-            continue
+            continue  # Skip adding a blank line here
 
         # Add section title as a heading
         title_para = doc.add_heading(section["title"], level=1)
@@ -43,25 +43,31 @@ def generate_resume(selected_sections, output_file="Custom_Resume.docx"):
             para = doc.add_paragraph(core_competencies)
             set_single_spacing(para)
 
-        # Handle Professional Experience
-        elif section["title"] == "Professional Experience":
+        elif section["title"] == "Education":
             for item in section["content"]:
-                # Format job title and date
-                subtitle_text = f"{item['subtitle']} ({item['date']})"
-                subtitle_para = doc.add_paragraph(subtitle_text)
-                set_single_spacing(subtitle_para)
-                format_subtitle(subtitle_para)  # Apply new formatting for job titles
+                if not item:  # Skip empty items
+                    continue
 
-                # Add bullet points for details (no extra spacing or hyphen)
-                for detail in item["details"]:
-                    detail_para = doc.add_paragraph(detail, style='List Bullet')  # Standard bullet
-                    set_single_spacing(detail_para)
+                # Add the first item (main entry) as unindented
+                para = doc.add_paragraph(item[0])
+                set_single_spacing(para)
 
-        # Handle other sections
+                # Add any additional details (indented)
+                for detail in item[1:]:
+                    indented_para = doc.add_paragraph(f"    {detail}")
+                    set_single_spacing(indented_para)
+
         else:
             for item in section["content"]:
-                para = doc.add_paragraph(item)
-                set_single_spacing(para)
+                if isinstance(item, dict):  # For sections with subtitles, dates, and details
+                    subtitle_para = doc.add_paragraph(f"{item['subtitle']} ({item['date']})", style='Heading 2')
+                    set_single_spacing(subtitle_para)
+                    for detail in item["details"]:
+                        detail_para = doc.add_paragraph(detail, style='List Bullet')  # Standard bullet
+                        set_single_spacing(detail_para)
+                else:
+                    para = doc.add_paragraph(item)
+                    set_single_spacing(para)
 
     # Save the document
     doc.save(output_file)

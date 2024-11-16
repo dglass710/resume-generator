@@ -13,6 +13,7 @@ class ResumeGeneratorGUI:
         # Variables to track selections
         self.section_vars = {}  # Main section checkboxes
         self.subsection_vars = {}  # Sub-options checkboxes
+        self.selected_objective = tk.StringVar()  # For mutually exclusive Objective options
         self.custom_objective_var = tk.StringVar()  # Custom objective input
         self.output_file_name_var = tk.StringVar(value="Custom_Resume")  # Default file name
 
@@ -75,44 +76,46 @@ class ResumeGeneratorGUI:
                 self.add_suboptions(subsection_frame, section["content"], section["title"])
 
     def add_objective_options(self, parent, options):
+        # Create radio buttons for prefab options
         for option in options:
-            var = tk.BooleanVar(value=True)
-            self.subsection_vars[option] = var
-            ttk.Checkbutton(parent, text=option, variable=var).pack(anchor="w")
+            # Display each objective as a multi-line label
+            label_frame = ttk.Frame(parent)
+            label_frame.pack(anchor="w", pady=2)
+            ttk.Radiobutton(
+                label_frame, variable=self.selected_objective, value=option
+            ).pack(side="left")
+            ttk.Label(label_frame, text=option, wraplength=500).pack(side="left")
 
         # Custom objective option
         custom_frame = ttk.Frame(parent)
         custom_frame.pack(anchor="w", pady=5)
-        custom_var = tk.BooleanVar(value=False)
-        ttk.Checkbutton(custom_frame, text="Custom Objective:", variable=custom_var).pack(side="left")
+        ttk.Radiobutton(
+            custom_frame, variable=self.selected_objective, value="Custom"
+        ).pack(side="left")
         ttk.Entry(custom_frame, textvariable=self.custom_objective_var, width=40).pack(side="left")
 
-        self.subsection_vars["Custom Objective"] = custom_var
+        # Set default selection to the first prefab option
+        if options:
+            self.selected_objective.set(options[0])
 
     def add_education_options(self, parent, education_content, section_title):
         for entry in education_content:
-            # Main entry (first item in the list)
+            # Create a single checkbox for the entire entry
             main_entry = entry[0]
-            main_var = tk.BooleanVar(value=True)
-            self.subsection_vars[(section_title, main_entry)] = main_var
-            main_checkbox = ttk.Checkbutton(parent, text=main_entry, variable=main_var)
-            main_checkbox.pack(anchor="w")
+            var = tk.BooleanVar(value=True)
+            self.subsection_vars[(section_title, main_entry)] = var
 
-            # Sub-details (remaining items in the list)
-            for detail in entry[1:]:
-                detail_var = tk.BooleanVar(value=True)
-                self.subsection_vars[(section_title, detail)] = detail_var
-                detail_checkbox = ttk.Checkbutton(parent, text=f"    {detail}", variable=detail_var)
-                detail_checkbox.pack(anchor="w")
+            # Display the first item only
+            ttk.Checkbutton(parent, text=main_entry, variable=var).pack(anchor="w")
 
     def add_suboptions(self, parent, options, section_title):
         for option in options:
-            if isinstance(option, dict):  # Handle dictionary entries (e.g., Professional Experience)
+            if isinstance(option, dict):  # Handle dictionaries (e.g., Professional Experience)
                 subtitle = option["subtitle"]
                 var = tk.BooleanVar(value=True)
                 self.subsection_vars[(section_title, subtitle)] = var
                 ttk.Checkbutton(parent, text=subtitle, variable=var).pack(anchor="w")
-            else:  # Handle regular entries
+            else:  # Handle regular strings
                 var = tk.BooleanVar(value=True)
                 self.subsection_vars[(section_title, option)] = var
                 ttk.Checkbutton(parent, text=option, variable=var).pack(anchor="w")
@@ -129,22 +132,20 @@ class ResumeGeneratorGUI:
         for section in master_resume:
             if self.section_vars[section["title"]].get():
                 if section["title"] == "Objective":
-                    selected_objectives = [
-                        obj for obj, var in self.subsection_vars.items() if var.get() and obj != "Custom Objective"
-                    ]
-                    if self.subsection_vars["Custom Objective"].get() and self.custom_objective_var.get():
+                    selected_objectives = []
+                    if self.selected_objective.get() == "Custom" and self.custom_objective_var.get():
                         selected_objectives.append(self.custom_objective_var.get())
+                    else:
+                        selected_objectives.append(self.selected_objective.get())
                     section_data = {"title": section["title"], "content": selected_objectives}
                 elif section["title"] == "Education":
                     section_content = []
                     for entry in section["content"]:
                         main_entry = entry[0]
                         if self.subsection_vars[(section["title"], main_entry)].get():
+                            # Add the main entry (unindented) and additional elements (indented)
                             entry_data = [main_entry]
-                            entry_data.extend(
-                                detail for detail in entry[1:]
-                                if self.subsection_vars[(section["title"], detail)].get()
-                            )
+                            entry_data.extend(entry[1:])
                             section_content.append(entry_data)
                     section_data = {"title": section["title"], "content": section_content}
                 elif section["title"] == "Professional Experience":
