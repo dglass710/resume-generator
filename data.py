@@ -31,8 +31,10 @@ master_resume = [
     {
         "title": "Core Competencies",
         "content": [
-            "TCP/IP", "DNS", "DHCP", "Firewalls", "Network Troubleshooting", 
-            "Packet Analysis", "Windows", "Linux", "Python", "Bash scripting"
+            "Digital Forensics", "Forensic Evidence Collection", "Log Analysis", "SIEM Analysis", "Data Integrity Validation",
+            "Cryptography", "SSL Certificates", "Incident Reporting", "Digital Evidence Preservation", "Technical Documentation",
+            "Splunk", "Autopsy", "Data Visualization (Splunk Dashboards)", "Analytical Thinking", "Report Writing",
+            "Firewall Policy Development", "GPG Encryption", "Steganography", "Vulnerability Prioritization", "Dashboard and Alert Design"
         ]
     },
     {
