@@ -57,7 +57,7 @@ Below, we explain how each section is structured and how to modify it while main
 
 ### Objective, Certifications, and Personal Information
 
-These sections are **basic text sections**. Each section contains a `title` (e.g., "Objective") and a `content` list, where each item in the list is a string.
+These sections use **lists of strings** to define their `content`. Each string must be enclosed in double quotes (`"`) and separated by a comma. While putting each item on a new line promotes readability, the critical part of the syntax is ensuring the strings are properly quoted and comma-separated.
 
 #### Example:
 ```python
@@ -72,27 +72,28 @@ These sections are **basic text sections**. Each section contains a `title` (e.g
 ```
 
 #### How to Customize:
-- **Add a new statement**: Add a new string to the `content` list:
+- **Add a new statement**:
   ```python
   "content": [
-      "Previous statements...",
+      "Existing statement 1.",
       "New statement here."
   ]
   ```
-- **Remove a statement**: Delete the string from the `content` list:
+- **Remove a statement**:
   ```python
   "content": [
       "Keep this statement."
   ]
   ```
-
-For **Personal Information**, ensure every detail (e.g., name, email) is on a separate line as a string in the `content` list.
+- **Ensure proper syntax**:
+  - All strings must be enclosed in double quotes.
+  - Each string must end with a comma unless it’s the last item in the list.
 
 ---
 
 ### Core Competencies
 
-This section contains a **list of skills** or attributes as its `content`.
+This section uses a **list of strings** to define skills or attributes. Each string must be enclosed in double quotes and separated by a comma.
 
 #### Example:
 ```python
@@ -106,25 +107,27 @@ This section contains a **list of skills** or attributes as its `content`.
 ```
 
 #### How to Customize:
-- **Add a new skill**: Add a new string to the `content` list:
+- **Add a new skill**:
   ```python
   "content": [
       "TCP/IP", "New Skill"
   ]
   ```
-- **Remove a skill**: Delete the corresponding string from the list:
+- **Remove a skill**:
   ```python
   "content": [
       "TCP/IP", "Linux"
   ]
   ```
-- **Reorder skills**: Move the strings around in the list to adjust their order in the generated resume.
+- **Ensure proper syntax**:
+  - Each skill must be enclosed in double quotes.
+  - Use commas to separate the skills.
 
 ---
 
 ### Education
 
-This section is a **nested list**, where each entry is a list that begins with a main string (e.g., degree or institution) followed by additional strings for details (e.g., major, graduation year).
+This section uses a **list of lists**, where each inner list contains a main string (e.g., degree or institution) followed by additional strings for details. Each list must be separated by a comma, and the strings inside each list must be enclosed in double quotes and separated by commas.
 
 #### Example:
 ```python
@@ -139,33 +142,36 @@ This section is a **nested list**, where each entry is a list that begins with a
 ```
 
 #### How to Customize:
-- **Add a new institution**: Add a new list to the `content` list:
+- **Add a new institution**:
   ```python
   "content": [
-      ["Existing entries..."],
+      ["Existing institution..."],
       ["New University: Graduated May 2023", "Degree in Computer Science"]
   ]
   ```
-- **Remove an institution**: Delete the entire list entry:
+- **Remove an institution**:
   ```python
   "content": [
       ["Keep this university."]
   ]
   ```
-- **Edit details**: Update strings within the nested list:
+- **Edit details**:
   ```python
   ["DePaul University: Graduated March 2022",
    "Updated major or detail here."]
   ```
+- **Formatting in the resume**:
+  - The first string in each list appears unindented.
+  - Additional strings appear indented on the following lines.
 
 ---
 
 ### Professional Experience
 
-This section is a **dictionary-based section**, where each job is represented as a dictionary. Each dictionary includes:
-- `subtitle`: Job title and company.
-- `date`: The date range and location.
-- `details`: A list of bullet points describing responsibilities and accomplishments.
+This section uses a **list of dictionaries**, where each dictionary represents a job or project. Each dictionary must have three keys:
+1. **`subtitle`**: A string representing the job title and company.
+2. **`date`**: A string representing the employment dates and location.
+3. **`details`**: A list of strings describing the responsibilities and accomplishments.
 
 #### Example:
 ```python
@@ -185,34 +191,41 @@ This section is a **dictionary-based section**, where each job is represented as
 ```
 
 #### How to Customize:
-- **Add a new job**: Add a new dictionary to the `content` list:
+- **Add a new job**:
   ```python
-  {
-      "subtitle": "New Job Title – New Company",
-      "date": "Start Date – End Date, City, State",
-      "details": [
-          "New responsibility 1.",
-          "New accomplishment 2."
-      ]
-  }
+  "content": [
+      {
+          "subtitle": "New Job Title – New Company",
+          "date": "Start Date – End Date, City, State",
+          "details": [
+              "New responsibility 1.",
+              "New accomplishment 2."
+          ]
+      }
+  ]
   ```
-- **Remove a job**: Delete the dictionary entry:
+- **Remove a job**:
   ```python
   "content": [
       {"subtitle": "Keep this job."}
   ]
   ```
-- **Edit job details**: Update any field (e.g., `subtitle`, `date`, or `details`):
-  ```python
-  "details": [
-      "Updated responsibility or accomplishment."
-  ]
-  ```
+- **Edit job details**:
+  - Ensure the `subtitle` and `date` fields are strings enclosed in double quotes.
+  - Ensure `details` is a list of strings, with each string enclosed in double quotes and separated by commas:
+    ```python
+    "details": [
+        "Updated responsibility or accomplishment."
+    ]
+    ```
+- **Ensure proper syntax**:
+  - The dictionary keys (`subtitle`, `date`, `details`) must be enclosed in double quotes.
+  - The `details` key must contain a list of strings.
 
 ---
 
-### Guidelines for Customization
-- **Consistency**: Ensure you follow the structure for each section to avoid syntax errors.
+## Guidelines for Customization
+- **Consistency**: Follow the defined structure for each section to avoid syntax errors.
 - **String Formatting**: Use double quotes (`"`) for all strings.
 - **Validation**: Test the GUI after making changes to ensure the resume generates correctly.
 
