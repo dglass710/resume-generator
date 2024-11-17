@@ -31,8 +31,12 @@ master_resume = [
     {
         "title": "Core Competencies",
         "content": [
-            "TCP/IP", "DNS", "DHCP", "Firewalls", "Network Troubleshooting", 
-            "Packet Analysis", "Windows", "Linux", "Python", "Bash scripting"
+            "Risk Assessment", "Threat Mitigation", "Incident Response", "Vulnerability Scanning", "Penetration Testing",
+            "Network Security", "Splunk", "Security Onion", "Snort rules", "Log Analysis",
+            "Ethical Hacking", "Privilege Escalation", "Exploit Development", "Packet Analysis", "SIEM Analysis",
+            "Incident Reporting", "Firewall Policy Development", "Log Correlation and Alerts", "OSINT Techniques", "Recon-ng",
+            "Google Dorking", "Shodan", "Advanced Nmap Scans", "Digital Evidence Preservation", "Password Cracking (Hashcat)"
+
         ]
     },
     {
