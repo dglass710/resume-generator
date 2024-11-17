@@ -47,44 +47,19 @@ The `python-docx` library is required to generate Word documents. Follow these s
 
 ---
 
-## How to Customize `data.py`
+## Customizing `data.py`
 
-The `data.py` file contains the default resume data used by the application. Users can modify this file to tailor the sections and content to their specific needs. Below is a guide to customizing `data.py`.
+The `data.py` file contains the default resume data used by the application. You can modify this file to tailor the sections and content to your specific needs. The order of the dictionaries in the `master_resume` list determines the order of sections in both the GUI and the generated resume.
 
-### `master_resume` Structure
-
-The `master_resume` variable is a list of dictionaries, where each dictionary represents a resume section. Each section has two main keys:
-- `title`: The section title (e.g., "Personal Information").
-- `content`: The content of the section, which can be strings, lists, or nested dictionaries.
+Below, we explain how each section is structured and how to modify it while maintaining the correct syntax.
 
 ---
 
-### Order Matters
+### Objective, Certifications, and Personal Information
 
-The order of dictionaries in the `master_resume` structure determines the order in which sections appear:
-1. **In the GUI**: Sections appear in the same order as they are listed in `data.py`.
-2. **In the Resume**: The same order is reflected in the generated Word document.
+These sections are **basic text sections**. Each section contains a `title` (e.g., "Objective") and a `content` list, where each item in the list is a string.
 
-To rearrange the order of sections in both the GUI and the resume:
-- Simply rearrange the dictionaries in the `master_resume` list.
-
-For example:
-```python
-master_resume = [
-    { "title": "Certifications", "content": ["CompTIA Security+ Certified"] },
-    { "title": "Objective", "content": ["Highly motivated IT professional..."] }
-]
-```
-In this case:
-1. "Certifications" will appear before "Objective" in both the GUI and the generated resume.
-
----
-
-### Section Types
-
-#### 1. **Basic Text Sections**
-These sections contain simple text content, such as "Objective" or "Certifications".
-
+#### Example:
 ```python
 {
     "title": "Objective",
@@ -96,14 +71,30 @@ These sections contain simple text content, such as "Objective" or "Certificatio
 }
 ```
 
-**How to Customize**:
-- Add, edit, or remove items in the `content` list to reflect your career goals.
+#### How to Customize:
+- **Add a new statement**: Add a new string to the `content` list:
+  ```python
+  "content": [
+      "Previous statements...",
+      "New statement here."
+  ]
+  ```
+- **Remove a statement**: Delete the string from the `content` list:
+  ```python
+  "content": [
+      "Keep this statement."
+  ]
+  ```
+
+For **Personal Information**, ensure every detail (e.g., name, email) is on a separate line as a string in the `content` list.
 
 ---
 
-#### 2. **List-Based Sections**
-For sections like "Core Competencies," the `content` is a list of skills or attributes.
+### Core Competencies
 
+This section contains a **list of skills** or attributes as its `content`.
+
+#### Example:
 ```python
 {
     "title": "Core Competencies",
@@ -114,15 +105,28 @@ For sections like "Core Competencies," the `content` is a list of skills or attr
 }
 ```
 
-**How to Customize**:
-- Add or remove skills from the list.
-- Ensure each skill is enclosed in double quotes and separated by a comma.
+#### How to Customize:
+- **Add a new skill**: Add a new string to the `content` list:
+  ```python
+  "content": [
+      "TCP/IP", "New Skill"
+  ]
+  ```
+- **Remove a skill**: Delete the corresponding string from the list:
+  ```python
+  "content": [
+      "TCP/IP", "Linux"
+  ]
+  ```
+- **Reorder skills**: Move the strings around in the list to adjust their order in the generated resume.
 
 ---
 
-#### 3. **Nested List Sections**
-Sections like "Education" use nested lists to organize main entries and additional details.
+### Education
 
+This section is a **nested list**, where each entry is a list that begins with a main string (e.g., degree or institution) followed by additional strings for details (e.g., major, graduation year).
+
+#### Example:
 ```python
 {
     "title": "Education",
@@ -134,15 +138,36 @@ Sections like "Education" use nested lists to organize main entries and addition
 }
 ```
 
-**How to Customize**:
-- Add new educational institutions as lists.
-- Each entry should have the main information as the first string, followed by any additional details in subsequent strings.
+#### How to Customize:
+- **Add a new institution**: Add a new list to the `content` list:
+  ```python
+  "content": [
+      ["Existing entries..."],
+      ["New University: Graduated May 2023", "Degree in Computer Science"]
+  ]
+  ```
+- **Remove an institution**: Delete the entire list entry:
+  ```python
+  "content": [
+      ["Keep this university."]
+  ]
+  ```
+- **Edit details**: Update strings within the nested list:
+  ```python
+  ["DePaul University: Graduated March 2022",
+   "Updated major or detail here."]
+  ```
 
 ---
 
-#### 4. **Dictionary-Based Sections**
-Sections like "Professional Experience" contain a list of dictionaries for each job or project.
+### Professional Experience
 
+This section is a **dictionary-based section**, where each job is represented as a dictionary. Each dictionary includes:
+- `subtitle`: Job title and company.
+- `date`: The date range and location.
+- `details`: A list of bullet points describing responsibilities and accomplishments.
+
+#### Example:
 ```python
 {
     "title": "Professional Experience",
@@ -154,61 +179,41 @@ Sections like "Professional Experience" contain a list of dictionaries for each 
                 "Instructed 370 students in mathematical concepts.",
                 "Enhanced security of iPads used in instruction by implementing guided access controls."
             ]
-        },
-        {
-            "subtitle": "DePaul University Math Department – Undergraduate Student Researcher",
-            "date": "November 2020 – May 2022, Chicago, IL",
-            "details": [
-                "Developed Python tools for research, focusing on preventing rounding errors in fraction representations.",
-                "Advanced the understanding of the Frobenius coin problem and computed symmetry in large data sets."
-            ]
         }
     ]
 }
 ```
 
-**How to Customize**:
-- Add new job entries as dictionaries.
-  - `subtitle`: Job title and company.
-  - `date`: The employment dates and location.
-  - `details`: A list of bullet points describing your responsibilities and accomplishments.
+#### How to Customize:
+- **Add a new job**: Add a new dictionary to the `content` list:
+  ```python
+  {
+      "subtitle": "New Job Title – New Company",
+      "date": "Start Date – End Date, City, State",
+      "details": [
+          "New responsibility 1.",
+          "New accomplishment 2."
+      ]
+  }
+  ```
+- **Remove a job**: Delete the dictionary entry:
+  ```python
+  "content": [
+      {"subtitle": "Keep this job."}
+  ]
+  ```
+- **Edit job details**: Update any field (e.g., `subtitle`, `date`, or `details`):
+  ```python
+  "details": [
+      "Updated responsibility or accomplishment."
+  ]
+  ```
 
 ---
 
-### Example Customization
-
-Here’s an example of a custom addition:
-
-**Add a Certification Section:**
-
-```python
-{
-    "title": "Certifications",
-    "content": [
-        "AWS Certified Solutions Architect – Associate",
-        "Google Professional Cloud Architect"
-    ]
-}
-```
-
-**Add a New Job to Professional Experience:**
-
-```python
-{
-    "subtitle": "Tech Startup – Software Engineer Intern",
-    "date": "June 2021 – August 2021, Chicago, IL",
-    "details": [
-        "Collaborated with a team to develop a web-based project management tool using Python and Flask.",
-        "Optimized database queries to improve performance by 25%."
-    ]
-}
-```
-
----
-
-## Guidelines for Customization
-- **Consistency**: Follow the existing structure to avoid breaking the program.
-- **String Formatting**: Ensure all text values are enclosed in double quotes (`"`).
+### Guidelines for Customization
+- **Consistency**: Ensure you follow the structure for each section to avoid syntax errors.
+- **String Formatting**: Use double quotes (`"`) for all strings.
 - **Validation**: Test the GUI after making changes to ensure the resume generates correctly.
 
 ---
