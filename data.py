@@ -63,8 +63,11 @@ master_resume = [
     {
         "title": "Technical Projects",
         "content": [
-            "Conducted penetration tests and network traffic analysis using Metasploit, Nmap, and Wireshark.",
-            "Developed and implemented firewall policies using UFW and firewalld to ensure network security."
+            "Conducted penetration tests and network traffic analysis using Metasploit, Nmap, and Wireshark to identify and exploit vulnerabilities in simulated environments.",
+            "Developed and implemented firewall policies using UFW and firewalld to ensure secure network configurations.                                                     ",
+            "Configured and monitored a Splunk SIEM environment to analyze security logs, correlate events, and respond to potential threats.                                 ",
+            "Designed and executed vulnerability scans on virtualized networks, identifying and prioritizing remediation for high-risk exposures.                             ",
+            "Created an offline version of the \"Have I Been Pwned\" database using Docker, enabling secure local queries of compromised credentials.                           "
         ]
     }
 ]
