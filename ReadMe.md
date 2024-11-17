@@ -59,6 +59,27 @@ The `master_resume` variable is a list of dictionaries, where each dictionary re
 
 ---
 
+### Order Matters
+
+The order of dictionaries in the `master_resume` structure determines the order in which sections appear:
+1. **In the GUI**: Sections appear in the same order as they are listed in `data.py`.
+2. **In the Resume**: The same order is reflected in the generated Word document.
+
+To rearrange the order of sections in both the GUI and the resume:
+- Simply rearrange the dictionaries in the `master_resume` list.
+
+For example:
+```python
+master_resume = [
+    { "title": "Certifications", "content": ["CompTIA Security+ Certified"] },
+    { "title": "Objective", "content": ["Highly motivated IT professional..."] }
+]
+```
+In this case:
+1. "Certifications" will appear before "Objective" in both the GUI and the generated resume.
+
+---
+
 ### Section Types
 
 #### 1. **Basic Text Sections**
