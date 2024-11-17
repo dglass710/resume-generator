@@ -61,8 +61,11 @@ master_resume = [
     {
         "title": "Technical Projects",
         "content": [
-            "Conducted penetration tests and network traffic analysis using Metasploit, Nmap, and Wireshark.",
-            "Developed and implemented firewall policies using UFW and firewalld to ensure network security."
+            "Analyzed logs from simulated incidents using Splunk and Security Onion, correlating events to uncover indicators of compromise.",
+            "Conducted forensic analysis of an iPhone image with Autopsy, extracting evidence such as SMS messages, emails, and GPS data.   ",
+            "Implemented a log correlation rule in Splunk to trigger alerts for unusual login behavior, enhancing detection capabilities.   ",
+            "Preserved digital evidence from compromised systems by creating secure backups and documenting findings in detailed reports.   ",
+            "Investigated cryptographic weaknesses in password hashes using Hashcat and reported remediation strategies for secure storage. "
         ]
     }
 ]
