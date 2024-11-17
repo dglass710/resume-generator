@@ -9,7 +9,7 @@ from generator import generate_resume
 class ResumeGeneratorGUI:
     def __init__(self, root):
         self.root = root
-        self.root.title("IT Systems Administrator")
+        self.root.title("Resume Generator")
         self.root.geometry("800x1000")
 
         # Variables to track selections
@@ -24,33 +24,62 @@ class ResumeGeneratorGUI:
 
     def create_gui(self):
         # Scrollable frame
-        canvas = tk.Canvas(self.root)
-        scrollbar = ttk.Scrollbar(self.root, orient="vertical", command=canvas.yview)
-        scrollable_frame = ttk.Frame(canvas)
+        self.canvas = tk.Canvas(self.root)
+        self.scrollbar = ttk.Scrollbar(self.root, orient="vertical", command=self.canvas.yview)
+        self.scrollable_frame = tk.Frame(self.canvas)
 
-        scrollable_frame.bind(
+        self.scrollable_frame.bind(
             "<Configure>",
-            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+            lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all"))
         )
 
-        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
-        canvas.configure(yscrollcommand=scrollbar.set)
+        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+
+        # Add mouse wheel scrolling
+        self.canvas.bind("<Enter>", self.bind_mousewheel)  # Bind mousewheel on hover
+        self.canvas.bind("<Leave>", self.unbind_mousewheel)  # Unbind when leaving
 
         # Add widgets for each section
         for section in master_resume:
-            self.add_section_widgets(scrollable_frame, section)
+            self.add_section_widgets(self.scrollable_frame, section)
 
         # Output file name entry
-        ttk.Label(scrollable_frame, text="Output File Name:").pack(anchor="w", pady=5)
-        ttk.Entry(scrollable_frame, textvariable=self.output_file_name_var, width=30).pack(anchor="w", pady=5)
+        ttk.Label(self.scrollable_frame, text="Output File Name:").pack(anchor="w", pady=5)
+        ttk.Entry(self.scrollable_frame, textvariable=self.output_file_name_var, width=30).pack(anchor="w", pady=5)
 
         # Generate button
-        ttk.Button(scrollable_frame, text="Generate Resume", command=self.generate_resume).pack(anchor="center", pady=10)
+        ttk.Button(self.scrollable_frame, text="Generate Resume", command=self.generate_resume).pack(anchor="center", pady=10)
 
         # Add scrollable frame and scrollbar to the main window
-        canvas.pack(side="left", fill="both", expand=True)
-        scrollbar.pack(side="right", fill="y")
+        self.canvas.pack(side="left", fill="both", expand=True)
+        self.scrollbar.pack(side="right", fill="y")
 
+    def bind_mousewheel(self, event=None):
+        """Bind mouse wheel scrolling to the canvas."""
+        self.canvas.bind_all("<MouseWheel>", self.on_mousewheel)  # Windows/Linux
+        self.canvas.bind_all("<Button-4>", self.on_mousewheel_mac)  # macOS scroll up
+        self.canvas.bind_all("<Button-5>", self.on_mousewheel_mac)  # macOS scroll down
+
+    def unbind_mousewheel(self, event=None):
+        """Unbind mouse wheel scrolling from the canvas."""
+        self.canvas.unbind_all("<MouseWheel>")
+        self.canvas.unbind_all("<Button-4>")
+        self.canvas.unbind_all("<Button-5>")
+
+    def on_mousewheel(self, event):
+        """Handle mouse wheel scrolling (Windows/Linux)."""
+        if event.delta > 0:
+            self.canvas.yview_scroll(-1, "units")  # Scroll up
+        else:
+            self.canvas.yview_scroll(1, "units")  # Scroll down
+
+    def on_mousewheel_mac(self, event):
+        """Handle mouse wheel scrolling (macOS)."""
+        if event.num == 4:  # Scroll up
+            self.canvas.yview_scroll(-1, "units")
+        elif event.num == 5:  # Scroll down
+            self.canvas.yview_scroll(1, "units")
 
     def add_section_widgets(self, parent, section):
         # Add the main section checkbox
