@@ -9,9 +9,9 @@ master_resume = [
     {
         "title": "Objective",
         "content": [
-            "Highly motivated IT professional with a strong foundation in mathematics, computer science, and cybersecurity.",
-            "Seeking a challenging role in IT operations, leveraging my cybersecurity and troubleshooting skills to ensure seamless system performance.",
-            "Dedicated to providing innovative solutions and streamlining IT processes to meet dynamic business needs."
+            "To secure a position as an IT Systems Administrator, maintaining and optimizing enterprise systems and infrastructure while ensuring reliable and secure network operations across on-premises and cloud environments.",
+            "To contribute as an IT Systems Administrator by implementing automation scripts, managing cloud resources, and ensuring seamless integration of new technologies to drive operational efficiency.",
+            "To leverage my expertise in system configuration, user management, and security hardening to support corporate IT environments, ensuring end-users have secure and reliable access to necessary resources."
         ]
     },
     {
@@ -63,7 +63,7 @@ master_resume = [
         "content": [
             "Developed and implemented firewall policies using UFW and firewalld to ensure secure server configurations and restrict unauthorized access.",
             "Automated user account creation and permissions assignment with Bash scripts, improving efficiency for onboarding processes.                ",
-            "Built and managed a virtual private cloud (VPC) on AWS, deploying virtual machines and configuring secure remote access via SSH.            ",
+            "Built and managed a virtual private cloud (VPC) on Azure, deploying virtual machines and configuring secure remote access via SSH.            ",
             "Deployed and maintained Docker containers for streamlined application development and environment consistency.                              ",
             "Configured cron jobs to automate system maintenance, including backups, log rotation, and system updates.                                   "
         ]
