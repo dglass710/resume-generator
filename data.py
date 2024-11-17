@@ -61,8 +61,11 @@ master_resume = [
     {
         "title": "Technical Projects",
         "content": [
-            "Conducted penetration tests and network traffic analysis using Metasploit, Nmap, and Wireshark.",
-            "Developed and implemented firewall policies using UFW and firewalld to ensure network security."
+            "Developed and implemented firewall policies using UFW and firewalld to ensure secure server configurations and restrict unauthorized access.",
+            "Automated user account creation and permissions assignment with Bash scripts, improving efficiency for onboarding processes.                ",
+            "Built and managed a virtual private cloud (VPC) on AWS, deploying virtual machines and configuring secure remote access via SSH.            ",
+            "Deployed and maintained Docker containers for streamlined application development and environment consistency.                              ",
+            "Configured cron jobs to automate system maintenance, including backups, log rotation, and system updates.                                   "
         ]
     }
 ]
