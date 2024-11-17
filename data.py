@@ -31,8 +31,10 @@ master_resume = [
     {
         "title": "Core Competencies",
         "content": [
-            "TCP/IP", "DNS", "DHCP", "Firewalls", "Network Troubleshooting", 
-            "Packet Analysis", "Windows", "Linux", "Python", "Bash scripting"
+            "Linux Administration", "macOS Administration", "Windows Administration", "Active Directory", "Group Policy",
+            "System Hardening", "User and Permissions Management", "Firewalls (UFW, firewalld)", "Process Management", "Backup and Archive Management",
+            "Cron Jobs", "Scripting Maintenance Tasks", "Cloud Infrastructure (Azure, AWS)", "Containerization", "Load Balancers",
+            "SQL Query Design", "Docker", "Automation Scripting", "Technical Communication", "Problem Solving"
         ]
     },
     {
