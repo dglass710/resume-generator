@@ -9,9 +9,9 @@ master_resume = [
     {
         "title": "Objective",
         "content": [
-            "Highly motivated IT professional with a strong foundation in mathematics, computer science, and cybersecurity.",
-            "Seeking a challenging role in IT operations, leveraging my cybersecurity and troubleshooting skills to ensure seamless system performance.",
-            "Dedicated to providing innovative solutions and streamlining IT processes to meet dynamic business needs."
+            "To pursue a role as a Digital Forensics Specialist, conducting detailed investigations of security incidents, preserving evidence, and analyzing data to uncover and mitigate breaches.",
+            "To apply my expertise in log analysis and SIEM platforms to identify suspicious activities and contribute to comprehensive threat investigations, improving organizational security posture.",
+            "To secure a position as a Digital Forensics Specialist, leveraging tools like Autopsy and Splunk to collect and analyze forensic evidence, producing actionable insights and detailed reports for stakeholders."
         ]
     },
     {
