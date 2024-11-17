@@ -9,9 +9,9 @@ master_resume = [
     {
         "title": "Objective",
         "content": [
-            "Highly motivated IT professional with a strong foundation in mathematics, computer science, and cybersecurity.",
-            "Seeking a challenging role in IT operations, leveraging my cybersecurity and troubleshooting skills to ensure seamless system performance.",
-            "Dedicated to providing innovative solutions and streamlining IT processes to meet dynamic business needs."
+            "To join a dynamic Security Operations Center (SOC) as an analyst, where I can leverage my skills in real-time threat monitoring, vulnerability scanning, and incident response to detect and mitigate potential security risks, ensuring the organization's infrastructure remains secure.",
+            "To utilize my expertise in penetration testing, ethical hacking, and security assessments to identify and remediate vulnerabilities, ensuring comprehensive protection for enterprise systems against cyber threats.",
+            "To apply my technical skills and hands-on experience with cybersecurity tools and methodologies in a challenging analyst role, contributing to organizational security through proactive risk mitigation and incident handling."
         ]
     },
     {
