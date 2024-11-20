@@ -9,9 +9,9 @@ master_resume = [
     {
         "title": "Objective",
         "content": [
-            "To pursue a role as a Digital Forensics Specialist, conducting detailed investigations of security incidents, preserving evidence, and analyzing data to uncover and mitigate breaches.",
-            "To apply my expertise in log analysis and SIEM platforms to identify suspicious activities and contribute to comprehensive threat investigations, improving organizational security posture.",
-            "To secure a position as a Digital Forensics Specialist, leveraging tools like Autopsy and Splunk to collect and analyze forensic evidence, producing actionable insights and detailed reports for stakeholders."
+            "To leverage my expertise in cryptography, penetration testing, and secure system design to build robust security frameworks that protect organizational assets. I aim to contribute to proactive threat mitigation and ensure the integrity of critical infrastructure.",
+            "To utilize my knowledge of encryption protocols, secure software development, and penetration testing to design, implement, and maintain applications and systems with a focus on minimizing vulnerabilities and maximizing resilience.",
+            "To apply my skills in penetration testing, vulnerability assessment, and cryptographic methods to anticipate and mitigate threats, ensuring enterprise systems are prepared for emerging cybersecurity challenges."
         ]
     },
     {
@@ -31,10 +31,12 @@ master_resume = [
     {
         "title": "Core Competencies",
         "content": [
-            "Digital Forensics", "Forensic Evidence Collection", "Log Analysis", "SIEM Analysis", "Data Integrity Validation",
-            "Cryptography", "SSL Certificates", "Incident Reporting", "Digital Evidence Preservation", "Technical Documentation",
-            "Splunk", "Autopsy", "Data Visualization (Splunk Dashboards)", "Analytical Thinking", "Report Writing",
-            "Firewall Policy Development", "GPG Encryption", "Steganography", "Vulnerability Prioritization", "Dashboard and Alert Design"
+            "Cryptography, Penetration Testing, Vulnerability Assessment, SSL/TLS Certificate Management, Application Security",
+            "Python, Bash, Encryption Protocols (AES, RSA, GPG), Secure Software Development, Firewall Configuration",
+            "Docker Security, System Hardening, Network Security, Incident Response, Log Analysis",
+            "Threat Mitigation, Secure System Design, Automation Scripting, Splunk, SIEM Analysis",
+            "Firewall Policy Development, Cloud Infrastructure Security (OCI, Linode), Vulnerability Remediation, Load Balancer Configuration",
+            "SSL Certificates, Data Integrity Validation, Exploit Development, Secure Communication Protocols, Automation of Security Tasks"
         ]
     },
     {
@@ -61,11 +63,11 @@ master_resume = [
     {
         "title": "Technical Projects",
         "content": [
-            "Analyzed logs from simulated incidents using Splunk and Security Onion, correlating events to uncover indicators of compromise.",
-            "Conducted forensic analysis of an iPhone image with Autopsy, extracting evidence such as SMS messages, emails, and GPS data.   ",
-            "Implemented a log correlation rule in Splunk to trigger alerts for unusual login behavior, enhancing detection capabilities.   ",
-            "Preserved digital evidence from compromised systems by creating secure backups and documenting findings in detailed reports.   ",
-            "Investigated cryptographic weaknesses in password hashes using Hashcat and reported remediation strategies for secure storage. "
+            "Developed a secure file-sharing application using encryption protocols like AES and RSA to ensure confidentiality and integrity during data transfer.",
+            "Performed application penetration tests to identify vulnerabilities, providing detailed reports and remediation strategies to developers for secure software improvements.",
+            "Implemented SSL/TLS encryption for a web application and managed secure certificate handling, ensuring encrypted communication between users and servers.",
+            "Designed and executed custom Python scripts to automate vulnerability scanning and mitigate risks across an organization’s network infrastructure.",
+            "Created secure Docker container deployments, configuring firewalls and access controls to minimize attack surfaces in production environments."
         ]
     }
 ]
