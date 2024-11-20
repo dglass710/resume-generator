@@ -4,7 +4,8 @@ master_resume = [
         "content": [
             "DAVID GLASS",
             "Chicago, IL 60618 ⋄ 847.764.9200 ⋄ dglass2525@gmail.com ⋄ thedavidglass.com ⋄ github.com/dglass710 ⋄ linkedin.com/in/david-a-glass"
-        ]
+        ],
+        "window_title": "Resume Generator"
     },
     {
         "title": "Objective",

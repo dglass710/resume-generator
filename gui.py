@@ -9,7 +9,10 @@ from generator import generate_resume
 class ResumeGeneratorGUI:
     def __init__(self, root):
         self.root = root
-        self.root.title("Resume Generator")
+        if master_resume[0]["window_title"]:
+            self.root.title(master_resume[0]["window_title"])
+        else:
+            self.root.title("Resume Generator")
         self.root.geometry("800x1000")
 
         # Variables to track selections
