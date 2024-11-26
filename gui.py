@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 import os
+import sys
 import importlib
 from math import ceil
 import data
@@ -38,7 +39,12 @@ class ResumeGeneratorGUI:
         """Load the current version of master_resume from data.py."""
         global master_resume
         try:
-            with open("data.py", "r") as f:
+             if getattr(sys, 'frozen', False):  # Running as a PyInstaller bundle
+                base_path = sys._MEIPASS
+            else:
+                base_path = os.path.dirname(os.path.abspath(__file__))
+        data_path = os.path.join(base_path, "data.py")
+            with open(data_path, "r") as f:
                 content = f.read()
                 exec(content, globals())  # Execute data.py content to update master_resume
         except Exception as e:
