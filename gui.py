@@ -11,7 +11,8 @@ from generator import generate_resume
 class ResumeGeneratorGUI:
     def __init__(self, root):
         self.root = root
-        if master_resume[0]["window_title"]:
+        self.load_master_resume()
+        if master_resume[0].get("window_title"):
             self.root.title(master_resume[0]["window_title"])
         else:
             self.root.title("Resume Generator")
@@ -29,6 +30,16 @@ class ResumeGeneratorGUI:
 
         # Create GUI
         self.create_gui()
+
+    def load_master_resume(self):
+        """Load the current version of master_resume from data.py."""
+        global master_resume
+        try:
+            with open("data.py", "r") as f:
+                content = f.read()
+                exec(content, globals())  # Execute data.py content to update master_resume
+        except Exception as e:
+            messagebox.showerror("Error", f"Could not load data from data.py: {e}")
 
     def create_gui(self):
         # Scrollable frame
@@ -318,16 +329,20 @@ class ResumeGeneratorGUI:
         try:
             with open("data.py", "w") as f:
                 f.write(updated_content)
-            messagebox.showinfo("Success", "Resume data saved successfully!")
-            # Reload the Updated data.py Module
-            global data
-            importlib.reload(data)
-            self.master_resume = data.master_resume
+
+            # Reload the updated data.py file and update master_resume
+            self.load_master_resume()
+
             # Clear and Rebuild the GUI Based on Updated Data
             for widget in self.root.winfo_children():
                 widget.destroy()
+
+            # Button to open the Editor Window again after rebuilding
+            ttk.Button(self.root, text="Edit Resume Data", command=self.open_editor_window).pack(anchor="center", pady=10)
+
             # Recreate the GUI with updated data
             self.create_gui()
+
         except Exception as e:
             messagebox.showerror("Error", f"Could not save changes: {e}")
 
@@ -336,3 +351,4 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = ResumeGeneratorGUI(root)
     root.mainloop()
+
