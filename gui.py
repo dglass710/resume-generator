@@ -39,7 +39,7 @@ class ResumeGeneratorGUI:
         """Load the current version of master_resume from data.py."""
         global master_resume
         try:
-             if getattr(sys, 'frozen', False):  # Running as a PyInstaller bundle
+            if getattr(sys, 'frozen', False):  # Running as a PyInstaller bundle
                 base_path = sys._MEIPASS
             else:
                 base_path = os.path.dirname(os.path.abspath(__file__))
