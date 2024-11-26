@@ -21,6 +21,9 @@ class ResumeGeneratorGUI:
         # Button to open the Editor Window
         ttk.Button(self.root, text="Edit Resume Data", command=self.open_editor_window).pack(anchor="center", pady=10)
 
+        # Button to reset resume data to default
+        ttk.Button(self.root, text="Reset to Default Data", command=self.reset_to_default).pack(anchor="center", pady=10)
+
         # Variables to track selections
         self.section_vars = {}  # Main section checkboxes
         self.subsection_vars = {}  # Sub-options checkboxes
@@ -40,6 +43,48 @@ class ResumeGeneratorGUI:
                 exec(content, globals())  # Execute data.py content to update master_resume
         except Exception as e:
             messagebox.showerror("Error", f"Could not load data from data.py: {e}")
+
+    def reset_to_default(self):
+        """Reset the resume data to default using default_data.py."""
+        # Show a confirmation dialog to warn the user about resetting data
+        confirm_reset = messagebox.askyesno(
+            "Confirm Reset to Default",
+            "This will reset the resume data to the default version, wiping all personal information.\n\n"
+            "Please make sure you have saved your data elsewhere if needed.\n\n"
+            "Are you sure you want to proceed?"
+        )
+
+        if not confirm_reset:
+            return  # If the user selects "No", just exit the function
+
+        try:
+            # Read from default_data.py
+            with open("default_data.py", "r") as f:
+                default_content = f.read()
+
+            # Write the default content to data.py
+            with open("data.py", "w") as f:
+                f.write(default_content)
+
+            messagebox.showinfo("Success", "Resume data has been reset to the default successfully!")
+
+            # Reload the updated data and refresh the GUI
+            self.load_master_resume()
+
+            # Clear and Rebuild the GUI Based on Updated Data
+            for widget in self.root.winfo_children():
+                widget.destroy()
+
+            # Button to open the Editor Window again after rebuilding
+            ttk.Button(self.root, text="Edit Resume Data", command=self.open_editor_window).pack(anchor="center", pady=10)
+            # Button to reset resume data to default
+            ttk.Button(self.root, text="Reset to Default Data", command=self.reset_to_default).pack(anchor="center", pady=10)
+
+            # Recreate the GUI with updated data
+            self.create_gui()
+
+        except Exception as e:
+            messagebox.showerror("Error", f"Could not reset to default data: {e}")
 
     def create_gui(self):
         # Scrollable frame
