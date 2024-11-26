@@ -43,7 +43,7 @@ class ResumeGeneratorGUI:
                 base_path = sys._MEIPASS
             else:
                 base_path = os.path.dirname(os.path.abspath(__file__))
-        data_path = os.path.join(base_path, "data.py")
+            data_path = os.path.join(base_path, "data.py")
             with open(data_path, "r") as f:
                 content = f.read()
                 exec(content, globals())  # Execute data.py content to update master_resume
