@@ -48,43 +48,67 @@ class ResumeGeneratorGUI:
         """Reset the resume data to default using default_data.py."""
         # Show a confirmation dialog to warn the user about resetting data
         confirm_reset = messagebox.askyesno(
-            "Confirm Reset to Default",
-            "This will reset the resume data to the default version, wiping all personal information.\n\n"
-            "Please make sure you have saved your data elsewhere if needed.\n\n"
-            "Are you sure you want to proceed?"
-        )
-
+                "Confirm Reset to Default",
+                "This will reset the resume data to the default version, wiping all personal information.\n\n"
+                "Please make sure you have saved your data elsewhere if needed.\n\n"
+                "Are you sure you want to proceed?"
+                )
+    
         if not confirm_reset:
             return  # If the user selects "No", just exit the function
-
+    
         try:
             # Read from default_data.py
             with open("default_data.py", "r") as f:
                 default_content = f.read()
-
+    
             # Write the default content to data.py
             with open("data.py", "w") as f:
                 f.write(default_content)
-
+    
             messagebox.showinfo("Success", "Resume data has been reset to the default successfully!")
-
+    
             # Reload the updated data and refresh the GUI
             self.load_master_resume()
-
-            # Clear and Rebuild the GUI Based on Updated Data
+    
+            # Clear and Rebuild the GUI Based on Updated Data for the MAIN window only
             for widget in self.root.winfo_children():
+                if isinstance(widget, tk.Toplevel):  # Skip clearing the editor window
+                    continue
                 widget.destroy()
-
-            # Button to open the Editor Window again after rebuilding
-            ttk.Button(self.root, text="Edit Resume Data", command=self.open_editor_window).pack(anchor="center", pady=10)
-            # Button to reset resume data to default
-            ttk.Button(self.root, text="Reset to Default Data", command=self.reset_to_default).pack(anchor="center", pady=10)
-
+    
+            # Add buttons to open the editor and reset data to default
+            self.add_top_buttons()
+    
             # Recreate the GUI with updated data
             self.create_gui()
-
+    
         except Exception as e:
             messagebox.showerror("Error", f"Could not reset to default data: {e}")
+
+    def open_editor_window(self):
+        # Create a new window for editing the full content of data.py
+        editor_window = tk.Toplevel(self.root)
+        editor_window.title("Edit Resume Data")
+        editor_window.geometry("800x600")
+
+        # Create a Text widget to display and edit the full content of data.py
+        self.data_text = tk.Text(editor_window, wrap="word", font=("Courier", 10))
+        self.data_text.pack(fill="both", expand=True, padx=10, pady=10)
+
+        # Load the content of data.py
+        try:
+            with open("data.py", "r") as f:
+                content = f.read()
+                self.data_text.insert("1.0", content)
+        except Exception as e:
+            messagebox.showerror("Error", f"Could not load data.py: {e}")
+            editor_window.destroy()
+            return
+
+        # Add a Save button to save changes to data.py
+        save_button = ttk.Button(editor_window, text="Save Changes", command=self.save_changes)
+        save_button.pack(anchor="center", pady=10)
 
     def create_gui(self):
         # Scrollable frame
@@ -93,9 +117,9 @@ class ResumeGeneratorGUI:
         self.scrollable_frame = tk.Frame(self.canvas)
 
         self.scrollable_frame.bind(
-            "<Configure>",
-            lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all"))
-        )
+                "<Configure>",
+                lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+                )
 
         self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
         self.canvas.configure(yscrollcommand=self.scrollbar.set)
@@ -153,9 +177,9 @@ class ResumeGeneratorGUI:
         section_frame.pack(fill="x", pady=5)
 
         section_checkbox = ttk.Checkbutton(
-            section_frame, text=section["title"], variable=section_var,
-            command=lambda: self.toggle_suboptions(section["title"], section_var.get())
-        )
+                section_frame, text=section["title"], variable=section_var,
+                command=lambda: self.toggle_suboptions(section["title"], section_var.get())
+                )
         section_checkbox.pack(anchor="w")
 
         # Add sub-options (if applicable)
@@ -186,16 +210,16 @@ class ResumeGeneratorGUI:
             label_frame = ttk.Frame(parent)
             label_frame.pack(anchor="w", pady=2)
             ttk.Radiobutton(
-                label_frame, variable=self.selected_objective, value=option
-            ).pack(side="left")
+                    label_frame, variable=self.selected_objective, value=option
+                    ).pack(side="left")
             ttk.Label(label_frame, text=option, wraplength=500).pack(side="left")
 
         # Custom objective option with a Text widget
         custom_frame = ttk.Frame(parent)
         custom_frame.pack(anchor="w", pady=5)
         ttk.Radiobutton(
-            custom_frame, variable=self.selected_objective, value="Custom"
-        ).pack(side="left")
+                custom_frame, variable=self.selected_objective, value="Custom"
+                ).pack(side="left")
         ttk.Label(custom_frame, text="Custom Objective:").pack(side="left")
 
         # Use a Text widget for multi-line input
@@ -313,18 +337,18 @@ class ResumeGeneratorGUI:
                     section_data = {"title": section["title"], "content": section_content}
                 elif section["title"] == "Professional Experience":
                     section_content = [
-                        item for item in section["content"]
-                        if self.subsection_vars.get((section["title"], item["subtitle"]), tk.BooleanVar()).get()
-                    ]
+                            item for item in section["content"]
+                            if self.subsection_vars.get((section["title"], item["subtitle"]), tk.BooleanVar()).get()
+                            ]
                     section_data = {"title": section["title"], "content": section_content}
                 else:
                     section_data = {
-                        "title": section["title"],
-                        "content": [
-                            option for option in section["content"]
-                            if self.subsection_vars.get((section["title"], option), tk.BooleanVar()).get()
-                        ]
-                    }
+                            "title": section["title"],
+                            "content": [
+                                option for option in section["content"]
+                                if self.subsection_vars.get((section["title"], option), tk.BooleanVar()).get()
+                                ]
+                            }
                 selected_sections.append(section_data)
 
         # Get output file name
@@ -342,58 +366,56 @@ class ResumeGeneratorGUI:
         except Exception as e:
             print(f"An error occurred while trying to open the file: {e}")
 
-    def open_editor_window(self):
-        # Create a new window for editing the full content of data.py
-        editor_window = tk.Toplevel(self.root)
-        editor_window.title("Edit Resume Data")
-        editor_window.geometry("800x600")
-
-        # Create a Text widget to display and edit the full content of data.py
-        self.data_text = tk.Text(editor_window, wrap="word", font=("Courier", 10))
-        self.data_text.pack(fill="both", expand=True, padx=10, pady=10)
-
-        # Load the content of data.py
-        try:
-            with open("data.py", "r") as f:
-                content = f.read()
-                self.data_text.insert("1.0", content)
-        except Exception as e:
-            messagebox.showerror("Error", f"Could not load data.py: {e}")
-            editor_window.destroy()
-            return
-
-        # Add a Save button to save changes to data.py
-        save_button = ttk.Button(editor_window, text="Save Changes", command=self.save_changes)
-        save_button.pack(anchor="center", pady=10)
-
     def save_changes(self):
         # Get the updated content from the text widget
         updated_content = self.data_text.get("1.0", tk.END).strip()
-
+    
         # Write the updated content back to data.py
         try:
             with open("data.py", "w") as f:
                 f.write(updated_content)
-
+    
             # Reload the updated data.py file and update master_resume
             self.load_master_resume()
-
-            # Clear and Rebuild the GUI Based on Updated Data
+    
+            # Clear and Rebuild the GUI Based on Updated Data for the MAIN window only
             for widget in self.root.winfo_children():
+                if isinstance(widget, tk.Toplevel):  # Skip clearing the editor window
+                    continue
                 widget.destroy()
-
-            # Button to open the Editor Window again after rebuilding
-            ttk.Button(self.root, text="Edit Resume Data", command=self.open_editor_window).pack(anchor="center", pady=10)
-
+    
+            # Add buttons to open the editor and reset data to default
+            self.add_top_buttons()
+    
             # Recreate the GUI with updated data
             self.create_gui()
-
+    
         except Exception as e:
             messagebox.showerror("Error", f"Could not save changes: {e}")
+
+
+    def add_top_buttons(self):
+        """Add buttons to open the editor and reset resume data to default."""
+        # Button to open the Editor Window
+        ttk.Button(self.root, text="Edit Resume Data", command=self.open_editor_window).pack(anchor="center", pady=10)
+    
+        # Button to reset resume data to default
+        ttk.Button(self.root, text="Reset to Default Data", command=self.reset_to_default).pack(anchor="center", pady=10)
 
 # Run the GUI
 if __name__ == "__main__":
     root = tk.Tk()
     app = ResumeGeneratorGUI(root)
     root.mainloop()
+
+
+
+
+
+
+
+
+
+
+
 
