@@ -1,7 +1,9 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 import os
+import importlib
 from math import ceil
+import data
 from data import master_resume
 from generator import generate_resume
 
@@ -14,6 +16,9 @@ class ResumeGeneratorGUI:
         else:
             self.root.title("Resume Generator")
         self.root.geometry("800x1000")
+
+        # Button to open the Editor Window
+        ttk.Button(self.root, text="Edit Resume Data", command=self.open_editor_window).pack(anchor="center", pady=10)
 
         # Variables to track selections
         self.section_vars = {}  # Main section checkboxes
@@ -280,6 +285,51 @@ class ResumeGeneratorGUI:
                 print(f"Resume generated as {output_file_name}. Please open it manually.")
         except Exception as e:
             print(f"An error occurred while trying to open the file: {e}")
+
+    def open_editor_window(self):
+        # Create a new window for editing the full content of data.py
+        editor_window = tk.Toplevel(self.root)
+        editor_window.title("Edit Resume Data")
+        editor_window.geometry("800x600")
+
+        # Create a Text widget to display and edit the full content of data.py
+        self.data_text = tk.Text(editor_window, wrap="word", font=("Courier", 10))
+        self.data_text.pack(fill="both", expand=True, padx=10, pady=10)
+
+        # Load the content of data.py
+        try:
+            with open("data.py", "r") as f:
+                content = f.read()
+                self.data_text.insert("1.0", content)
+        except Exception as e:
+            messagebox.showerror("Error", f"Could not load data.py: {e}")
+            editor_window.destroy()
+            return
+
+        # Add a Save button to save changes to data.py
+        save_button = ttk.Button(editor_window, text="Save Changes", command=self.save_changes)
+        save_button.pack(anchor="center", pady=10)
+
+    def save_changes(self):
+        # Get the updated content from the text widget
+        updated_content = self.data_text.get("1.0", tk.END).strip()
+
+        # Write the updated content back to data.py
+        try:
+            with open("data.py", "w") as f:
+                f.write(updated_content)
+            messagebox.showinfo("Success", "Resume data saved successfully!")
+            # Reload the Updated data.py Module
+            global data
+            importlib.reload(data)
+            self.master_resume = data.master_resume
+            # Clear and Rebuild the GUI Based on Updated Data
+            for widget in self.root.winfo_children():
+                widget.destroy()
+            # Recreate the GUI with updated data
+            self.create_gui()
+        except Exception as e:
+            messagebox.showerror("Error", f"Could not save changes: {e}")
 
 # Run the GUI
 if __name__ == "__main__":
