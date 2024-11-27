@@ -457,14 +457,6 @@ class ResumeGeneratorGUI:
             messagebox.showerror("Error", f"Could not save changes: {e}")
 
 
-    def add_top_buttons(self):
-        """Add buttons to open the editor and reset resume data to default."""
-        # Button to open the Editor Window
-        ttk.Button(self.root, text="Edit Resume Data", command=self.open_editor_window).pack(anchor="center", pady=10)
-    
-        # Button to reset resume data to default
-        ttk.Button(self.root, text="Reset to Default Data", command=self.reset_to_default).pack(anchor="center", pady=10)
-
 # Run the GUI
 if __name__ == "__main__":
     root = tk.Tk()
