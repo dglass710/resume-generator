@@ -11,6 +11,16 @@ from generator import generate_resume
 
 class ResumeGeneratorGUI:
     def __init__(self, root):
+        # Attempt to restore previous session data from users app data directory when running in a bundled executable
+        if getattr(sys, 'frozen', False):  # Running as a PyInstaller bundle
+            self.persistent_data_path = os.path.join(self.get_app_directory(), 'data.py')
+            if os.path.isfile(self.persistent_data_path):
+                content = ''
+                with open(self.persistent_data_path) as f:
+                    content += f.read()
+                with open(os.path.join(sys._MEIPASS, 'data.py'), 'w') as f:
+                    f.write(content)
+
         self.root = root
         self.editor_windows = {} # Dictionary to keep track of open editor windows
         self.load_master_resume()
@@ -485,7 +495,11 @@ class ResumeGeneratorGUI:
         try:
             with open(self.get_file_path("data.py"), "w") as f:
                 f.write(updated_content)
-    
+
+            if getattr(sys, 'frozen', False):  # Running as a PyInstaller bundle
+                with open(self.persistent_data_path, 'w') as f:
+                    f.write(updated_content)
+
             # Reload the updated data.py file and update master_resume
             self.load_master_resume()
     
