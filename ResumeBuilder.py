@@ -12,6 +12,7 @@ from generator import generate_resume
 class ResumeGeneratorGUI:
     def __init__(self, root):
         self.root = root
+        self.editor_windows = {} # Dictionary to keep track of open editor windows
         self.load_master_resume()
         if master_resume[0].get("window_title"):
             self.root.title(master_resume[0]["window_title"])
@@ -20,6 +21,7 @@ class ResumeGeneratorGUI:
 
         # Set window dimensions
         self.set_dimensions()
+
 
         # Variables to track selections
         self.section_vars = {}  # Main section checkboxes
@@ -53,10 +55,19 @@ class ResumeGeneratorGUI:
             with open(self.get_file_path('data.py'), "r") as f:
                 content = f.read()
                 exec(content, globals())  # Execute data.py content to update master_resume
+            # Update the dimensions of all open editor windows
+            self.update_editor_window_dimensions()
         except Exception as e:
             messagebox.showerror("Error", f"Could not load data from data.py: {e}")
 
-            import os
+    def update_editor_window_dimensions(self):
+        try:
+            width = int(master_resume[0]["editor_window_width"])
+            length = int(master_resume[0]["editor_window_length"])
+        except:
+            width, length = 600, 700  # Fallback dimensions
+        for editor_window in self.editor_windows.values():
+            editor_window.geometry(f"{width}x{length}")
 
     def get_app_directory(self):
         """
@@ -131,6 +142,9 @@ class ResumeGeneratorGUI:
         except:
             editor_window.geometry("600x700")
 
+        # Store the window reference
+        self.editor_windows[editor_window] = editor_window
+
         # Create a Text widget to display and edit the full content of data.py
         self.data_text = tk.Text(editor_window, wrap="word", font=("Courier", 10))
         self.data_text.pack(fill="both", expand=True, padx=10, pady=10)
@@ -148,6 +162,11 @@ class ResumeGeneratorGUI:
         # Add a Save button to save changes to data.py
         save_button = ttk.Button(editor_window, text="Save Changes", command=self.save_changes)
         save_button.pack(anchor="center", pady=10)
+
+    def close_editor_window(self, editor_window):
+        if editor_window in self.editor_windows:
+            del self.editor_windows[editor_window]
+        editor_window.destroy()
 
     def create_gui(self):
         # Top frame for edit and reset buttons
