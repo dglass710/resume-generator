@@ -17,7 +17,8 @@ class ResumeGeneratorGUI:
             self.root.title(master_resume[0]["window_title"])
         else:
             self.root.title("Resume Generator")
-        self.root.geometry("800x1000")
+
+        self.set_dimensions()
 
         # Button to open the Editor Window
         ttk.Button(self.root, text="Edit Resume Data", command=self.open_editor_window).pack(anchor="center", pady=10)
@@ -34,6 +35,14 @@ class ResumeGeneratorGUI:
 
         # Create GUI
         self.create_gui()
+
+    def set_dimensions(self):
+        try:
+            width = int(master_resume[0]["window_width"])
+            length = int(master_resume[0]["window_length"])
+            self.root.geometry(f"{width}x{length}")
+        except:
+            self.root.geometry("600x700")
 
     def get_file_path(self, filename):
         if getattr(sys, 'frozen', False):  # Running as a PyInstaller bundle
@@ -422,6 +431,7 @@ class ResumeGeneratorGUI:
             self.load_master_resume()
     
             # Clear and Rebuild the GUI Based on Updated Data for the MAIN window only
+            self.set_dimensions()
             for widget in self.root.winfo_children():
                 if isinstance(widget, tk.Toplevel):  # Skip clearing the editor window
                     continue

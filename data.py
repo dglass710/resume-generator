@@ -14,7 +14,9 @@ master_resume = [
             "City, State ZIP ⋄ Phone Number ⋄ Email Address ⋄ Personal Website ⋄ GitHub URL ⋄ LinkedIn URL"  # Update with your personal details.
         ],
         # The window title for the resume generator GUI.
-        "window_title": "Resume Generator"
+        "window_title": "Resume Generator",
+        "window_width": "600", # You should only put digits 0-9 here
+        "window_length": "700" # You should only put digits 0-9 here
     },
     {
         "title": "Objective",
