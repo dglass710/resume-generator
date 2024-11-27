@@ -52,6 +52,31 @@ class ResumeGeneratorGUI:
         except Exception as e:
             messagebox.showerror("Error", f"Could not load data from data.py: {e}")
 
+            import os
+
+    def get_app_directory(self):
+        """
+        Get the correct path for storing app-related files in the Documents folder.
+
+        Returns:
+            str: The absolute path to the application-specific directory inside Documents.
+        """
+        # Get the user's Documents folder path in a cross-platform manner
+        documents_folder = os.path.expanduser("~/Documents")
+
+        # Define the name of your app-specific subdirectory
+        app_folder_name = "ResumeGeneratorApp"
+
+        # Construct the full path to the app directory
+        app_directory = os.path.join(documents_folder, app_folder_name)
+
+        # Create the directory if it doesn't exist
+        if not os.path.exists(app_directory):
+            os.makedirs(app_directory)
+
+        return app_directory
+
+
     def reset_to_default(self):
         """Reset the resume data to default using default_data.py."""
         # Show a confirmation dialog to warn the user about resetting data
@@ -359,16 +384,26 @@ class ResumeGeneratorGUI:
                             }
                 selected_sections.append(section_data)
 
+        if getattr(sys, 'frozen', False):
+            # If running as a bundled executable, use the Documents directory
+            output_directory = self.get_app_directory()  # NEW LINE: USE DOCUMENTS/APP-SPECIFIC DIRECTORY IF FROZEN
+        else:
+            # If running as a regular Python script, use the current working directory
+            output_directory = os.path.dirname(os.path.abspath(__file__))  # NEW LINE: USE CURRENT FILE DIRECTORY IF NOT FROZEN
+
         # Get output file name
         output_file_name = f"{self.output_file_name_var.get().strip()}.docx"
-        generate_resume(selected_sections, output_file=output_file_name)
+        output_file_path = os.path.join(output_directory, output_file_name)  # NEW LINE
+
 
         # Open the generated file using the 'open' command
         try:
+            generate_resume(selected_sections, output_file=output_file_path) 
+
             if os.name == 'posix':  # macOS/Linux
-                os.system(f'open "{output_file_name}"')
+                os.system(f'open "{output_file_path}"')
             elif os.name == 'nt':  # Windows
-                os.startfile(output_file_name)
+                os.startfile(output_file_path)
             else:
                 print(f"Resume generated as {output_file_name}. Please open it manually.")
         except Exception as e:
