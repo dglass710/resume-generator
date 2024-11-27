@@ -35,16 +35,18 @@ class ResumeGeneratorGUI:
         # Create GUI
         self.create_gui()
 
+    def get_file_path(self, filename):
+        if getattr(sys, 'frozen', False):  # Running as a PyInstaller bundle
+            base_path = sys._MEIPASS
+        else:
+            base_path = os.path.dirname(os.path.abspath(__file__))
+        return os.path.join(base_path, filename)
+
     def load_master_resume(self):
         """Load the current version of master_resume from data.py."""
         global master_resume
         try:
-            if getattr(sys, 'frozen', False):  # Running as a PyInstaller bundle
-                base_path = sys._MEIPASS
-            else:
-                base_path = os.path.dirname(os.path.abspath(__file__))
-            data_path = os.path.join(base_path, "data.py")
-            with open(data_path, "r") as f:
+            with open(self.get_file_path('data.py'), "r") as f:
                 content = f.read()
                 exec(content, globals())  # Execute data.py content to update master_resume
         except Exception as e:
@@ -65,11 +67,11 @@ class ResumeGeneratorGUI:
     
         try:
             # Read from default_data.py
-            with open("default_data.py", "r") as f:
+            with open(self.get_file_path("default_data.py"), "r") as f:
                 default_content = f.read()
     
             # Write the default content to data.py
-            with open("data.py", "w") as f:
+            with open(self.get_file_path("data.py"), "w") as f:
                 f.write(default_content)
     
             messagebox.showinfo("Success", "Resume data has been reset to the default successfully!")
@@ -104,7 +106,7 @@ class ResumeGeneratorGUI:
 
         # Load the content of data.py
         try:
-            with open("data.py", "r") as f:
+            with open(self.get_file_path("data.py"), "r") as f:
                 content = f.read()
                 self.data_text.insert("1.0", content)
         except Exception as e:
@@ -378,7 +380,7 @@ class ResumeGeneratorGUI:
     
         # Write the updated content back to data.py
         try:
-            with open("data.py", "w") as f:
+            with open(self.get_file_path("data.py"), "w") as f:
                 f.write(updated_content)
     
             # Reload the updated data.py file and update master_resume
