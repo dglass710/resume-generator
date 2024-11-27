@@ -66,7 +66,7 @@ class ResumeGeneratorGUI:
             length = int(master_resume[0]["editor_window_length"])
         except:
             width, length = 600, 700  # Fallback dimensions
-        for editor_window in list(self.editor_windows.values()):
+        for editor_window in self.editor_windows.keys():
             if editor_window.winfo_exists():
                 editor_window.geometry(f"{width}x{length}")
             else:
@@ -135,38 +135,48 @@ class ResumeGeneratorGUI:
             messagebox.showerror("Error", f"Could not reset to default data: {e}")
 
     def open_editor_window(self):
-        # Create a new window for editing the full content of data.py
+        """
+        Create a new editor window for editing the full content of data.py.
+        Track the editor window and its associated Text widget for updates.
+        """
+        # Create a new Toplevel window
         editor_window = tk.Toplevel(self.root)
         editor_window.title("Edit Resume Data")
+        
+        # Set window dimensions based on master_resume settings
         try:
             width = int(master_resume[0]["editor_window_width"])
             length = int(master_resume[0]["editor_window_length"])
             editor_window.geometry(f"{width}x{length}")
         except:
             editor_window.geometry("600x700")
-
-        # Store the window reference
-        self.editor_windows[editor_window] = editor_window
-
-        # Bind the close event
+    
+        # Bind the close event to ensure proper cleanup
         editor_window.protocol("WM_DELETE_WINDOW", lambda: self.close_editor_window(editor_window))
-
-        # Create a Text widget to display and edit the full content of data.py
-        self.data_text = tk.Text(editor_window, wrap="word", font=("Courier", 10))
-        self.data_text.pack(fill="both", expand=True, padx=10, pady=10)
-
-        # Load the content of data.py
+    
+        # Create a Text widget for editing the content of data.py
+        data_text = tk.Text(editor_window, wrap="word", font=("Courier", 10))
+        data_text.pack(fill="both", expand=True, padx=10, pady=10)
+    
+        # Load the content of data.py into the Text widget
         try:
             with open(self.get_file_path("data.py"), "r") as f:
                 content = f.read()
-                self.data_text.insert("1.0", content)
+                data_text.insert("1.0", content)
         except Exception as e:
             messagebox.showerror("Error", f"Could not load data.py: {e}")
             editor_window.destroy()
             return
-
-        # Add a Save button to save changes to data.py
-        save_button = ttk.Button(editor_window, text="Save Changes", command=self.save_changes)
+    
+        # Store the editor window and its associated Text widget in the tracking dictionary
+        self.editor_windows[editor_window] = {"text_widget": data_text}
+    
+        # Add a Save button to save changes back to data.py
+        save_button = ttk.Button(
+            editor_window, 
+            text="Save Changes", 
+            command=lambda: self.save_changes(editor_window)  # Pass the current editor window
+        )
         save_button.pack(anchor="center", pady=10)
 
     def close_editor_window(self, editor_window):
@@ -455,9 +465,21 @@ class ResumeGeneratorGUI:
         except Exception as e:
             print(f"An error occurred while trying to open the file: {e}")
 
-    def save_changes(self):
-        # Get the updated content from the text widget
-        updated_content = self.data_text.get("1.0", tk.END).strip()
+    def save_changes(self, editor_window):
+        """
+        Save changes made in the editor window to data.py, reload the updated data,
+        and refresh all editor windows and the main GUI.
+        """
+        # Ensure the editor window exists in the tracking dictionary
+        if editor_window not in self.editor_windows:
+            messagebox.showerror("Error", "Editor window not found.")
+            return
+    
+        # Retrieve the Text widget associated with the editor window
+        data_text = self.editor_windows[editor_window]["text_widget"]
+    
+        # Get the updated content from the Text widget
+        updated_content = data_text.get("1.0", tk.END).strip()
     
         # Write the updated content back to data.py
         try:
@@ -466,29 +488,41 @@ class ResumeGeneratorGUI:
     
             # Reload the updated data.py file and update master_resume
             self.load_master_resume()
-
+    
             # Update main window dimensions
             self.set_dimensions()
     
-            # Clear and Rebuild the GUI Based on Updated Data for the MAIN window only
-            self.set_dimensions()
+            # Clear and rebuild the GUI based on updated data for the main window only
             for widget in self.root.winfo_children():
-                if isinstance(widget, tk.Toplevel):  # Skip clearing the editor window
+                if isinstance(widget, tk.Toplevel):  # Skip clearing the editor windows
                     continue
                 widget.destroy()
     
-            # Recreate the GUI with updated data
+            # Recreate the main GUI with updated data
             self.create_gui()
     
+            # Update the content of all open editor windows
+            for editor_win, data in self.editor_windows.items():
+                text_widget = data["text_widget"]
+                if editor_win.winfo_exists():  # Check if the window still exists
+                    try:
+                        with open(self.get_file_path("data.py"), "r") as f:
+                            new_content = f.read()
+                            text_widget.delete("1.0", tk.END)  # Clear current content
+                            text_widget.insert("1.0", new_content)  # Insert updated content
+                    except Exception as e:
+                        print(f"Failed to update content in editor window: {e}")
+        
         except Exception as e:
             messagebox.showerror("Error", f"Could not save changes: {e}")
-
 
 # Run the GUI
 if __name__ == "__main__":
     root = tk.Tk()
     app = ResumeGeneratorGUI(root)
     root.mainloop()
+
+
 
 
 
