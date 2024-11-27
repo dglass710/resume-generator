@@ -18,13 +18,8 @@ class ResumeGeneratorGUI:
         else:
             self.root.title("Resume Generator")
 
+        # Set window dimensions
         self.set_dimensions()
-
-        # Button to open the Editor Window
-        ttk.Button(self.root, text="Edit Resume Data", command=self.open_editor_window).pack(anchor="center", pady=10)
-
-        # Button to reset resume data to default
-        ttk.Button(self.root, text="Reset to Default Data", command=self.reset_to_default).pack(anchor="center", pady=10)
 
         # Variables to track selections
         self.section_vars = {}  # Main section checkboxes
@@ -33,7 +28,7 @@ class ResumeGeneratorGUI:
         self.custom_objective_var = tk.StringVar()  # Custom objective input
         self.output_file_name_var = tk.StringVar(value="Custom_Resume")  # Default file name
 
-        # Create GUI
+        # Create the GUI
         self.create_gui()
 
     def set_dimensions(self):
@@ -153,37 +148,52 @@ class ResumeGeneratorGUI:
         save_button.pack(anchor="center", pady=10)
 
     def create_gui(self):
+        # Top frame for edit and reset buttons
+        top_frame = ttk.Frame(self.root)
+        top_frame.pack(fill="x", pady=10)
+
+        # Buttons in the top frame
+        ttk.Button(top_frame, text="Edit Resume Data", command=self.open_editor_window).pack(side="left", padx=10)
+        ttk.Button(top_frame, text="Reset to Default Data", command=self.reset_to_default).pack(side="left", padx=10)
+
+        # Main container for scrollable frame
+        main_frame = ttk.Frame(self.root)
+        main_frame.pack(fill="both", expand=True)
+
         # Scrollable frame
-        self.canvas = tk.Canvas(self.root)
-        self.scrollbar = ttk.Scrollbar(self.root, orient="vertical", command=self.canvas.yview)
-        self.scrollable_frame = tk.Frame(self.canvas)
+        self.canvas = tk.Canvas(main_frame)
+        self.scrollbar = ttk.Scrollbar(main_frame, orient="vertical", command=self.canvas.yview)
+        self.scrollable_frame = ttk.Frame(self.canvas)
 
         self.scrollable_frame.bind(
-                "<Configure>",
-                lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all"))
-                )
+            "<Configure>",
+            lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+        )
 
+        # Add scrollable frame to canvas
         self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
         self.canvas.configure(yscrollcommand=self.scrollbar.set)
 
-        # Add mouse wheel scrolling
-        self.canvas.bind("<Enter>", self.bind_mousewheel)  # Bind mousewheel on hover
-        self.canvas.bind("<Leave>", self.unbind_mousewheel)  # Unbind when leaving
+        # Pack the scrollable frame and scrollbar
+        self.canvas.pack(side="left", fill="both", expand=True)
+        self.scrollbar.pack(side="right", fill="y")
+
+        # Bind mousewheel scrolling
+        self.canvas.bind("<Enter>", self.bind_mousewheel)  # Enable scrolling when the mouse enters
+        self.canvas.bind("<Leave>", self.unbind_mousewheel)  # Disable scrolling when the mouse leaves
 
         # Add widgets for each section
         for section in master_resume:
             self.add_section_widgets(self.scrollable_frame, section)
 
-        # Output file name entry
-        ttk.Label(self.scrollable_frame, text="Output File Name:").pack(anchor="w", pady=5)
-        ttk.Entry(self.scrollable_frame, textvariable=self.output_file_name_var, width=30).pack(anchor="w", pady=5)
+        # Bottom container for output file entry and generate button
+        bottom_frame = ttk.Frame(self.root)
+        bottom_frame.pack(fill="x", pady=10)
 
-        # Generate button
-        ttk.Button(self.scrollable_frame, text="Generate Resume", command=self.generate_resume).pack(anchor="center", pady=10)
-
-        # Add scrollable frame and scrollbar to the main window
-        self.canvas.pack(side="left", fill="both", expand=True)
-        self.scrollbar.pack(side="right", fill="y")
+        # Output file name entry and generate button
+        ttk.Label(bottom_frame, text="Output File Name:").pack(side="left", padx=5)
+        ttk.Entry(bottom_frame, textvariable=self.output_file_name_var, width=30).pack(side="left", padx=5)
+        ttk.Button(bottom_frame, text="Generate Resume", command=self.generate_resume).pack(side="left", padx=10)
 
     def bind_mousewheel(self, event=None):
         """Bind mouse wheel scrolling to the canvas."""
@@ -460,6 +470,8 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = ResumeGeneratorGUI(root)
     root.mainloop()
+
+
 
 
 
