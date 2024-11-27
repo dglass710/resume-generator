@@ -114,9 +114,6 @@ class ResumeGeneratorGUI:
                     continue
                 widget.destroy()
     
-            # Add buttons to open the editor and reset data to default
-            self.add_top_buttons()
-    
             # Recreate the GUI with updated data
             self.create_gui()
     
