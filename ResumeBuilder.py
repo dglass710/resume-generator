@@ -126,7 +126,12 @@ class ResumeGeneratorGUI:
             # Write the default content to data.py
             with open(self.get_file_path("data.py"), "w") as f:
                 f.write(default_content)
-    
+
+            # If running inside a bundled executable
+            if getattr(sys, 'frozen', False):  # Running as a PyInstaller bundle
+                with open(self.persistent_data_path, 'w') as f:
+                    f.write(default_content)
+        
             messagebox.showinfo("Success", "Resume data has been reset to the default successfully!")
     
             # Reload the updated data and refresh the GUI
