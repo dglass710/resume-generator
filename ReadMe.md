@@ -47,17 +47,67 @@ The `python-docx` library is required to generate Word documents. Follow these s
 
 ---
 
+## Using PyInstaller to Bundle the Application
+
+To distribute the application as a standalone executable, PyInstaller can be used to bundle it. Below are platform-specific instructions for creating the executable, including how to include additional data files.
+
+### PyInstaller Command for Windows
+
+For Windows, the command uses a semicolon (`;`) to separate the source and destination paths for additional data files.
+
+```bash
+pyinstaller --onefile --noconsole --add-data "data.py;." --add-data "default_data.py;." --add-data "generator.py;." ResumeBuilder.py
+```
+
+#### Explanation:
+- `--onefile`: Create a single bundled executable.
+- `--noconsole`: Suppress the console window when running the executable.
+- `--add-data`: Add additional data files to the bundle. The format is `source_path;destination_path`:
+  - Use `;` as the separator on Windows.
+  - Example: `"data.py;."` includes `data.py` in the root of the bundle.
+- `ResumeBuilder.py`: The name of your main script.
+
+---
+
+### PyInstaller Command for macOS
+
+For macOS, the command uses a colon (`:`) to separate the source and destination paths for additional data files.
+
+```bash
+pyinstaller --onefile --noconsole --add-data "data.py:." --add-data "default_data.py:." --add-data "generator.py:." ResumeBuilder.py
+```
+
+#### Explanation:
+- `--onefile`: Create a single bundled executable.
+- `--noconsole`: Suppress the console window when running the executable.
+- `--add-data`: Add additional data files to the bundle. The format is `source_path:destination_path`:
+  - Use `:` as the separator on macOS.
+  - Example: `"data.py:."` includes `data.py` in the root of the bundle.
+- `ResumeBuilder.py`: The name of your main script.
+
+---
+
+### Summary
+- **Windows**: Use `;` for the `--add-data` separator.
+  ```bash
+  pyinstaller --onefile --noconsole --add-data "data.py;." --add-data "default_data.py;." --add-data "generator.py;." ResumeBuilder.py
+  ```
+- **macOS**: Use `:` for the `--add-data` separator.
+  ```bash
+  pyinstaller --onefile --noconsole --add-data "data.py:." --add-data "default_data.py:." --add-data "generator.py:." ResumeBuilder.py
+  ```
+
+This ensures that the PyInstaller command is customized for the platform you are working on, allowing proper inclusion of additional files.
+
+---
+
 ## Customizing `data.py`
 
 The `data.py` file contains the default resume data used by the application. You can modify this file to tailor the sections and content to your specific needs. The order of the dictionaries in the `master_resume` list determines the order of sections in both the GUI and the generated resume.
 
-Below, we explain how each section is structured and how to modify it while maintaining the correct syntax.
-
----
-
 ### Objective, Certifications, and Personal Information
 
-These sections use **lists of strings** to define their `content`. Each string must be enclosed in double quotes (`"`) and separated by a comma. While putting each item on a new line promotes readability, the critical part of the syntax is ensuring the strings are properly quoted and comma-separated.
+These sections use **lists of strings** to define their `content`. Each string must be enclosed in double quotes (`"`) and separated by a comma.
 
 #### Example:
 ```python
@@ -65,29 +115,10 @@ These sections use **lists of strings** to define their `content`. Each string m
     "title": "Objective",
     "content": [
         "Highly motivated IT professional with a strong foundation in mathematics, computer science, and cybersecurity.",
-        "Seeking a challenging role in IT operations, leveraging my cybersecurity and troubleshooting skills to ensure seamless system performance.",
-        "Dedicated to providing innovative solutions and streamlining IT processes to meet dynamic business needs."
+        "Seeking a challenging role in IT operations, leveraging my cybersecurity and troubleshooting skills to ensure seamless system performance."
     ]
 }
 ```
-
-#### How to Customize:
-- **Add a new statement**:
-  ```python
-  "content": [
-      "Existing statement 1.",
-      "New statement here."
-  ]
-  ```
-- **Remove a statement**:
-  ```python
-  "content": [
-      "Keep this statement."
-  ]
-  ```
-- **Ensure proper syntax**:
-  - All strings must be enclosed in double quotes.
-  - Each string must end with a comma unless it’s the last item in the list.
 
 ---
 
@@ -100,34 +131,16 @@ This section uses a **list of strings** to define skills or attributes. Each str
 {
     "title": "Core Competencies",
     "content": [
-        "TCP/IP", "DNS", "DHCP", "Firewalls", "Network Troubleshooting",
-        "Packet Analysis", "Windows", "Linux", "Python", "Bash scripting"
+        "TCP/IP", "DNS", "DHCP", "Firewalls", "Python", "Bash scripting"
     ]
 }
 ```
-
-#### How to Customize:
-- **Add a new skill**:
-  ```python
-  "content": [
-      "TCP/IP", "New Skill"
-  ]
-  ```
-- **Remove a skill**:
-  ```python
-  "content": [
-      "TCP/IP", "Linux"
-  ]
-  ```
-- **Ensure proper syntax**:
-  - Each skill must be enclosed in double quotes.
-  - Use commas to separate the skills.
 
 ---
 
 ### Education
 
-This section uses a **list of lists**, where each inner list contains a main string (e.g., degree or institution) followed by additional strings for details. Each list must be separated by a comma, and the strings inside each list must be enclosed in double quotes and separated by commas.
+This section uses a **list of lists**, where each inner list contains a main string (e.g., degree or institution) followed by additional strings for details.
 
 #### Example:
 ```python
@@ -135,43 +148,16 @@ This section uses a **list of lists**, where each inner list contains a main str
     "title": "Education",
     "content": [
         ["Northwestern University Cybersecurity Program: Graduated June 2024"],
-        ["DePaul University: Graduated March 2022",
-         "B.S. in Applied and Computational Mathematics; Minors in Computer Science and Physics."]
+        ["DePaul University: Graduated March 2022", "B.S. in Applied and Computational Mathematics"]
     ]
 }
 ```
-
-#### How to Customize:
-- **Add a new institution**:
-  ```python
-  "content": [
-      ["Existing institution..."],
-      ["New University: Graduated May 2023", "Degree in Computer Science"]
-  ]
-  ```
-- **Remove an institution**:
-  ```python
-  "content": [
-      ["Keep this university."]
-  ]
-  ```
-- **Edit details**:
-  ```python
-  ["DePaul University: Graduated March 2022",
-   "Updated major or detail here."]
-  ```
-- **Formatting in the resume**:
-  - The first string in each list appears unindented.
-  - Additional strings appear indented on the following lines.
 
 ---
 
 ### Professional Experience
 
-This section uses a **list of dictionaries**, where each dictionary represents a job or project. Each dictionary must have three keys:
-1. **`subtitle`**: A string representing the job title and company.
-2. **`date`**: A string representing the employment dates and location.
-3. **`details`**: A list of strings describing the responsibilities and accomplishments.
+This section uses a **list of dictionaries**, where each dictionary represents a job or project.
 
 #### Example:
 ```python
@@ -190,41 +176,10 @@ This section uses a **list of dictionaries**, where each dictionary represents a
 }
 ```
 
-#### How to Customize:
-- **Add a new job**:
-  ```python
-  "content": [
-      {
-          "subtitle": "New Job Title – New Company",
-          "date": "Start Date – End Date, City, State",
-          "details": [
-              "New responsibility 1.",
-              "New accomplishment 2."
-          ]
-      }
-  ]
-  ```
-- **Remove a job**:
-  ```python
-  "content": [
-      {"subtitle": "Keep this job."}
-  ]
-  ```
-- **Edit job details**:
-  - Ensure the `subtitle` and `date` fields are strings enclosed in double quotes.
-  - Ensure `details` is a list of strings, with each string enclosed in double quotes and separated by commas:
-    ```python
-    "details": [
-        "Updated responsibility or accomplishment."
-    ]
-    ```
-- **Ensure proper syntax**:
-  - The dictionary keys (`subtitle`, `date`, `details`) must be enclosed in double quotes.
-  - The `details` key must contain a list of strings.
-
 ---
 
-## Guidelines for Customization
+### Guidelines for Customization
+
 - **Consistency**: Follow the defined structure for each section to avoid syntax errors.
 - **String Formatting**: Use double quotes (`"`) for all strings.
 - **Validation**: Test the GUI after making changes to ensure the resume generates correctly.
@@ -232,6 +187,7 @@ This section uses a **list of dictionaries**, where each dictionary represents a
 ---
 
 ## Running the Application
+
 1. Update the `master_resume` variable in `data.py` to include your personalized information.
 2. Run the `gui.py` script to launch the GUI:
    ```bash
@@ -242,3 +198,54 @@ This section uses a **list of dictionaries**, where each dictionary represents a
 5. Generate your resume and enjoy a professional Word document tailored to your needs!
 
 For questions or further assistance, feel free to reach out. Happy customizing!
+
+zing!
+
+## Running PyInstaller
+
+When creating an executable with PyInstaller, the commands vary slightly between Windows and macOS due to differences in path separators. Below are the platform-specific commands:
+
+### PyInstaller Command for Windows
+
+For Windows, use a semicolon (`;`) to separate the source and destination paths for additional data files.
+
+```bash
+pyinstaller --onefile --noconsole --add-data "data.py;." --add-data "default_data.py;." --add-data "generator.py;." ResumeBuilder.py
+```
+
+**Explanation**:
+- `--onefile`: Creates a single bundled executable.
+- `--noconsole`: Suppresses the console window when running the executable.
+- `--add-data`: Includes additional data files in the bundle. The format is `"source_path;destination_path"`:
+  - Use `;` as the separator on Windows.
+  - Example: `"data.py;."` includes `data.py` in the root of the bundle.
+- `ResumeBuilder.py`: The name of your main script.
+
+### PyInstaller Command for macOS
+
+For macOS, use a colon (`:`) to separate the source and destination paths for additional data files.
+
+```bash
+pyinstaller --onefile --noconsole --add-data "data.py:." --add-data "default_data.py:." --add-data "generator.py:." ResumeBuilder.py
+```
+
+**Explanation**:
+- `--onefile`: Creates a single bundled executable.
+- `--noconsole`: Suppresses the console window when running the executable.
+- `--add-data`: Includes additional data files in the bundle. The format is `"source_path:destination_path"`:
+  - Use `:` as the separator on macOS.
+  - Example: `"data.py:."` includes `data.py` in the root of the bundle.
+- `ResumeBuilder.py`: The name of your main script.
+
+### Summary
+
+- **Windows**: Use `;` for the `--add-data` separator:
+  ```bash
+  pyinstaller --onefile --noconsole --add-data "data.py;." --add-data "default_data.py;." --add-data "generator.py;." ResumeBuilder.py
+  ```
+- **macOS**: Use `:` for the `--add-data` separator:
+  ```bash
+  pyinstaller --onefile --noconsole --add-data "data.py:." --add-data "default_data.py:." --add-data "generator.py:." ResumeBuilder.py
+  ```
+
+By tailoring the PyInstaller command for your operating system, you ensure the correct inclusion of additional data files and a seamless executable build process.
