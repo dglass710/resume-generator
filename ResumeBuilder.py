@@ -124,7 +124,12 @@ class ResumeGeneratorGUI:
         # Create a new window for editing the full content of data.py
         editor_window = tk.Toplevel(self.root)
         editor_window.title("Edit Resume Data")
-        editor_window.geometry("800x600")
+        try:
+            width = int(master_resume[0]["editor_window_width"])
+            length = int(master_resume[0]["editor_window_length"])
+            editor_window.geometry(f"{width}x{length}")
+        except:
+            editor_window.geometry("600x700")
 
         # Create a Text widget to display and edit the full content of data.py
         self.data_text = tk.Text(editor_window, wrap="word", font=("Courier", 10))
