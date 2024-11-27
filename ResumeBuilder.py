@@ -66,8 +66,11 @@ class ResumeGeneratorGUI:
             length = int(master_resume[0]["editor_window_length"])
         except:
             width, length = 600, 700  # Fallback dimensions
-        for editor_window in self.editor_windows.values():
-            editor_window.geometry(f"{width}x{length}")
+        for editor_window in list(self.editor_windows.values()):
+            if editor_window.winfo_exists():
+                editor_window.geometry(f"{width}x{length}")
+            else:
+                self.close_editor_window(editor_window)
 
     def get_app_directory(self):
         """
@@ -144,6 +147,9 @@ class ResumeGeneratorGUI:
 
         # Store the window reference
         self.editor_windows[editor_window] = editor_window
+
+        # Bind the close event
+        editor_window.protocol("WM_DELETE_WINDOW", lambda: self.close_editor_window(editor_window))
 
         # Create a Text widget to display and edit the full content of data.py
         self.data_text = tk.Text(editor_window, wrap="word", font=("Courier", 10))
