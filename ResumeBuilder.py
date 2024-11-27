@@ -144,6 +144,61 @@ class ResumeGeneratorGUI:
         except Exception as e:
             messagebox.showerror("Error", f"Could not reset to default data: {e}")
 
+    def open_information_window(self):
+        """
+        Create an informational window to explain how to use this application
+        """
+        # Create a new Toplevel window
+        information_window = tk.Toplevel(self.root)
+        information_window.title("Information")
+        information_window.geometry("600x500")
+    
+        # Create a Text widget to display information
+        info_text = tk.Text(information_window, wrap="word", font=("Arial", 12), state="normal")
+        info_text.pack(fill="both", expand=True, padx=10, pady=10)
+    
+        # Add a scrollbar for the Text widget
+        scrollbar = ttk.Scrollbar(information_window, command=info_text.yview)
+        scrollbar.pack(side="right", fill="y")
+        info_text.configure(yscrollcommand=scrollbar.set)
+    
+        # Information text to display
+        information_content = (
+            "Welcome to the Resume Generator App!\n\n"
+            "This application helps you customize and generate professional resumes "
+            "based on a template. Here's how you can use the app:\n\n"
+            "1. **Edit Resume Data**: Click the 'Edit Resume Data' button to modify the content "
+            "of the resume template. This will open an editor where you can make changes.\n\n"
+            "2. **Reset to Default Data**: If you want to start over, use this button to reset "
+            "the resume data to its original state. Note: This action will erase all custom changes.\n\n"
+            "3. **Objective Selection**: Choose from predefined objective statements or create a "
+            "custom one by selecting 'Custom Objective' and entering your own text.\n\n"
+            "4. **Selecting Sections**: Use checkboxes to include or exclude specific sections "
+            "or subsections from the resume. This allows you to tailor the resume to your needs.\n\n"
+            "5. **Generate Resume**: Enter a file name for the generated resume (without extension) "
+            "and click 'Generate Resume'. The resume will be created as a .docx file.\n\n"
+            "6. **Information Window**: This window provides an overview of how to use the app.\n\n"
+            "7. **Navigation**: Scroll through the sections using the scrollbar on the right. "
+            "Ensure all desired sections are selected before generating the resume.\n\n"
+            "8. **Where Your Files Are Stored**:\n"
+            "   - All the files related to this app, including your custom template file (called 'data.py') "
+            "and any resumes you create (saved as .docx files), will be in one specific folder.\n\n"
+            "   - Here's how to find it:\n"
+            "     1. Open your **Documents** folder.\n"
+            "     2. Look for a folder named **ResumeGeneratorApp**.\n"
+            "     3. Inside this folder, you'll see:\n"
+            "        - The 'data.py' file, which stores your resume template.\n"
+            "        - Any resumes you've generated, saved as .docx files.\n\n"
+            "   Keeping everything in this folder helps you stay organized and ensures all your work is easy to find.\n\n"
+            "For additional help or feedback, contact the developer."
+        )
+
+        # Insert the information content into the Text widget
+        info_text.insert("1.0", information_content)
+
+        # Disable editing for the Text widget
+        info_text.configure(state="disabled")
+
     def open_editor_window(self):
         """
         Create a new editor window for editing the full content of data.py.
@@ -202,6 +257,7 @@ class ResumeGeneratorGUI:
         # Buttons in the top frame
         ttk.Button(top_frame, text="Edit Resume Data", command=self.open_editor_window).pack(side="left", padx=10)
         ttk.Button(top_frame, text="Reset to Default Data", command=self.reset_to_default).pack(side="left", padx=10)
+        ttk.Button(top_frame, text="Information", command=self.open_information_window).pack(side="left", padx=10)
 
         # Main container for scrollable frame
         main_frame = ttk.Frame(self.root)
