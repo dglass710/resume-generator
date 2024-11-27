@@ -466,6 +466,9 @@ class ResumeGeneratorGUI:
     
             # Reload the updated data.py file and update master_resume
             self.load_master_resume()
+
+            # Update main window dimensions
+            self.set_dimensions()
     
             # Clear and Rebuild the GUI Based on Updated Data for the MAIN window only
             self.set_dimensions()

@@ -16,8 +16,8 @@ master_resume = [
         # The window title for the resume generator GUI.
         "window_title": "Resume Generator",
         "window_width": "600", # You should only put digits 0-9 here
-        "window_length": "500", # You should only put digits 0-9 here
-        "editor_window_width": "600", # You should only put digits 0-9 here
+        "window_length": "400", # You should only put digits 0-9 here
+        "editor_window_width": "800", # You should only put digits 0-9 here
         "editor_window_length": "500" # You should only put digits 0-9 here
     },
     {
