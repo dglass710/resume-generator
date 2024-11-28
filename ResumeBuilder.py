@@ -78,9 +78,14 @@ class ResumeGeneratorGUI:
             length = int(master_resume[0]["editor_window_length"])
         except:
             width, length = 600, 700  # Fallback dimensions
-        for editor_window in self.editor_windows.keys():
+        try:
+            text_size = int(master_resume[0].get("editor_text_size", 16))  # Default text size
+        except:
+            text_size = 16
+        for editor_window, data in self.editor_windows.items():
             if editor_window.winfo_exists():
                 editor_window.geometry(f"{width}x{length}")
+                data["text_widget"].configure(font=(data["text_widget"].cget("font").split()[0], text_size)) 
             else:
                 self.close_editor_window(editor_window)
 
@@ -250,11 +255,17 @@ class ResumeGeneratorGUI:
         except:
             editor_window.geometry("600x700")
     
+        # Set text size based on master_resume settings
+        try:
+            text_size = int(master_resume[0]["editor_text_size"])  # Get text size
+        except:
+            text_size = 16
+
         # Bind the close event to ensure proper cleanup
         editor_window.protocol("WM_DELETE_WINDOW", lambda: self.close_editor_window(editor_window))
     
         # Create a Text widget for editing the content of data.py
-        data_text = tk.Text(editor_window, wrap="word", font=("Courier", 16))
+        data_text = tk.Text(editor_window, wrap="word", font=("Courier", text_size))
         data_text.pack(fill="both", expand=True, padx=10, pady=10)
     
         # Load the content of data.py into the Text widget
