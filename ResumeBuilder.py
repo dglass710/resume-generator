@@ -1,4 +1,6 @@
 import tkinter as tk
+import platform
+import subprocess
 from tkinter import ttk, messagebox
 import os
 import sys
@@ -81,6 +83,33 @@ class ResumeGeneratorGUI:
                 editor_window.geometry(f"{width}x{length}")
             else:
                 self.close_editor_window(editor_window)
+
+    def open_directory(self, path):
+        """
+        Opens the given directory in the file viewer of the operating system.
+
+        :param path: The directory path to open.
+        """
+        if not os.path.isdir(path):
+            raise ValueError(f"The path '{path}' is not a valid directory.")
+
+        system = platform.system()
+
+        try:
+            if system == "Windows":
+                os.startfile(path)
+            elif system == "Darwin":  # macOS
+                subprocess.run(["open", path], check=True)
+            elif system == "Linux":
+                subprocess.run(["xdg-open", path], check=True)
+            else:
+                raise NotImplementedError(f"Opening directories is not supported on {system} OS.")
+        except Exception as e:
+            print(f"An error occurred while trying to open the directory: {e}")
+
+    def open_app_directory(self):
+        self.open_directory(self.get_app_directory())
+
 
     def get_app_directory(self):
         """
@@ -262,6 +291,7 @@ class ResumeGeneratorGUI:
         # Buttons in the top frame
         ttk.Button(top_frame, text="Edit Resume Data", command=self.open_editor_window).pack(side="left", padx=10)
         ttk.Button(top_frame, text="Reset to Default Data", command=self.reset_to_default).pack(side="left", padx=10)
+        ttk.Button(top_frame, text="View Files", command=self.open_app_directory).pack(side="left", padx=10)
         ttk.Button(top_frame, text="Information", command=self.open_information_window).pack(side="left", padx=10)
 
         # Main container for scrollable frame
@@ -596,6 +626,10 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = ResumeGeneratorGUI(root)
     root.mainloop()
+
+
+
+
 
 
 
