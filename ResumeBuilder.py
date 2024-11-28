@@ -188,7 +188,7 @@ class ResumeGeneratorGUI:
         information_window.geometry("600x500")
     
         # Create a Text widget to display information
-        info_text = tk.Text(information_window, wrap="word", font=("Arial", 12), state="normal")
+        info_text = tk.Text(information_window, wrap="word", font=("Arial", 16), state="normal")
         info_text.pack(fill="both", expand=True, padx=10, pady=10)
     
         # Add a scrollbar for the Text widget
@@ -201,20 +201,20 @@ class ResumeGeneratorGUI:
             "Welcome to the Resume Generator App!\n\n"
             "This application helps you customize and generate professional resumes "
             "based on a template. Here's how you can use the app:\n\n"
-            "1. **Edit Resume Data**: Click the 'Edit Resume Data' button to modify the content "
+            "1. Edit Resume Data: Click the 'Edit Resume Data' button to modify the content "
             "of the resume template. This will open an editor where you can make changes.\n\n"
-            "2. **Reset to Default Data**: If you want to start over, use this button to reset "
+            "2. Reset to Default Data: If you want to start over, use this button to reset "
             "the resume data to its original state. Note: This action will erase all custom changes.\n\n"
-            "3. **Objective Selection**: Choose from predefined objective statements or create a "
+            "3. Objective Selection: Choose from predefined objective statements or create a "
             "custom one by selecting 'Custom Objective' and entering your own text.\n\n"
-            "4. **Selecting Sections**: Use checkboxes to include or exclude specific sections "
+            "4. Selecting Sections: Use checkboxes to include or exclude specific sections "
             "or subsections from the resume. This allows you to tailor the resume to your needs.\n\n"
-            "5. **Generate Resume**: Enter a file name for the generated resume (without extension) "
+            "5. Generate Resume: Enter a file name for the generated resume (without extension) "
             "and click 'Generate Resume'. The resume will be created as a .docx file.\n\n"
-            "6. **Information Window**: This window provides an overview of how to use the app.\n\n"
-            "7. **Navigation**: Scroll through the sections using the scrollbar on the right. "
+            "6. Information Window: This window provides an overview of how to use the app.\n\n"
+            "7. Navigation: Scroll through the sections using the scrollbar on the right. "
             "Ensure all desired sections are selected before generating the resume.\n\n"
-            "8. **Where Your Files Are Stored**:\n"
+            "8. Where Your Files Are Stored:\n"
             "   - All the files related to this app, including your custom template file (called 'data.py') "
             "and any resumes you create (saved as .docx files), will be in one specific folder.\n\n"
             "   - To easily access this folder, click the **View Files** button at the top of the app. "
@@ -254,7 +254,7 @@ class ResumeGeneratorGUI:
         editor_window.protocol("WM_DELETE_WINDOW", lambda: self.close_editor_window(editor_window))
     
         # Create a Text widget for editing the content of data.py
-        data_text = tk.Text(editor_window, wrap="word", font=("Courier", 10))
+        data_text = tk.Text(editor_window, wrap="word", font=("Courier", 16))
         data_text.pack(fill="both", expand=True, padx=10, pady=10)
     
         # Load the content of data.py into the Text widget
