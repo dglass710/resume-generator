@@ -258,7 +258,7 @@ class ResumeGeneratorGUI:
             "Use the dedicated text box to quickly enter a one-time objective tailored for the specific resume you’re generating. "
             "These objectives can highlight your skills, education, or experiences based on the job title or role you’re targeting.\n\n"
             "5. Selecting Sections:\n"
-            "   Use checkboxes to include or exclude sections or subsections, tailoring the resume to your needs.\n\n"
+            "   Use checkboxes to include or exclude sections (ie. Core Competencies) or subsections (ie. individual skills), tailoring the resume to your needs.\n\n"
             "6. Generate Resume:\n"
             "   Enter a file name (without an extension) and click 'Generate Resume'. A Word document (.docx) will be created with all selected sections and customizations. The file will be saved in the ResumeGeneratorApp folder.\n\n"
             "7. Navigation:\n"
