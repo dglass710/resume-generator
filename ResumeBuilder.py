@@ -71,6 +71,7 @@ class ResumeGeneratorGUI:
         style.configure("Custom.TCheckbutton", font=main_font)  # Define a style for Checkbuttons
         style.configure("Custom.TRadiobutton", font=main_font)  # Define a style for Radiobuttons
         style.configure("Custom.TLabel", font=main_font)        # Define a style for Labels
+        style.configure("Custom.TEntry", font=main_font)        # Define a style for Labels
     
     def get_main_font_size(self):
         """Retrieve the font size for main window elements."""
@@ -375,7 +376,11 @@ class ResumeGeneratorGUI:
 
         # Output file name entry and generate button
         ttk.Label(bottom_frame, text="Output File Name:", style="Custom.TLabel").pack(side="left", padx=5)
-        ttk.Entry(bottom_frame, textvariable=self.output_file_name_var, width=30).pack(side="left", padx=5)
+        entry = ttk.Entry(bottom_frame, textvariable=self.output_file_name_var, width=30)
+        entry.pack(side="left", padx=5)
+        # Set custom font for the Entry widget
+        main_font_size = self.get_main_font_size()
+        entry.configure(font=("Arial", main_font_size))
         ttk.Button(bottom_frame, text="Generate Resume", command=self.generate_resume).pack(side="left", padx=10)
 
     def bind_mousewheel(self, event=None):
