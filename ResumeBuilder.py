@@ -224,47 +224,42 @@ class ResumeGeneratorGUI:
         # Information text to display
         information_content = (
             "Welcome to the Resume Generator App!\n\n"
-            "This application helps you customize and generate professional resumes "
-            "based on a template. Here's how you can use the app:\n\n"
-            "1. Edit Resume Data: Click the 'Edit Resume Data' button to modify the content "
-            "of the main app. This allows you to control which sections and options appear as "
-            "checkboxes in the app. For example, you can add or edit content that will show up in "
-            "sections like Objective, Professional Experience, and Education, and define what options "
-            "are available to include in your resume. All changes you make here will be saved and "
-            "used when the 'Generate Resume' button is pressed to create a Word document.\n\n"
-            "   - Tip: Save a copy of your working resume data by copying and pasting it into a safe location, such as a document or cloud storage. Additionally, you can make a copy of the 'data.py' file "
-            "in the ResumeGeneratorApp folder to ensure you have a backup that can be restored if needed.\n\n"
-            "2. Customize Appearance: You can adjust the sizes of the main application window and editor "
-            "windows, as well as the editor's text size. These settings can be found and modified in the "
-            "editor, giving you complete control over how the app looks and behaves.\n\n"
-
-            "3. Reset to Default Data: This feature is particularly helpful if you accidentally delete or misplace important syntax such as parentheses, commas, or brackets while editing and cannot fix it. Resetting will restore the resume data to its original, error-free state. "
-
-               "Additionally, this is a useful option if you change career paths or simply want to start fresh and create a new resume from scratch. "
-
-                  "Before resetting, it’s a good idea to save a copy of your current resume data, even if it’s broken. This way, you can use it as a reference to quickly rebuild your customizations after resetting to default. For example, you can copy and paste the content into a separate file or make a backup of the 'data.py' file in the ResumeGeneratorApp folder. Having this saved copy can save time when reconstructing your resume structure or re-adding specific sections and options you previously customized.\n\n"
-
-
-            "4. Objective Selection: Choose from predefined objective statements or create your own custom objective. "
-            "Custom objectives can be entered in a dedicated text box for flexibility.\n\n"
-            "5. Selecting Sections: Use checkboxes to include or exclude specific sections or subsections from the resume. "
-            "This lets you tailor your resume to your needs, ensuring that only relevant information is included.\n\n"
-            "6. Generate Resume: Enter a file name for the generated resume (without an extension) and click "
-            "'Generate Resume'. The app will create a Word document (.docx) containing all selected sections and "
-            "your customizations.\n\n"
-            "7. Navigation: Scroll through the sections using the scrollbar on the right. Ensure all desired sections "
-            "are selected before generating the resume.\n\n"
-            "8. Where Your Files Are Stored:\n\n"
-            "   - All the files related to this app, including your custom template file (called 'data.py') and any resumes "
-            "you create (saved as .docx files), will be in one specific folder.\n\n"
-            "   - To easily access this folder, click the View Files button at the top of the app. "
-            "This will open the ResumeGeneratorApp folder, located inside your Documents folder.\n\n"
-            "   - Inside this folder, you’ll find:\n"
-            "     1. The 'data.py' file, which stores your resume template.\n"
-            "     2. Any resumes you've generated, saved as .docx files.\n\n"
-            "   Using the 'View Files' button ensures you don’t need to manually search for the folder, "
-            "making it quick and easy to find all your files.\n\n"
-            "For additional help or feedback, contact the developer."
+            "This application helps you customize and generate professional resumes based on a template. Here's how you can use the app:\n\n"
+            "About the ResumeGeneratorApp Folder:\n"
+            "All the app's files are stored in a special folder called the ResumeGeneratorApp folder, located inside your Documents folder. "
+            "This folder contains:\n"
+            "1. 'data.py' – Your resume template file where all customizations are saved.\n"
+            "2. Generated resumes – Saved as .docx files when you click 'Generate Resume'.\n\n"
+            "You can easily access this folder at any time by clicking the 'View Files' button in the app.\n\n"
+            "Steps to Use the App:\n\n"
+            "1. Edit Resume Data:\n"
+            "   Click the 'Edit Resume Data' button to open the editor. This is where you can make all changes to your resume content and customize the app's settings.\n"
+            "   - Add or edit sections such as Objective, Professional Experience, and Education.\n"
+            "   - Define which options appear as checkboxes in the app.\n"
+            "   - All changes made in the editor are automatically saved to the 'data.py' file in the ResumeGeneratorApp folder.\n\n"
+            "   Tip: Before making significant changes, back up your 'data.py' file to a safe location. This ensures you can restore your customizations if something goes wrong.\n\n"
+            "2. Customize Appearance:\n"
+            "   While in the 'Edit Resume Data' editor, you can also adjust the app's appearance:\n"
+            "   - Main window dimensions: Modify using 'window_width' and 'window_length'.\n"
+            "   - Editor dimensions: Adjust using 'editor_window_width' and 'editor_window_length'.\n"
+            "   - Font sizes: Customize using 'main_window_font_size' (for the main app) and 'editor_text_size' (for the editor).\n\n"
+            "   These settings allow you to personalize the interface for better usability and readability.\n\n"
+            "3. Reset to Default Data:\n"
+            "   If you accidentally delete or misplace important syntax (e.g., parentheses, commas), use the reset feature to restore the original resume data.\n"
+            "   When to use:\n"
+            "   - If changing career paths.\n"
+            "   - If starting fresh to create a new resume.\n\n"
+            "   Tip: Before resetting, save a backup of your current 'data.py' file. Even if the data is broken, you can use it as a reference to quickly rebuild your customizations.\n\n"
+            "4. Objective Selection:\n"
+            "   Choose from predefined objectives or create your own custom objective. Enter custom text in the dedicated text box.\n\n"
+            "5. Selecting Sections:\n"
+            "   Use checkboxes to include or exclude sections (ie. core competencies) or subsections (ie. skills), tailoring the resume to your needs.\n\n"
+            "6. Generate Resume:\n"
+            "   Enter a file name (without an extension) and click 'Generate Resume'. A Word document (.docx) will be created with all selected sections and customizations. The file will be saved in the ResumeGeneratorApp folder.\n\n"
+            "7. Navigation:\n"
+            "   Use the scrollbar to explore and select desired sections before generating the resume.\n\n"
+            "For Additional Help:\n"
+            "Contact the developer for any questions or feedback.\n"
         )
 
         # Insert the information content into the Text widget
@@ -681,23 +676,3 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = ResumeGeneratorGUI(root)
     root.mainloop()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
