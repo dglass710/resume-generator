@@ -1,8 +1,2 @@
-# Ignore all files by default
-*
-
-# Allow only .docx files in the root directory
-!/*.docx
-
 # Ignore Word temporary files (starting with ~)
 ~*.docx
