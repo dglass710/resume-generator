@@ -19,7 +19,7 @@ master_resume = [
         "window_length": "500", # You should only put digits 0-9 here
         "editor_window_width": "600", # You should only put digits 0-9 here
         "editor_window_length": "500", # You should only put digits 0-9 here
-        "main_window_font_size": "16", # You should only put digits 0-9 here    
+        "main_window_font_size": "20", # You should only put digits 0-9 here    
         "editor_text_size": "16" # You should only put digits 0-9 here
     },
     {
