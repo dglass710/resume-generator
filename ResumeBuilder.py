@@ -34,6 +34,8 @@ class ResumeGeneratorGUI:
         # Set window dimensions
         self.set_dimensions()
 
+        # Initialize styles
+        self.create_styles()  
 
         # Variables to track selections
         self.section_vars = {}  # Main section checkboxes
@@ -59,6 +61,23 @@ class ResumeGeneratorGUI:
         else:
             base_path = os.path.dirname(os.path.abspath(__file__))
         return os.path.join(base_path, filename)
+
+    def create_styles(self):
+        """Create and configure styles for ttk widgets."""
+        main_font_size = self.get_main_font_size()  # Retrieve font size dynamically
+        main_font = f"Arial {main_font_size}"  # Font as a single string for ttk styles
+        
+        style = ttk.Style(self.root)
+        style.configure("Custom.TCheckbutton", font=main_font)  # Define a style for Checkbuttons
+        style.configure("Custom.TRadiobutton", font=main_font)  # Define a style for Radiobuttons
+        style.configure("Custom.TLabel", font=main_font)        # Define a style for Labels
+    
+    def get_main_font_size(self):
+        """Retrieve the font size for main window elements."""
+        try:
+            return int(master_resume[0].get("main_window_font_size", 14))  # Default to 14 if not defined
+        except ValueError:
+            return 14
 
     def load_master_resume(self):
         """Load the current version of master_resume from data.py."""
@@ -207,23 +226,38 @@ class ResumeGeneratorGUI:
             "This application helps you customize and generate professional resumes "
             "based on a template. Here's how you can use the app:\n\n"
             "1. Edit Resume Data: Click the 'Edit Resume Data' button to modify the content "
-            "of the resume template. This will open an editor where you can make changes.\n\n"
-            "2. Reset to Default Data: If you want to start over, use this button to reset "
-            "the resume data to its original state. Note: This action will erase all custom changes.\n\n"
-            "3. Objective Selection: Choose from predefined objective statements or create a "
-            "custom one by selecting 'Custom Objective' and entering your own text.\n\n"
-            "4. Selecting Sections: Use checkboxes to include or exclude specific sections "
-            "or subsections from the resume. This allows you to tailor the resume to your needs.\n\n"
-            "5. Generate Resume: Enter a file name for the generated resume (without extension) "
-            "and click 'Generate Resume'. The resume will be created as a .docx file.\n\n"
-            "6. Information Window: This window provides an overview of how to use the app.\n\n"
-            "7. Navigation: Scroll through the sections using the scrollbar on the right. "
-            "Ensure all desired sections are selected before generating the resume.\n\n"
-            "8. Where Your Files Are Stored:\n"
-            "   - All the files related to this app, including your custom template file (called 'data.py') "
-            "and any resumes you create (saved as .docx files), will be in one specific folder.\n\n"
-            "   - To easily access this folder, click the **View Files** button at the top of the app. "
-            "This will open the **ResumeGeneratorApp** folder, located inside your **Documents** folder.\n\n"
+            "of the main app. This allows you to control which sections and options appear as "
+            "checkboxes in the app. For example, you can add or edit content that will show up in "
+            "sections like Objective, Professional Experience, and Education, and define what options "
+            "are available to include in your resume. All changes you make here will be saved and "
+            "used when the 'Generate Resume' button is pressed to create a Word document.\n\n"
+            "   - Tip: Save a copy of your working resume data by copying and pasting it into a safe location, such as a document or cloud storage. Additionally, you can make a copy of the 'data.py' file "
+            "in the ResumeGeneratorApp folder to ensure you have a backup that can be restored if needed.\n\n"
+            "2. Customize Appearance: You can adjust the sizes of the main application window and editor "
+            "windows, as well as the editor's text size. These settings can be found and modified in the "
+            "editor, giving you complete control over how the app looks and behaves.\n\n"
+
+            "3. Reset to Default Data: This feature is particularly helpful if you accidentally delete or misplace important syntax such as parentheses, commas, or brackets while editing and cannot fix it. Resetting will restore the resume data to its original, error-free state. "
+
+               "Additionally, this is a useful option if you change career paths or simply want to start fresh and create a new resume from scratch. "
+
+                  "Before resetting, it’s a good idea to save a copy of your current resume data, even if it’s broken. This way, you can use it as a reference to quickly rebuild your customizations after resetting to default. For example, you can copy and paste the content into a separate file or make a backup of the 'data.py' file in the ResumeGeneratorApp folder. Having this saved copy can save time when reconstructing your resume structure or re-adding specific sections and options you previously customized.\n\n"
+
+
+            "4. Objective Selection: Choose from predefined objective statements or create your own custom objective. "
+            "Custom objectives can be entered in a dedicated text box for flexibility.\n\n"
+            "5. Selecting Sections: Use checkboxes to include or exclude specific sections or subsections from the resume. "
+            "This lets you tailor your resume to your needs, ensuring that only relevant information is included.\n\n"
+            "6. Generate Resume: Enter a file name for the generated resume (without an extension) and click "
+            "'Generate Resume'. The app will create a Word document (.docx) containing all selected sections and "
+            "your customizations.\n\n"
+            "7. Navigation: Scroll through the sections using the scrollbar on the right. Ensure all desired sections "
+            "are selected before generating the resume.\n\n"
+            "8. Where Your Files Are Stored:\n\n"
+            "   - All the files related to this app, including your custom template file (called 'data.py') and any resumes "
+            "you create (saved as .docx files), will be in one specific folder.\n\n"
+            "   - To easily access this folder, click the View Files button at the top of the app. "
+            "This will open the ResumeGeneratorApp folder, located inside your Documents folder.\n\n"
             "   - Inside this folder, you’ll find:\n"
             "     1. The 'data.py' file, which stores your resume template.\n"
             "     2. Any resumes you've generated, saved as .docx files.\n\n"
@@ -340,7 +374,7 @@ class ResumeGeneratorGUI:
         bottom_frame.pack(fill="x", pady=10)
 
         # Output file name entry and generate button
-        ttk.Label(bottom_frame, text="Output File Name:").pack(side="left", padx=5)
+        ttk.Label(bottom_frame, text="Output File Name:", style="Custom.TLabel").pack(side="left", padx=5)
         ttk.Entry(bottom_frame, textvariable=self.output_file_name_var, width=30).pack(side="left", padx=5)
         ttk.Button(bottom_frame, text="Generate Resume", command=self.generate_resume).pack(side="left", padx=10)
 
@@ -379,7 +413,8 @@ class ResumeGeneratorGUI:
 
         section_checkbox = ttk.Checkbutton(
                 section_frame, text=section["title"], variable=section_var,
-                command=lambda: self.toggle_suboptions(section["title"], section_var.get())
+                command=lambda: self.toggle_suboptions(section["title"], section_var.get()),
+                style="Custom.TCheckbutton"
                 )
         section_checkbox.pack(anchor="w")
 
@@ -402,7 +437,7 @@ class ResumeGeneratorGUI:
     def add_personal_info(self, parent, content):
         for line in content:
             # Display each line as a wrapped label
-            ttk.Label(parent, text=line, wraplength=500).pack(anchor="w", pady=2)
+            ttk.Label(parent, text=line, wraplength=500, style="Custom.TLabel").pack(anchor="w", pady=2)
 
     def add_objective_options(self, parent, options):
         # Create radio buttons for prefab options
@@ -411,17 +446,17 @@ class ResumeGeneratorGUI:
             label_frame = ttk.Frame(parent)
             label_frame.pack(anchor="w", pady=2)
             ttk.Radiobutton(
-                    label_frame, variable=self.selected_objective, value=option
+                    label_frame, variable=self.selected_objective, value=option, style="Custom.TRadiobutton"
                     ).pack(side="left")
-            ttk.Label(label_frame, text=option, wraplength=500).pack(side="left")
+            ttk.Label(label_frame, text=option, wraplength=500, style="Custom.TLabel").pack(side="left")
 
         # Custom objective option with a Text widget
         custom_frame = ttk.Frame(parent)
         custom_frame.pack(anchor="w", pady=5)
         ttk.Radiobutton(
-                custom_frame, variable=self.selected_objective, value="Custom"
+                custom_frame, variable=self.selected_objective, value="Custom", style="Custom.TRadiobutton"
                 ).pack(side="left")
-        ttk.Label(custom_frame, text="Custom Objective:").pack(side="left")
+        ttk.Label(custom_frame, text="Custom Objective:", style="Custom.TLabel").pack(side="left")
 
         # Use a Text widget for multi-line input
         self.custom_objective_text = tk.Text(custom_frame, height=5, width=50, wrap="word")
@@ -439,7 +474,7 @@ class ResumeGeneratorGUI:
             self.subsection_vars[(section_title, main_entry)] = var
 
             # Display the first item only
-            ttk.Checkbutton(parent, text=main_entry, variable=var).pack(anchor="w")
+            ttk.Checkbutton(parent, text=main_entry, variable=var, style="Custom.TCheckbutton").pack(anchor="w")
 
     def add_suboptions(self, parent, options, section_title):
         if section_title == "Core Competencies":
@@ -488,7 +523,7 @@ class ResumeGeneratorGUI:
                 for option in column:
                     var = tk.BooleanVar(value=True)
                     self.subsection_vars[(section_title, option)] = var
-                    ttk.Checkbutton(column_frame, text=option, variable=var).pack(anchor="w")
+                    ttk.Checkbutton(column_frame, text=option, variable=var, style="Custom.TCheckbutton").pack(anchor="w")
         else:
             # Default behavior for other sections
             for option in options:
@@ -496,11 +531,11 @@ class ResumeGeneratorGUI:
                     subtitle = option["subtitle"]
                     var = tk.BooleanVar(value=True)
                     self.subsection_vars[(section_title, subtitle)] = var
-                    ttk.Checkbutton(parent, text=subtitle, variable=var).pack(anchor="w")
+                    ttk.Checkbutton(parent, text=subtitle, variable=var, style="Custom.TCheckbutton").pack(anchor="w")
                 else:  # Handle regular strings
                     var = tk.BooleanVar(value=True)
                     self.subsection_vars[(section_title, option)] = var
-                    ttk.Checkbutton(parent, text=option, variable=var).pack(anchor="w")
+                    ttk.Checkbutton(parent, text=option, variable=var, style="Custom.TCheckbutton").pack(anchor="w")
 
     def toggle_suboptions(self, section_title, enabled):
         # Enable or disable sub-options when the main section is toggled
@@ -604,7 +639,10 @@ class ResumeGeneratorGUI:
 
             # Reload the updated data.py file and update master_resume
             self.load_master_resume()
-    
+            
+            # Recreate styles based on the new font size in data.py
+            self.create_styles()  # Apply updated styles
+
             # Update main window dimensions
             self.set_dimensions()
     
