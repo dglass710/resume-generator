@@ -69,7 +69,7 @@ master_resume = [
                 "subtitle": "Mathnasium – Mathematics Instructor",
                 "date": "April 2023 – Present, Chicago, IL",
                 "details": [
-                    "Instructed 370 students in mathematical concepts.",
+                    "Instructed 370 students K-12 in mathematical concepts.",
                     "Enhanced security of iPads used in instruction by implementing guided access controls."
                 ]
             },
