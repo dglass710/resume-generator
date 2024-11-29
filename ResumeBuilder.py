@@ -71,7 +71,7 @@ class ResumeGeneratorGUI:
         style.configure("Custom.TCheckbutton", font=main_font)  # Define a style for Checkbuttons
         style.configure("Custom.TRadiobutton", font=main_font)  # Define a style for Radiobuttons
         style.configure("Custom.TLabel", font=main_font)        # Define a style for Labels
-        style.configure("Custom.TEntry", font=main_font)        # Define a style for Labels
+        style.configure("Custom.TButton", font=main_font)       # Define a style for Buttons
     
     def get_main_font_size(self):
         """Retrieve the font size for main window elements."""
@@ -320,7 +320,8 @@ class ResumeGeneratorGUI:
         save_button = ttk.Button(
             editor_window, 
             text="Save Changes", 
-            command=lambda: self.save_changes(editor_window)  # Pass the current editor window
+            command=lambda: self.save_changes(editor_window),  # Pass the current editor window
+            style="Custom.TButton"
         )
         save_button.pack(anchor="center", pady=10)
 
@@ -335,10 +336,10 @@ class ResumeGeneratorGUI:
         top_frame.pack(fill="x", pady=10)
 
         # Buttons in the top frame
-        ttk.Button(top_frame, text="Edit Resume Data", command=self.open_editor_window).pack(side="left", padx=10)
-        ttk.Button(top_frame, text="Reset to Default Data", command=self.reset_to_default).pack(side="left", padx=10)
-        ttk.Button(top_frame, text="View Files", command=self.open_app_directory).pack(side="left", padx=10)
-        ttk.Button(top_frame, text="Information", command=self.open_information_window).pack(side="left", padx=10)
+        ttk.Button(top_frame, text="Edit Resume Data", command=self.open_editor_window, style="Custom.TButton").pack(side="left", padx=10)
+        ttk.Button(top_frame, text="Reset to Default Data", command=self.reset_to_default, style="Custom.TButton").pack(side="left", padx=10)
+        ttk.Button(top_frame, text="View Files", command=self.open_app_directory, style="Custom.TButton").pack(side="left", padx=10)
+        ttk.Button(top_frame, text="Information", command=self.open_information_window, style="Custom.TButton").pack(side="left", padx=10)
 
         # Main container for scrollable frame
         main_frame = ttk.Frame(self.root)
@@ -381,7 +382,7 @@ class ResumeGeneratorGUI:
         # Set custom font for the Entry widget
         main_font_size = self.get_main_font_size()
         entry.configure(font=("Arial", main_font_size))
-        ttk.Button(bottom_frame, text="Generate Resume", command=self.generate_resume).pack(side="left", padx=10)
+        ttk.Button(bottom_frame, text="Generate Resume", command=self.generate_resume, style="Custom.TButton").pack(side="left", padx=10)
 
     def bind_mousewheel(self, event=None):
         """Bind mouse wheel scrolling to the canvas."""
