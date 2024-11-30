@@ -527,7 +527,8 @@ class ResumeGeneratorGUI:
                 column_frame.pack(side="left", padx=10, anchor="n")  # Align to the top
 
                 for option in column:
-                    var = tk.BooleanVar(value=True)
+                    # Subsections for "Core Competencies" start unchecked
+                    var = tk.BooleanVar(value=False)  # Set initial state to unchecked
                     self.subsection_vars[(section_title, option)] = var
                     ttk.Checkbutton(column_frame, text=option, variable=var, style="Custom.TCheckbutton").pack(anchor="w")
         else:
@@ -535,11 +536,13 @@ class ResumeGeneratorGUI:
             for option in options:
                 if isinstance(option, dict):  # Handle dictionaries (e.g., Professional Experience)
                     subtitle = option["subtitle"]
-                    var = tk.BooleanVar(value=True)
+                    initial_state = False if section_title in ["Core Competencies", "Technical Projects"] else True
+                    var = tk.BooleanVar(value=initial_state)  # Set initial state based on section
                     self.subsection_vars[(section_title, subtitle)] = var
                     ttk.Checkbutton(parent, text=subtitle, variable=var, style="Custom.TCheckbutton").pack(anchor="w")
                 else:  # Handle regular strings
-                    var = tk.BooleanVar(value=True)
+                    initial_state = False if section_title in ["Core Competencies", "Technical Projects"] else True
+                    var = tk.BooleanVar(value=initial_state)  # Set initial state based on section
                     self.subsection_vars[(section_title, option)] = var
                     ttk.Checkbutton(parent, text=option, variable=var, style="Custom.TCheckbutton").pack(anchor="w")
 
