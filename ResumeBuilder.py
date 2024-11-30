@@ -544,10 +544,16 @@ class ResumeGeneratorGUI:
                     ttk.Checkbutton(parent, text=option, variable=var, style="Custom.TCheckbutton").pack(anchor="w")
 
     def toggle_suboptions(self, section_title, enabled):
-        # Enable or disable sub-options when the main section is toggled
+        """
+        Enable or disable sub-options when the main section is toggled.
+        Apply different behaviors for specific sections.
+        """
         for key, var in self.subsection_vars.items():
             if isinstance(key, tuple) and key[0] == section_title:
-                var.set(enabled)
+                if not enabled:  # Parent checkbox is unchecked
+                    var.set(False)
+                elif section_title not in ["Core Competencies", "Technical Projects"]:
+                    var.set(True)  # Auto-check all children for specific sections
 
     def generate_resume(self):
         selected_sections = []
