@@ -15,8 +15,8 @@ master_resume = [
         ],
         # The window title for the resume generator GUI.
         "window_title": "IT Systems Administrator",
-        "window_width": "1000", # You should only put digits 0-9 here
-        "window_length": "500", # You should only put digits 0-9 here
+        "window_width": "1600", # You should only put digits 0-9 here
+        "window_length": "1000", # You should only put digits 0-9 here
         "editor_window_width": "900", # You should only put digits 0-9 here
         "editor_window_length": "500", # You should only put digits 0-9 here
         "main_window_font_size": "20", # You should only put digits 0-9 here    
