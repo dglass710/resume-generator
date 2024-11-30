@@ -454,7 +454,7 @@ class ResumeGeneratorGUI:
             ttk.Radiobutton(
                     label_frame, variable=self.selected_objective, value=option, style="Custom.TRadiobutton"
                     ).pack(side="left")
-            ttk.Label(label_frame, text=option, wraplength=500, style="Custom.TLabel").pack(side="left")
+            ttk.Label(label_frame, text=option, wraplength=800, style="Custom.TLabel").pack(side="left")
 
         # Custom objective option with a Text widget
         custom_frame = ttk.Frame(parent)
