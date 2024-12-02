@@ -544,7 +544,31 @@ class ResumeGeneratorGUI:
                     initial_state = False if section_title in ["Core Competencies", "Technical Projects"] else True
                     var = tk.BooleanVar(value=initial_state)  # Set initial state based on section
                     self.subsection_vars[(section_title, option)] = var
-                    ttk.Checkbutton(parent, text=option, variable=var, style="Custom.TCheckbutton").pack(anchor="w")
+                
+                    if section_title == "Technical Projects":
+                        # Create a frame for the checkbox and text
+                        checkbox_and_label_frame = ttk.Frame(parent)
+                        checkbox_and_label_frame.pack(fill="x", pady=2)  # Reduce vertical padding
+                
+                        # Add the checkbox with no text
+                        ttk.Checkbutton(
+                            checkbox_and_label_frame,
+                            text="",  # Leave checkbox text empty
+                            variable=var,
+                            style="Custom.TCheckbutton"
+                        ).pack(side="left", padx=5)
+                
+                        # Add the full project text as a wrapped label
+                        ttk.Label(
+                            checkbox_and_label_frame,
+                            text=option,
+                            wraplength=800,  # Ensure text wraps if it's long
+                            style="Custom.TLabel",
+                            justify="left"
+                        ).pack(side="left")
+                    else:
+                        # Default behavior for regular sections
+                        ttk.Checkbutton(parent, text=option, variable=var, style="Custom.TCheckbutton").pack(anchor="w")
 
     def toggle_suboptions(self, section_title, enabled):
         """
