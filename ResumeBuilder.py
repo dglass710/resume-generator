@@ -52,8 +52,10 @@ class ResumeGeneratorGUI:
             width = int(master_resume[0]["window_width"])
             length = int(master_resume[0]["window_length"])
             self.root.geometry(f"{width}x{length}")
+            self.wrap_length = max(0, width - 100)
         except:
             self.root.geometry("600x700")
+            self.wrap_length = 500
 
     def get_file_path(self, filename):
         if getattr(sys, 'frozen', False):  # Running as a PyInstaller bundle
@@ -454,7 +456,7 @@ class ResumeGeneratorGUI:
             ttk.Radiobutton(
                     label_frame, variable=self.selected_objective, value=option, style="Custom.TRadiobutton"
                     ).pack(side="left")
-            ttk.Label(label_frame, text=option, wraplength=800, style="Custom.TLabel").pack(side="left")
+            ttk.Label(label_frame, text=option, wraplength=self.wrap_length, style="Custom.TLabel").pack(side="left")
 
         # Custom objective option with a Text widget
         custom_frame = ttk.Frame(parent)
@@ -562,7 +564,7 @@ class ResumeGeneratorGUI:
                         ttk.Label(
                             checkbox_and_label_frame,
                             text=option,
-                            wraplength=800,  # Ensure text wraps if it's long
+                            wraplength=self.wrap_length,  # Ensure text wraps if it's long
                             style="Custom.TLabel",
                             justify="left"
                         ).pack(side="left")
