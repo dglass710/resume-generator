@@ -35,7 +35,6 @@ class ResumeGeneratorGUI:
 
         self.set_dimensions()
         self.create_styles()
-
         # Variables for selections and file name
         self.section_vars = {}  # Main section checkboxes
         self.subsection_vars = {}  # Sub-options checkboxes
@@ -165,7 +164,6 @@ class ResumeGeneratorGUI:
         scrollbar.pack(side="right", fill="y")
         info_text.configure(yscrollcommand=scrollbar.set)
         information_content = (
-            "Welcome to the Resume Generator App!\n\n"
             "This application lets you customize and generate professional resumes. "
             "Your data is stored in a JSON file, and you can edit it via the built-in editor.\n\n"
             "Features include:\n"
@@ -214,6 +212,129 @@ class ResumeGeneratorGUI:
         if editor_window in self.editor_windows:
             del self.editor_windows[editor_window]
         editor_window.destroy()
+
+    # NEW: Helper method to write the current master_resume data to data.json
+    def write_master_resume(self):
+        try:
+            with open(self.get_file_path("data.json"), "w") as f:
+                json.dump(self.master_resume, f, indent=4)
+        except Exception as e:
+            messagebox.showerror("Error", f"Could not write data.json: {e}")
+
+    # NEW: Method to edit a section’s full content (add, edit, remove items) with preview
+    def edit_section_content(self, section):
+        win = tk.Toplevel(self.root)
+        win.title(f"Edit Content for {section['title']}")
+        win.geometry("600x500")
+
+        # Create a main frame to hold both listbox and preview
+        main_frame = ttk.Frame(win)
+        main_frame.pack(fill="both", expand=True, padx=10, pady=10)
+
+        # Left frame for listbox
+        list_frame = ttk.Frame(main_frame)
+        list_frame.pack(side="left", fill="both", expand=True)
+        listbox = tk.Listbox(list_frame, width=40)
+        listbox.pack(side="top", fill="both", expand=True)
+        scrollbar = ttk.Scrollbar(list_frame, command=listbox.yview)
+        scrollbar.pack(side="right", fill="y")
+        listbox.config(yscrollcommand=scrollbar.set)
+
+        # Right frame for preview
+        preview_frame = ttk.Frame(main_frame)
+        preview_frame.pack(side="right", fill="both", expand=True, padx=(10,0))
+        ttk.Label(preview_frame, text="Preview:").pack(anchor="w")
+        preview_text = tk.Text(preview_frame, height=20, wrap="word", state="disabled")
+        preview_text.pack(fill="both", expand=True)
+
+        def summarize(item):
+            # Return a summary (first 100 characters) of the full JSON representation.
+            s = json.dumps(item)
+            if len(s) > 100:
+                return s[:100] + "..."
+            return s
+
+        def update_preview(event=None):
+            selection = listbox.curselection()
+            if selection:
+                index = selection[0]
+                item = section["content"][index]
+                full_text = json.dumps(item, indent=2)
+            else:
+                full_text = ""
+            preview_text.config(state="normal")
+            preview_text.delete("1.0", tk.END)
+            preview_text.insert("1.0", full_text)
+            preview_text.config(state="disabled")
+
+        listbox.bind("<<ListboxSelect>>", update_preview)
+
+        # Populate the listbox
+        for i, item in enumerate(section["content"]):
+            listbox.insert("end", summarize(item))
+
+        btn_frame = ttk.Frame(win)
+        btn_frame.pack(fill="x", padx=10, pady=5)
+
+        def add_item():
+            add_win = tk.Toplevel(win)
+            add_win.title("Add New Item")
+            text = tk.Text(add_win, height=10, width=60)
+            text.pack(padx=10, pady=10)
+            def save_new():
+                try:
+                    new_item = json.loads(text.get("1.0", tk.END).strip())
+                except Exception as e:
+                    messagebox.showerror("Error", f"Invalid JSON: {e}")
+                    return
+                section["content"].append(new_item)
+                listbox.insert("end", summarize(new_item))
+                self.write_master_resume()
+                add_win.destroy()
+                update_preview()
+            ttk.Button(add_win, text="Save", command=save_new).pack(pady=5)
+
+        def edit_item():
+            selected = listbox.curselection()
+            if not selected:
+                messagebox.showerror("Error", "No item selected")
+                return
+            index = selected[0]
+            item = section["content"][index]
+            edit_win = tk.Toplevel(win)
+            edit_win.title("Edit Item")
+            text = tk.Text(edit_win, height=10, width=60)
+            text.pack(padx=10, pady=10)
+            text.insert("1.0", json.dumps(item, indent=2))
+            def save_edit():
+                try:
+                    new_item = json.loads(text.get("1.0", tk.END).strip())
+                except Exception as e:
+                    messagebox.showerror("Error", f"Invalid JSON: {e}")
+                    return
+                section["content"][index] = new_item
+                listbox.delete(index)
+                listbox.insert(index, summarize(new_item))
+                self.write_master_resume()
+                edit_win.destroy()
+                update_preview()
+            ttk.Button(edit_win, text="Save", command=save_edit).pack(pady=5)
+
+        def remove_item():
+            selected = listbox.curselection()
+            if not selected:
+                messagebox.showerror("Error", "No item selected")
+                return
+            index = selected[0]
+            if messagebox.askyesno("Confirm", "Remove selected item?"):
+                del section["content"][index]
+                listbox.delete(index)
+                self.write_master_resume()
+                update_preview()
+
+        ttk.Button(btn_frame, text="Add", command=add_item).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Edit", command=edit_item).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Remove", command=remove_item).pack(side="left", padx=5)
 
     def create_gui(self):
         top_frame = ttk.Frame(self.root)
@@ -281,7 +402,14 @@ class ResumeGeneratorGUI:
             command=lambda: self.toggle_suboptions(section["title"], section_var.get()),
             style="Custom.TCheckbutton"
         )
-        section_checkbox.pack(anchor="w")
+        section_checkbox.pack(side="left", anchor="w")
+        # NEW: Add an Edit Section button to modify full section content
+        ttk.Button(
+            section_frame,
+            text="Edit Section",
+            command=lambda: self.edit_section_content(section),
+            style="Custom.TButton"
+        ).pack(side="right", padx=5)
         if "content" in section and isinstance(section["content"], list):
             if section["title"] == "Personal Information":
                 return
@@ -305,7 +433,6 @@ class ResumeGeneratorGUI:
                 style="Custom.TRadiobutton"
             ).pack(side="left")
             ttk.Label(label_frame, text=option, wraplength=self.wrap_length, style="Custom.TLabel").pack(side="left")
-        # Custom objective option using a multi-line Text widget
         custom_frame = ttk.Frame(parent)
         custom_frame.pack(anchor="w", pady=5)
         ttk.Radiobutton(
@@ -448,7 +575,6 @@ class ResumeGeneratorGUI:
         data_text = self.editor_windows[editor_window]["text_widget"]
         updated_content = data_text.get("1.0", tk.END).strip()
         try:
-            # Validate JSON before saving
             parsed = json.loads(updated_content)
             with open(self.get_file_path("data.json"), "w") as f:
                 json.dump(parsed, f, indent=4)
