@@ -43,6 +43,16 @@ class ResumeGeneratorGUI:
 
         self.create_gui()
 
+    def restrict_quotes(self, event):
+        """Block typing of double quotes and backslashes."""
+        if event.char in ['"', '\\']:
+            return "break"
+
+    def insert_literal_newline(self, event):
+        """Instead of a newline, insert the literal string '\\n' and cancel the event."""
+        event.widget.insert(tk.INSERT, "\\n")
+        return "break"
+
     def set_dimensions(self):
         try:
             width = int(self.master_resume[0]["window_width"])
@@ -167,9 +177,12 @@ class ResumeGeneratorGUI:
             "This application lets you customize and generate professional resumes. "
             "Your data is stored in a JSON file, and you can edit it via the built-in editor.\n\n"
             "Features include:\n"
-            "• Editing of sections (Objective, Education, etc.) via the GUI with friendly text boxes.\n"
-            "• Dynamic controls (checkboxes, radio buttons, plus buttons for adding items).\n"
+            "• Single-line editing for all sections except Professional Experience and Education details.\n"
+            "  (Pressing Enter will insert the literal '\\n' instead of a newline.)\n"
+            "• The multi-line editors for the exceptions also block double quotes and backslashes.\n"
+            "• Dynamic controls (checkboxes, radio buttons, and buttons for adding items).\n"
             "• Generation of a formatted Word document using the selected data.\n\n"
+            "Double quotes and backslashes are disallowed to prevent JSON formatting issues.\n"
             "For any help or feedback, please contact the developer."
         )
         info_text.insert("1.0", information_content)
@@ -225,8 +238,7 @@ class ResumeGeneratorGUI:
         """
         Opens an editor for a given section.
         For Professional Experience and Education, a per-field structured editor is used.
-        For all other sections (e.g., Objective, Certifications, Core Competencies, Technical Projects),
-        a simple structured editor is used where each list item is edited via a child window.
+        For all other sections, a simple structured editor (with single-line input) is used.
         """
         if section["title"] in ["Professional Experience", "Education"]:
             self.edit_structured_section_content(section)
@@ -235,8 +247,10 @@ class ResumeGeneratorGUI:
 
     def edit_structured_section_content(self, section):
         """
-        Structured editor for sections that require per-field editing
-        (specifically Professional Experience and Education).
+        Structured editor for Professional Experience and Education.
+        Single-line fields (subtitle, date, main entry) use Entry widgets (with quote and backslash restriction).
+        Multi-line fields (details) use a Text widget that still allows Enter—but the Return key is bound
+        so that it inserts the literal '\\n' rather than an actual newline.
         """
         win = tk.Toplevel(self.root)
         win.title(f"Edit Content for {section['title']}")
@@ -263,27 +277,34 @@ class ResumeGeneratorGUI:
             ttk.Label(right_frame, text="Subtitle:", style="Custom.TLabel").pack(anchor="w")
             subtitle_entry = ttk.Entry(right_frame, width=50)
             subtitle_entry.pack(anchor="w", fill="x")
+            subtitle_entry.bind("<Key>", self.restrict_quotes)
             fields["subtitle"] = subtitle_entry
 
             ttk.Label(right_frame, text="Date:", style="Custom.TLabel").pack(anchor="w")
             date_entry = ttk.Entry(right_frame, width=50)
             date_entry.pack(anchor="w", fill="x")
+            date_entry.bind("<Key>", self.restrict_quotes)
             fields["date"] = date_entry
 
             ttk.Label(right_frame, text="Details (one per line):", style="Custom.TLabel").pack(anchor="w")
             details_text = tk.Text(right_frame, height=10, wrap="word")
             details_text.pack(anchor="w", fill="both", expand=True)
+            details_text.bind("<Return>", self.insert_literal_newline)
+            details_text.bind("<Key>", self.restrict_quotes)
             fields["details"] = details_text
 
         elif section["title"] == "Education":
             ttk.Label(right_frame, text="Main Entry:", style="Custom.TLabel").pack(anchor="w")
             main_entry = ttk.Entry(right_frame, width=50)
             main_entry.pack(anchor="w", fill="x")
+            main_entry.bind("<Key>", self.restrict_quotes)
             fields["main_entry"] = main_entry
 
             ttk.Label(right_frame, text="Details (one per line):", style="Custom.TLabel").pack(anchor="w")
             details_text = tk.Text(right_frame, height=10, wrap="word")
             details_text.pack(anchor="w", fill="both", expand=True)
+            details_text.bind("<Return>", self.insert_literal_newline)
+            details_text.bind("<Key>", self.restrict_quotes)
             fields["details"] = details_text
 
         def refresh_listbox():
@@ -313,14 +334,14 @@ class ResumeGeneratorGUI:
                     date_entry.delete(0, tk.END)
                     date_entry.insert(0, item.get("date", ""))
                     details_text.delete("1.0", tk.END)
-                    details_text.insert("1.0", "\n".join(item.get("details", [])))
+                    details_text.insert("1.0", "\\n".join(item.get("details", [])))
                 elif section["title"] == "Education":
                     main_entry.delete(0, tk.END)
                     if isinstance(item, list) and len(item) > 0:
                         main_entry.insert(0, item[0])
                     details_text.delete("1.0", tk.END)
                     if isinstance(item, list) and len(item) > 1:
-                        details_text.insert("1.0", "\n".join(item[1:]))
+                        details_text.insert("1.0", "\\n".join(item[1:]))
 
         listbox.bind("<<ListboxSelect>>", on_listbox_select)
 
@@ -343,16 +364,15 @@ class ResumeGeneratorGUI:
                 new_item = {
                     "subtitle": subtitle_entry.get().strip(),
                     "date": date_entry.get().strip(),
-                    "details": [line.strip() for line in details_text.get("1.0", tk.END).strip().splitlines() if line.strip()]
+                    "details": [line.strip() for line in details_text.get("1.0", tk.END).replace("\\n", "").splitlines() if line.strip()]
                 }
             elif section["title"] == "Education":
                 new_main = main_entry.get().strip()
-                details_lines = [line.strip() for line in details_text.get("1.0", tk.END).strip().splitlines() if line.strip()]
+                details_lines = [line.strip() for line in details_text.get("1.0", tk.END).replace("\\n", "").splitlines() if line.strip()]
                 new_item = [new_main] + details_lines if new_main else []
             if current_index[0] is not None:
                 section["content"][current_index[0]] = new_item
             else:
-                # Only add if the new item is valid (e.g., has a subtitle/main entry)
                 if section["title"] == "Professional Experience" and new_item["subtitle"]:
                     section["content"].append(new_item)
                 elif section["title"] == "Education" and new_item:
@@ -377,12 +397,12 @@ class ResumeGeneratorGUI:
         Simple structured editor for sections whose content is a list of strings
         (e.g., Objective, Certifications, Core Competencies, Technical Projects).
         This editor uses a full-window listbox to display items and opens a child window for adding or editing an item.
+        The child window uses an Entry widget (with no multi-line capability) and restricts double quotes and backslashes.
         """
         win = tk.Toplevel(self.root)
         win.title(f"Edit Content for {section['title']}")
         win.geometry("600x500")
 
-        # Use the full window for the listbox and scrollbar
         listbox = tk.Listbox(win, width=80)
         listbox.pack(fill="both", expand=True, padx=10, pady=10)
         scrollbar = ttk.Scrollbar(win, orient="vertical", command=listbox.yview)
@@ -406,7 +426,6 @@ class ResumeGeneratorGUI:
 
         listbox.bind("<<ListboxSelect>>", on_listbox_select)
 
-        # Function to open a child window for adding or editing an item
         def open_edit_window(is_new=False):
             if not is_new and current_index[0] is None:
                 messagebox.showerror("Error", "No item selected for editing.")
@@ -416,17 +435,17 @@ class ResumeGeneratorGUI:
                 child_win.title(f"Add New Item for {section['title']}")
             else:
                 child_win.title(f"Edit Item for {section['title']}")
-            child_win.geometry("400x300")
+            child_win.geometry("400x150")
 
             ttk.Label(child_win, text="Item Content:", style="Custom.TLabel").pack(anchor="w", padx=10, pady=5)
-            text_widget = tk.Text(child_win, height=10, wrap="word")
-            text_widget.pack(fill="both", expand=True, padx=10, pady=5)
-
+            entry_widget = ttk.Entry(child_win, width=50)
+            entry_widget.pack(fill="x", padx=10, pady=5)
+            entry_widget.bind("<Key>", self.restrict_quotes)
+            entry_widget.bind("<Return>", lambda e: "break")  # Enforce single-line
             if not is_new:
-                text_widget.insert("1.0", section["content"][current_index[0]])
-
+                entry_widget.insert(0, section["content"][current_index[0]].replace("\\n", " "))
             def save_child():
-                new_text = text_widget.get("1.0", tk.END).strip()
+                new_text = entry_widget.get().strip()
                 if not new_text:
                     messagebox.showerror("Error", "Item content cannot be empty.")
                     return
@@ -437,10 +456,8 @@ class ResumeGeneratorGUI:
                 self.write_master_resume()
                 refresh_listbox()
                 child_win.destroy()
-
             ttk.Button(child_win, text="Save", command=save_child, style="Custom.TButton").pack(pady=10)
 
-        # Bottom button frame for actions
         btn_frame = ttk.Frame(win)
         btn_frame.pack(fill="x", padx=10, pady=5)
 
@@ -564,8 +581,9 @@ class ResumeGeneratorGUI:
             style="Custom.TRadiobutton"
         ).pack(side="left")
         ttk.Label(custom_frame, text="Custom Objective:", style="Custom.TLabel").pack(side="left")
-        self.custom_objective_text = tk.Text(custom_frame, height=5, width=50, wrap="word")
+        self.custom_objective_text = ttk.Entry(custom_frame, width=50)
         self.custom_objective_text.pack(side="left", padx=5)
+        self.custom_objective_text.bind("<Key>", self.restrict_quotes)
         if options:
             self.selected_objective.set(options[0])
 
@@ -644,7 +662,7 @@ class ResumeGeneratorGUI:
                 elif section["title"] == "Objective":
                     selected_objectives = []
                     if self.selected_objective.get() == "Custom":
-                        custom_text = self.custom_objective_text.get("1.0", tk.END).strip()
+                        custom_text = self.custom_objective_text.get().strip()
                         if custom_text:
                             selected_objectives.append(custom_text)
                     else:
