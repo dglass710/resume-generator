@@ -369,28 +369,23 @@ class ResumeGeneratorGUI:
                     refresh_listbox()
 
         ttk.Button(btn_frame, text="Add New", command=add_item, style="Custom.TButton").pack(side="left", padx=5)
-        ttk.Button(btn_frame, text="Save Edit", command=save_edit, style="Custom.TButton").pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Save", command=save_edit, style="Custom.TButton").pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Remove Selected", command=remove_item, style="Custom.TButton").pack(side="left", padx=5)
 
     def edit_simple_section_content(self, section):
         """
         Simple structured editor for sections whose content is a list of strings
         (e.g., Objective, Certifications, Core Competencies, Technical Projects).
-        This editor uses a listbox to display items and opens a child window for adding or editing an item.
+        This editor uses a full-window listbox to display items and opens a child window for adding or editing an item.
         """
         win = tk.Toplevel(self.root)
         win.title(f"Edit Content for {section['title']}")
         win.geometry("600x500")
 
-        main_frame = ttk.Frame(win)
-        main_frame.pack(fill="both", expand=True, padx=10, pady=10)
-
-        # Left frame: Listbox for items
-        left_frame = ttk.Frame(main_frame)
-        left_frame.pack(side="left", fill="y", padx=(0, 10))
-        listbox = tk.Listbox(left_frame, width=30)
-        listbox.pack(side="left", fill="y", expand=True)
-        scrollbar = ttk.Scrollbar(left_frame, command=listbox.yview)
+        # Use the full window for the listbox and scrollbar
+        listbox = tk.Listbox(win, width=80)
+        listbox.pack(fill="both", expand=True, padx=10, pady=10)
+        scrollbar = ttk.Scrollbar(win, orient="vertical", command=listbox.yview)
         scrollbar.pack(side="right", fill="y")
         listbox.config(yscrollcommand=scrollbar.set)
 
