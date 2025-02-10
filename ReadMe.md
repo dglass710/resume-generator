@@ -1,251 +1,121 @@
-# Resume Generator
+# Resume Generator App
 
-This project is a Python-based GUI application that allows users to create customizable resumes in Word document format. The application uses the `python-docx` library for document generation and `Tkinter` for the graphical user interface.
+This project is a Python-based resume generator application that allows users to create and customize professional resumes via a graphical interface. Resume data is stored in JSON files and the resume document is generated as a formatted Microsoft Word document (.docx) using the `python-docx` library.
+
+## Project Structure
+
+- **ResumeBuilder.py**  
+  The main script that launches the GUI. It enables users to edit resume data, reset to default settings, and generate the resume document.
+  
+- **data.json**  
+  The JSON file that contains the current resume data used by the application.
+  
+- **default_data.json**  
+  The JSON file with the default resume data. This file is used to reset `data.json` if necessary.
+  
+- **generator.py**  
+  A module responsible for generating the formatted Word document based on the selected resume sections.
 
 ## Features
-- Select from predefined resume sections to include in your final document.
-- Customize sections, such as Objectives, with pre-set or custom inputs.
-- Flexible layout options for presenting skills, experiences, and education.
-- Save the resume as a Word document (`.docx`) with consistent, professional formatting.
 
----
+- **Editable Resume Data**:  
+  Modify resume sections (e.g., Personal Information, Objective, Education, Professional Experience, etc.) directly through the GUI without manually editing code.
 
-## Getting Started with Dependencies
+- **Dynamic Section Controls**:  
+  Enable or disable specific sections using checkboxes, and choose preset or custom objectives via radio buttons and text fields.
 
-### Ensure `python-docx` is Installed
+- **Professional Document Generation**:  
+  Generate a `.docx` resume with appropriate formatting—headers, bullet points, and indented details for education and professional experience.
 
-The `python-docx` library is required to generate Word documents. Follow these steps to ensure it is installed and ready to use:
+- **Reset to Default Data**:  
+  Easily restore the resume data to its default state using the "Reset to Default Data" option.
 
-1. **Check if `python-docx` is Installed**:
-   Run the following command in your terminal to see if the library is already installed:
+- **Cross-Platform Compatibility**:  
+  Designed to work on Windows, macOS, and Linux with platform-specific handling for opening files and directories.
+
+## Getting Started
+
+1. **Install Dependencies**
+
+   Ensure you have Python installed and then install the required package:
+
    ```bash
-   python -m pip show python-docx
+   pip install python-docx
    ```
-   - If it returns details about the package (e.g., version, location), you're good to go.
-   - If it shows `WARNING: Package(s) not found: python-docx`, proceed to the next step.
 
-2. **Install `python-docx`**:
-   Use the following command to install the library:
+2. **Run the Application**
+
+   Launch the application by running:
+
    ```bash
-   python -m pip install python-docx
+   python ResumeBuilder.py
    ```
-   - If your system uses `python3` instead of `python`, run:
-     ```bash
-     python3 -m pip install python-docx
-     ```
-   - For systems where `python` or `python3` may be ambiguous, explicitly specify `pip` for your Python environment:
-     ```bash
-     pip install python-docx
-     ```
 
-3. **Verify Installation**:
-   After installation, confirm that `python-docx` is installed by running:
+3. **Using the Application**
+
+   - **Edit Resume Data**:  
+     Click the "Edit Resume Data" button to open an editor where you can modify the JSON data.
+     
+   - **Reset Data**:  
+     Use the "Reset to Default Data" button to restore the resume data from `default_data.json`.
+     
+   - **Generate Resume**:  
+     Enter a file name and click "Generate Resume" to create a `.docx` file. The generated resume will open automatically (if supported by your operating system).
+
+## Packaging with PyInstaller
+
+To bundle the application as a standalone executable, use the following commands:
+
+- **For Windows**:
+
    ```bash
-   python -m pip show python-docx
+   pyinstaller --onefile --noconsole --add-data "data.json;." --add-data "default_data.json;." --add-data "generator.py;." ResumeBuilder.py
    ```
-   You should see package details confirming the installation.
 
----
+- **For macOS**:
 
-## Using PyInstaller to Bundle the Application
-
-To distribute the application as a standalone executable, PyInstaller can be used to bundle it. Below are platform-specific instructions for creating the executable, including how to include additional data files.
-
-### PyInstaller Command for Windows
-
-For Windows, the command uses a semicolon (`;`) to separate the source and destination paths for additional data files.
-
-```bash
-pyinstaller --onefile --noconsole --add-data "data.py;." --add-data "default_data.py;." --add-data "generator.py;." ResumeBuilder.py
-```
-
-#### Explanation:
-- `--onefile`: Create a single bundled executable.
-- `--noconsole`: Suppress the console window when running the executable.
-- `--add-data`: Add additional data files to the bundle. The format is `source_path;destination_path`:
-  - Use `;` as the separator on Windows.
-  - Example: `"data.py;."` includes `data.py` in the root of the bundle.
-- `ResumeBuilder.py`: The name of your main script.
-
----
-
-### PyInstaller Command for macOS
-
-For macOS, the command uses a colon (`:`) to separate the source and destination paths for additional data files.
-
-```bash
-pyinstaller --onefile --noconsole --add-data "data.py:." --add-data "default_data.py:." --add-data "generator.py:." ResumeBuilder.py
-```
-
-#### Explanation:
-- `--onefile`: Create a single bundled executable.
-- `--noconsole`: Suppress the console window when running the executable.
-- `--add-data`: Add additional data files to the bundle. The format is `source_path:destination_path`:
-  - Use `:` as the separator on macOS.
-  - Example: `"data.py:."` includes `data.py` in the root of the bundle.
-- `ResumeBuilder.py`: The name of your main script.
-
----
-
-### Summary
-- **Windows**: Use `;` for the `--add-data` separator.
-  ```bash
-  pyinstaller --onefile --noconsole --add-data "data.py;." --add-data "default_data.py;." --add-data "generator.py;." ResumeBuilder.py
-  ```
-- **macOS**: Use `:` for the `--add-data` separator.
-  ```bash
-  pyinstaller --onefile --noconsole --add-data "data.py:." --add-data "default_data.py:." --add-data "generator.py:." ResumeBuilder.py
-  ```
-
-This ensures that the PyInstaller command is customized for the platform you are working on, allowing proper inclusion of additional files.
-
----
-
-## Customizing `data.py`
-
-The `data.py` file contains the default resume data used by the application. You can modify this file to tailor the sections and content to your specific needs. The order of the dictionaries in the `master_resume` list determines the order of sections in both the GUI and the generated resume.
-
-### Objective, Certifications, and Personal Information
-
-These sections use **lists of strings** to define their `content`. Each string must be enclosed in double quotes (`"`) and separated by a comma.
-
-#### Example:
-```python
-{
-    "title": "Objective",
-    "content": [
-        "Highly motivated IT professional with a strong foundation in mathematics, computer science, and cybersecurity.",
-        "Seeking a challenging role in IT operations, leveraging my cybersecurity and troubleshooting skills to ensure seamless system performance."
-    ]
-}
-```
-
----
-
-### Core Competencies
-
-This section uses a **list of strings** to define skills or attributes. Each string must be enclosed in double quotes and separated by a comma.
-
-#### Example:
-```python
-{
-    "title": "Core Competencies",
-    "content": [
-        "TCP/IP", "DNS", "DHCP", "Firewalls", "Python", "Bash scripting"
-    ]
-}
-```
-
----
-
-### Education
-
-This section uses a **list of lists**, where each inner list contains a main string (e.g., degree or institution) followed by additional strings for details.
-
-#### Example:
-```python
-{
-    "title": "Education",
-    "content": [
-        ["Northwestern University Cybersecurity Program: Graduated June 2024"],
-        ["DePaul University: Graduated March 2022", "B.S. in Applied and Computational Mathematics"]
-    ]
-}
-```
-
----
-
-### Professional Experience
-
-This section uses a **list of dictionaries**, where each dictionary represents a job or project.
-
-#### Example:
-```python
-{
-    "title": "Professional Experience",
-    "content": [
-        {
-            "subtitle": "Mathnasium – Mathematics Instructor",
-            "date": "April 2023 – Present, Chicago, IL",
-            "details": [
-                "Instructed 370 students in mathematical concepts.",
-                "Enhanced security of iPads used in instruction by implementing guided access controls."
-            ]
-        }
-    ]
-}
-```
-
----
-
-### Guidelines for Customization
-
-- **Consistency**: Follow the defined structure for each section to avoid syntax errors.
-- **String Formatting**: Use double quotes (`"`) for all strings.
-- **Validation**: Test the GUI after making changes to ensure the resume generates correctly.
-
----
-
-## Running the Application
-
-1. Update the `master_resume` variable in `data.py` to include your personalized information.
-2. Run the `gui.py` script to launch the GUI:
    ```bash
-   python gui.py
+   pyinstaller --onefile --noconsole --add-data "data.json:." --add-data "default_data.json:." --add-data "generator.py:." ResumeBuilder.py
    ```
-3. Select the sections and subsections you want to include in your resume.
-4. Enter a custom objective (if needed) in the GUI’s text box.
-5. Generate your resume and enjoy a professional Word document tailored to your needs!
 
-For questions or further assistance, feel free to reach out. Happy customizing!
+## Data Format
 
-zing!
+The resume data is structured in JSON format:
 
-## Running PyInstaller
+- **Personal Information**:  
+  An array of strings containing your contact details.
+  
+- **Objective**:  
+  An array of strings for different career objectives; supports a custom objective option.
+  
+- **Certifications**:  
+  An array of strings listing your certifications.
+  
+- **Education**:  
+  An array of arrays. The first element of each sub-array is the header (e.g., institution and graduation info), and any additional elements provide further details (formatted as indented text in the generated resume).
+  
+- **Core Competencies**:  
+  An array of strings representing your skills.
+  
+- **Professional Experience**:  
+  An array of objects. Each object should include:
+  - `subtitle`: Job title and company name.
+  - `date`: Date range and location.
+  - `details`: An array of strings describing responsibilities and achievements.
+  
+- **Technical Projects**:  
+  An array of strings describing various projects.
 
-When creating an executable with PyInstaller, the commands vary slightly between Windows and macOS due to differences in path separators. Below are the platform-specific commands:
+## Customization
 
-### PyInstaller Command for Windows
+To update your resume content, modify `data.json` either manually or using the built-in editor available through the application. Make sure the JSON structure is preserved to ensure proper processing by the resume generator.
 
-For Windows, use a semicolon (`;`) to separate the source and destination paths for additional data files.
+## License
 
-```bash
-pyinstaller --onefile --noconsole --add-data "data.py;." --add-data "default_data.py;." --add-data "generator.py;." ResumeBuilder.py
-```
+This project is licensed under the MIT License.
 
-**Explanation**:
-- `--onefile`: Creates a single bundled executable.
-- `--noconsole`: Suppresses the console window when running the executable.
-- `--add-data`: Includes additional data files in the bundle. The format is `"source_path;destination_path"`:
-  - Use `;` as the separator on Windows.
-  - Example: `"data.py;."` includes `data.py` in the root of the bundle.
-- `ResumeBuilder.py`: The name of your main script.
+## Contact
 
-### PyInstaller Command for macOS
+For questions, feedback, or support, please contact the developer.
 
-For macOS, use a colon (`:`) to separate the source and destination paths for additional data files.
-
-```bash
-pyinstaller --onefile --noconsole --add-data "data.py:." --add-data "default_data.py:." --add-data "generator.py:." ResumeBuilder.py
-```
-
-**Explanation**:
-- `--onefile`: Creates a single bundled executable.
-- `--noconsole`: Suppresses the console window when running the executable.
-- `--add-data`: Includes additional data files in the bundle. The format is `"source_path:destination_path"`:
-  - Use `:` as the separator on macOS.
-  - Example: `"data.py:."` includes `data.py` in the root of the bundle.
-- `ResumeBuilder.py`: The name of your main script.
-
-### Summary
-
-- **Windows**: Use `;` for the `--add-data` separator:
-  ```bash
-  pyinstaller --onefile --noconsole --add-data "data.py;." --add-data "default_data.py;." --add-data "generator.py;." ResumeBuilder.py
-  ```
-- **macOS**: Use `:` for the `--add-data` separator:
-  ```bash
-  pyinstaller --onefile --noconsole --add-data "data.py:." --add-data "default_data.py:." --add-data "generator.py:." ResumeBuilder.py
-  ```
-
-By tailoring the PyInstaller command for your operating system, you ensure the correct inclusion of additional data files and a seamless executable build process.
+Happy resume generating!
