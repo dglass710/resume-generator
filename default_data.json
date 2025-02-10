@@ -1,0 +1,81 @@
+[
+    {
+        "title": "Personal Information",
+        "content": [
+            "Your Name Here",
+            "City, State ZIP ⋄ Phone Number ⋄ Email Address ⋄ Personal Website ⋄ GitHub URL ⋄ LinkedIn URL"
+        ],
+        "window_title": "Resume Generator",
+        "window_width": "1000",
+        "window_length": "500",
+        "editor_window_width": "800",
+        "editor_window_length": "500",
+        "main_window_font_size": "20",
+        "editor_text_size": "16"
+    },
+    {
+        "title": "Objective",
+        "content": [
+            "Your first career objective here.",
+            "Another career objective.",
+            "Example: To leverage my expertise in [specific skills] to contribute to [specific role or organization]."
+        ]
+    },
+    {
+        "title": "Certifications",
+        "content": [
+            "Certification 1",
+            "Certification 2"
+        ]
+    },
+    {
+        "title": "Education",
+        "content": [
+            [
+                "First educational experience",
+                "Details about it (e.g., degree, graduation date)"
+            ],
+            [
+                "Second educational experience",
+                "Details about it"
+            ]
+        ]
+    },
+    {
+        "title": "Core Competencies",
+        "content": [
+            "Skill 1",
+            "Skill 2",
+            "Skill 3"
+        ]
+    },
+    {
+        "title": "Professional Experience",
+        "content": [
+            {
+                "subtitle": "Job Title – Company Name",
+                "date": "Start Date – End Date, Location",
+                "details": [
+                    "Responsibility 1",
+                    "Responsibility 2"
+                ]
+            },
+            {
+                "subtitle": "Second Job Title – Company Name",
+                "date": "Start Date – End Date, Location",
+                "details": [
+                    "Responsibility 1",
+                    "Responsibility 2"
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Technical Projects",
+        "content": [
+            "Project 1: Brief description of what you did.",
+            "Project 2: Another brief description.",
+            "Example: Configured a Splunk SIEM environment to analyze security logs."
+        ]
+    }
+]
