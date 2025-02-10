@@ -369,7 +369,7 @@ class ResumeGeneratorGUI:
                     refresh_listbox()
 
         ttk.Button(btn_frame, text="Add New", command=add_item, style="Custom.TButton").pack(side="left", padx=5)
-        ttk.Button(btn_frame, text="Save", command=save_edit, style="Custom.TButton").pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Save Entry", command=save_edit, style="Custom.TButton").pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Remove Selected", command=remove_item, style="Custom.TButton").pack(side="left", padx=5)
 
     def edit_simple_section_content(self, section):
