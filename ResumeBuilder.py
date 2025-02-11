@@ -271,7 +271,7 @@ class ResumeGeneratorGUI:
     def edit_simple_section_content(self, section):
         """
         Editor for sections whose content is a list of strings (e.g., Objective, Certifications, etc.).
-        Now uses buttons named: Add, Edit, Remove, Save, and Cancel.
+        Uses buttons named: Add, Edit, Remove, Save, and Cancel.
         Changes made here are kept in memory until Save is pressed.
         If Cancel is pressed a confirmation popup appears and unsaved changes are discarded.
         """
@@ -288,6 +288,9 @@ class ResumeGeneratorGUI:
         listbox.config(yscrollcommand=scrollbar.set)
 
         def refresh_listbox():
+            # If editing Core Competencies, sort the items alphabetically
+            if section["title"] == "Core Competencies":
+                section["content"] = sorted(section["content"], key=lambda s: s.lower())
             listbox.delete(0, tk.END)
             for item in section["content"]:
                 listbox.insert(tk.END, item)
@@ -368,7 +371,7 @@ class ResumeGeneratorGUI:
     def edit_structured_section_content(self, section):
         """
         Structured editor for Professional Experience and Education.
-        Uses per-field editors and now uses buttons named:
+        Uses per-field editors and uses buttons named:
         Add, Edit, Remove, Save, and Cancel.
         Changes are kept in memory until Save is pressed.
         If Cancel is pressed, a confirmation popup appears and unsaved changes are discarded.
