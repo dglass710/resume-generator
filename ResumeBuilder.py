@@ -183,16 +183,21 @@ class ResumeGeneratorGUI:
         scrollbar.pack(side="right", fill="y")
         info_text.configure(yscrollcommand=scrollbar.set)
         information_content = (
-            "This application lets you customize and generate professional resumes. "
-            "Your data is stored in a JSON file, and you can edit it via the built-in editor.\n\n"
-            "Features include:\n"
-            "• Single-line editing for all sections except Professional Experience and Education details.\n"
-            "  (Pressing Enter will insert the literal '\\n' instead of a newline.)\n"
-            "• The multi-line editors for the exceptions also block double quotes and backslashes.\n"
-            "• Dynamic controls (checkboxes, radio buttons, and buttons for adding items).\n"
-            "• Generation of a formatted Word document using the selected data.\n\n"
-            "Double quotes and backslashes are disallowed to prevent JSON formatting issues.\n"
-            "For any help or feedback, please contact the developer."
+            "Welcome to the Resume Generator!\n\n"
+            "This tool is designed to help you quickly craft a custom resume for each job application. "
+            "Instead of using a one-size-fits-all template, you can handcraft your resume by choosing the specific "
+            "sections, skills, and details that best match the role you’re applying for.\n\n"
+            "Key Features:\n"
+            "• **Custom Title & Content:** Easily specify a custom title and tailor each section of your resume. "
+            "Whether it's your personal information, skills, education, or professional experience, you control what appears on your resume.\n\n"
+            "• **Intuitive Editing:** Use the built-in editors to add, edit, and remove items from each section. "
+            "For most sections, you can also reorder items using the 'Up' and 'Down' buttons so that the most relevant information appears first.\n\n"
+            "• **Tailored Resumes:** Handcraft your resume for every application by selecting only the sections and skills "
+            "that are relevant to the job at hand. This ensures your resume is focused, professional, and custom-fit to your target role.\n\n"
+            "• **Quick Generation:** Once you’re satisfied with your changes, simply save your work and generate a formatted Word document "
+            "that you can use for your application.\n\n"
+            "The goal is to make the process of creating a tailored resume easier and more efficient, so you can spend more time focusing on "
+            "what matters most—your career and your next opportunity. For any assistance or feedback, please contact the developer."
         )
         info_text.insert("1.0", information_content)
         info_text.configure(state="disabled")
