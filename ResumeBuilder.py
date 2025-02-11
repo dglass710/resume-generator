@@ -272,6 +272,8 @@ class ResumeGeneratorGUI:
         """
         Editor for sections whose content is a list of strings (e.g., Objective, Certifications, etc.).
         Uses buttons named: Add, Edit, Remove, Save, and Cancel.
+        Additionally, for sections other than Core Competencies (which auto-sort),
+        a third row of Up and Down buttons is provided to change the order.
         Changes made here are kept in memory until Save is pressed.
         If Cancel is pressed a confirmation popup appears and unsaved changes are discarded.
         """
@@ -288,7 +290,7 @@ class ResumeGeneratorGUI:
         listbox.config(yscrollcommand=scrollbar.set)
 
         def refresh_listbox():
-            # If editing Core Competencies, sort the items alphabetically
+            # For Core Competencies, auto-sort alphabetically.
             if section["title"] == "Core Competencies":
                 section["content"] = sorted(section["content"], key=lambda s: s.lower())
             listbox.delete(0, tk.END)
@@ -332,7 +334,7 @@ class ResumeGeneratorGUI:
                 refresh_listbox()
                 child_win.destroy()
             ttk.Button(child_win, text="Done", command=done_child, style="Custom.TButton").pack(pady=10)
-
+        # First row of buttons: Add, Edit, Remove
         btn_frame = ttk.Frame(win)
         btn_frame.pack(fill="x", padx=10, pady=5)
         ttk.Button(btn_frame, text="Add", command=lambda: open_edit_window(is_new=True), style="Custom.TButton").pack(side="left", padx=5)
@@ -346,6 +348,35 @@ class ResumeGeneratorGUI:
             else:
                 messagebox.showerror("Error", "No item selected to remove.")
         ttk.Button(btn_frame, text="Remove", command=remove_item, style="Custom.TButton").pack(side="left", padx=5)
+
+        # --- For sections other than Core Competencies, add Up/Down buttons to reorder ---
+        if section["title"] != "Core Competencies":
+            order_frame = ttk.Frame(win)
+            order_frame.pack(fill="x", padx=10, pady=5)
+            def move_up():
+                if current_index[0] is None:
+                    messagebox.showerror("Error", "No item selected to move.")
+                    return
+                idx = current_index[0]
+                if idx <= 0:
+                    return
+                section["content"][idx-1], section["content"][idx] = section["content"][idx], section["content"][idx-1]
+                current_index[0] = idx - 1
+                refresh_listbox()
+                listbox.selection_set(current_index[0])
+            def move_down():
+                if current_index[0] is None:
+                    messagebox.showerror("Error", "No item selected to move.")
+                    return
+                idx = current_index[0]
+                if idx >= len(section["content"]) - 1:
+                    return
+                section["content"][idx+1], section["content"][idx] = section["content"][idx], section["content"][idx+1]
+                current_index[0] = idx + 1
+                refresh_listbox()
+                listbox.selection_set(current_index[0])
+            ttk.Button(order_frame, text="Up", command=move_up, style="Custom.TButton").pack(side="left", padx=5)
+            ttk.Button(order_frame, text="Down", command=move_down, style="Custom.TButton").pack(side="left", padx=5)
 
         # --- Save and Cancel buttons for the content editor ---
         def save_content_editor():
@@ -373,6 +404,7 @@ class ResumeGeneratorGUI:
         Structured editor for Professional Experience and Education.
         Uses per-field editors and uses buttons named:
         Add, Edit, Remove, Save, and Cancel.
+        Additionally, a third row of Up and Down buttons is provided to change the order.
         Changes are kept in memory until Save is pressed.
         If Cancel is pressed, a confirmation popup appears and unsaved changes are discarded.
         """
@@ -470,7 +502,6 @@ class ResumeGeneratorGUI:
             elif section["title"] == "Education":
                 main_entry.delete(0, tk.END)
                 details_text.delete("1.0", tk.END)
-
         def done_edit():
             if section["title"] == "Professional Experience":
                 new_item = {
@@ -490,7 +521,7 @@ class ResumeGeneratorGUI:
                 elif section["title"] == "Education" and new_item:
                     section["content"].append(new_item)
             refresh_listbox()
-
+        # First row of buttons: Add, Edit, Remove
         btn_frame = ttk.Frame(win)
         btn_frame.pack(fill="x", padx=10, pady=5)
         ttk.Button(btn_frame, text="Add", command=add_item, style="Custom.TButton").pack(side="left", padx=5)
@@ -505,19 +536,45 @@ class ResumeGeneratorGUI:
                 messagebox.showerror("Error", "No item selected to remove.")
         ttk.Button(btn_frame, text="Remove", command=remove_item, style="Custom.TButton").pack(side="left", padx=5)
 
+        # --- Order manipulation buttons (Up and Down) for structured sections ---
+        order_frame = ttk.Frame(win)
+        order_frame.pack(fill="x", padx=10, pady=5)
+        def move_up():
+            if current_index[0] is None:
+                messagebox.showerror("Error", "No item selected to move.")
+                return
+            idx = current_index[0]
+            if idx <= 0:
+                return
+            section["content"][idx-1], section["content"][idx] = section["content"][idx], section["content"][idx-1]
+            current_index[0] = idx - 1
+            refresh_listbox()
+            listbox.selection_set(current_index[0])
+        def move_down():
+            if current_index[0] is None:
+                messagebox.showerror("Error", "No item selected to move.")
+                return
+            idx = current_index[0]
+            if idx >= len(section["content"]) - 1:
+                return
+            section["content"][idx+1], section["content"][idx] = section["content"][idx], section["content"][idx+1]
+            current_index[0] = idx + 1
+            refresh_listbox()
+            listbox.selection_set(current_index[0])
+        ttk.Button(order_frame, text="Up", command=move_up, style="Custom.TButton").pack(side="left", padx=5)
+        ttk.Button(order_frame, text="Down", command=move_down, style="Custom.TButton").pack(side="left", padx=5)
+
         # --- Save and Cancel buttons for the structured content editor ---
         def save_content_editor():
             self.write_master_resume()
             messagebox.showinfo("Saved", "Changes saved successfully.")
             self.refresh_main_window()
             win.destroy()
-
         def cancel_content_editor():
             if messagebox.askyesno("Cancel", "Are you sure you want to cancel? All unsaved changes will be discarded."):
                 section["content"] = original_content
                 messagebox.showinfo("Canceled", "Changes discarded.")
                 win.destroy()
-
         bottom_frame = ttk.Frame(win)
         bottom_frame.pack(fill="x", padx=10, pady=10)
         ttk.Button(bottom_frame, text="Save", command=save_content_editor, style="Custom.TButton").pack(side="left", padx=10)
