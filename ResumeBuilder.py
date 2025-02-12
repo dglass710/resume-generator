@@ -184,20 +184,24 @@ class ResumeGeneratorGUI:
         info_text.configure(yscrollcommand=scrollbar.set)
         information_content = (
             "Welcome to the Resume Generator!\n\n"
-            "This tool is designed to help you quickly craft a custom resume for each job application. "
-            "Instead of using a one-size-fits-all template, you can handcraft your resume by choosing the specific "
-            "sections, skills, and details that best match the role you’re applying for.\n\n"
-            "Key Features:\n"
-            "• **Custom Title & Content:** Easily specify a custom title and tailor each section of your resume. "
-            "Whether it's your personal information, skills, education, or professional experience, you control what appears on your resume.\n\n"
-            "• **Intuitive Editing:** Use the built-in editors to add, edit, and remove items from each section. "
-            "For most sections, you can also reorder items using the 'Up' and 'Down' buttons so that the most relevant information appears first.\n\n"
-            "• **Tailored Resumes:** Handcraft your resume for every application by selecting only the sections and skills "
-            "that are relevant to the job at hand. This ensures your resume is focused, professional, and custom-fit to your target role.\n\n"
-            "• **Quick Generation:** Once you’re satisfied with your changes, simply save your work and generate a formatted Word document "
-            "that you can use for your application.\n\n"
-            "The goal is to make the process of creating a tailored resume easier and more efficient, so you can spend more time focusing on "
-            "what matters most—your career and your next opportunity. For any assistance or feedback, please contact the developer."
+            "This tool enables you to quickly create a custom, professional resume for each job application. "
+            "Instead of using a generic template, you can handpick the specific sections, skills, and details that best match the role you’re applying for.\n\n"
+            "Key Features:\n\n"
+            "1. Custom Title & Content\n"
+            "   - Create a unique resume title and tailor each section exactly how you want it.\n"
+            "   - Decide which personal information, skills, education, and professional experience to include.\n\n"
+            "2. Intuitive Editing & Reordering\n"
+            "   - Each resume section has its own editor. Click \"Edit Section\" to open an interface where you can add, edit, remove, and reorder items.\n"
+            "   - To modify an individual entry, select it and click \"Edit\" to open a small Item Editor. Make your changes, press \"Done,\" and see the update in the Section Editor.\n"
+            "   - Use the Up and Down buttons within the editor to change the order of items (note that the Core Competencies section is auto-sorted and cannot be manually reordered).\n\n"
+            "3. Selective Inclusion via Checkboxes\n"
+            "   - For sections like Education and Professional Experience, all items are checked by default—since you typically want to include everything.\n"
+            "   - For sections with long lists (such as Technical Projects and Core Competencies), items start unchecked. This encourages you to actively choose only the most relevant skills and projects, helping you build a focused, concise resume.\n"
+            "   - In the Core Competencies editor, items appear in alphabetical order for easy selection, while in the main window they’re arranged into columns in a way that most optimally uses horizontal space.\n\n"
+            "4. Easy Saving & Refreshing\n"
+            "   - After making your changes, simply click \"Save\" in the editor to update your resume. The main window refreshes to reflect your updates, ensuring your resume is always current and tailored to your application.\n\n"
+            "By guiding you to select what to include—especially in sections with many options—this tool helps you produce a resume that is both comprehensive and sharply focused on your strengths.\n\n"
+            "For any questions or feedback, please contact the developer."
         )
         info_text.insert("1.0", information_content)
         info_text.configure(state="disabled")
@@ -277,8 +281,8 @@ class ResumeGeneratorGUI:
         """
         Editor for sections whose content is a list of strings (e.g., Objective, Certifications, etc.).
         Uses buttons named: Add, Edit, Remove, Save, and Cancel.
-        Additionally, for sections other than Core Competencies (which auto-sort),
-        a third row of Up and Down buttons is provided to change the order.
+        Additionally, for sections other than Core Competencies (which auto-sort), a third row of Up and Down buttons
+        is provided to change the order.
         Changes made here are kept in memory until Save is pressed.
         If Cancel is pressed a confirmation popup appears and unsaved changes are discarded.
         """
@@ -744,7 +748,9 @@ class ResumeGeneratorGUI:
                     self.subsection_vars[(section_title, subtitle)] = var
                     ttk.Checkbutton(parent, text=subtitle, variable=var, style="Custom.TCheckbutton").pack(anchor="w")
                 else:
-                    var = tk.BooleanVar(value=True)
+                    # For Technical Projects, default to unchecked.
+                    initial_state = False if section_title == "Technical Projects" else True
+                    var = tk.BooleanVar(value=initial_state)
                     self.subsection_vars[(section_title, option)] = var
                     if section_title == "Technical Projects":
                         frame = ttk.Frame(parent)
