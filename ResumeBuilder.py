@@ -918,14 +918,8 @@ class ResumeGeneratorGUI:
             if getattr(sys, 'frozen', False):
                 with open(self.persistent_data_path, 'w') as f:
                     json.dump(parsed, f, indent=4)
-            self.load_master_resume()
-            self.create_styles()
-            self.set_dimensions()
-            for widget in self.root.winfo_children():
-                if isinstance(widget, tk.Toplevel):
-                    continue
-                widget.destroy()
-            self.create_gui()
+            # Use full refresh to update main window title, geometry, and all elements
+            self.refresh_main_window()
             for editor_win, data in self.editor_windows.items():
                 text_widget = data["text_widget"]
                 if editor_win.winfo_exists():
