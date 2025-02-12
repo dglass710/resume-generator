@@ -123,9 +123,9 @@ class ResumeGeneratorGUI:
             if title == "" or width < 1000 or length < 300 or font_size < 8:
                 msg = ("Please ensure that:\n"
                        "- The Title is not empty.\n"
+                       "- The Main Window Font Size is at least 8.\n"
                        "- The Main Window Width is at least 1000.\n"
-                       "- The Main Window Height is at least 300.\n"
-                       "- The Main Window Font Size is at least 8.\n\n"
+                       "- The Main Window Height is at least 300.\n\n"
                        "These requirements are intended to keep the UI readable and usable.")
                 messagebox.showerror("Invalid UI Settings", msg)
                 return
