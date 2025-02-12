@@ -63,6 +63,92 @@ class ResumeGeneratorGUI:
         event.widget.insert(tk.INSERT, "\\n")
         return "break"
 
+    def restrict_to_digits(self, event):
+        """Allow only digit characters (plus control keys) in certain entry fields."""
+        if event.keysym in ("BackSpace", "Delete", "Left", "Right", "Tab"):
+            return
+        if event.char and not event.char.isdigit():
+            return "break"
+
+    def open_ui_settings_editor(self):
+        """Opens an editor window to update the main window title, font size, width, and height."""
+        ui_window = tk.Toplevel(self.root)
+        ui_window.title("Edit UI Settings")
+        ui_window.geometry("400x350")  # Adjust as needed
+
+        # --- Field: Main Window Title ---
+        ttk.Label(ui_window, text="Main Window Title:", style="Custom.TLabel").pack(anchor="w", padx=10, pady=5)
+        title_entry = ttk.Entry(ui_window, width=30)
+        title_entry.pack(anchor="w", padx=10)
+        # Prepopulate with current title (from the master resume’s first element)
+        title_entry.insert(0, self.master_resume[0].get("window_title", "Master"))
+
+        # --- Field: Main Window Font Size ---
+        ttk.Label(ui_window, text="Main Window Font Size:", style="Custom.TLabel").pack(anchor="w", padx=10, pady=5)
+        font_entry = ttk.Entry(ui_window, width=30)
+        font_entry.pack(anchor="w", padx=10)
+        font_entry.insert(0, self.master_resume[0].get("main_window_font_size", "20"))
+        font_entry.bind("<Key>", self.restrict_to_digits)
+
+        # --- Field: Main Window Width ---
+        ttk.Label(ui_window, text="Main Window Width:", style="Custom.TLabel").pack(anchor="w", padx=10, pady=5)
+        width_entry = ttk.Entry(ui_window, width=30)
+        width_entry.pack(anchor="w", padx=10)
+        width_entry.insert(0, self.master_resume[0].get("window_width", "1000"))
+        width_entry.bind("<Key>", self.restrict_to_digits)
+
+        # --- Field: Main Window Height ---
+        ttk.Label(ui_window, text="Main Window Height:", style="Custom.TLabel").pack(anchor="w", padx=10, pady=5)
+        length_entry = ttk.Entry(ui_window, width=30)
+        length_entry.pack(anchor="w", padx=10)
+        length_entry.insert(0, self.master_resume[0].get("window_length", "500"))
+        length_entry.bind("<Key>", self.restrict_to_digits)
+
+        # --- Save Button ---
+        def save_ui_settings():
+            title = title_entry.get().strip()
+            font_size_str = font_entry.get().strip()
+            width_str = width_entry.get().strip()
+            length_str = length_entry.get().strip()
+
+            try:
+                font_size = int(font_size_str)
+                width = int(width_str)
+                length = int(length_str)
+            except ValueError:
+                messagebox.showerror("Error", "Font size, width, and height must be integers.")
+                return
+
+            # Validate requirements
+            if title == "" or width < 1000 or length < 300 or font_size < 8:
+                msg = ("Please ensure that:\n"
+                       "- The Title is not empty.\n"
+                       "- The Main Window Width is at least 1000.\n"
+                       "- The Main Window Height is at least 300.\n"
+                       "- The Main Window Font Size is at least 8.\n\n"
+                       "These requirements are intended to keep the UI readable and usable.")
+                messagebox.showerror("Invalid UI Settings", msg)
+                return
+
+            # Update the settings in the master resume data (assumed to be in the first element)
+            self.master_resume[0]["window_title"] = title
+            self.master_resume[0]["main_window_font_size"] = str(font_size)
+            self.master_resume[0]["window_width"] = str(width)
+            self.master_resume[0]["window_length"] = str(length)
+
+            # Write data, reload file, refresh GUI and close the settings window
+            self.write_master_resume()
+            self.load_master_resume()
+            self.create_styles()
+            for widget in self.root.winfo_children():
+                if isinstance(widget, tk.Toplevel):
+                    continue
+                widget.destroy()
+            self.create_gui()
+            ui_window.destroy()
+
+        ttk.Button(ui_window, text="Save", command=save_ui_settings, style="Custom.TButton").pack(pady=10)
+
     def set_dimensions(self):
         try:
             width = int(self.master_resume[0]["window_width"])
@@ -596,6 +682,8 @@ class ResumeGeneratorGUI:
         ttk.Button(top_frame, text="Reset to Default Data", command=self.reset_to_default, style="Custom.TButton").pack(side="left", padx=10)
         ttk.Button(top_frame, text="View Files", command=self.open_app_directory, style="Custom.TButton").pack(side="left", padx=10)
         ttk.Button(top_frame, text="Information", command=self.open_information_window, style="Custom.TButton").pack(side="left", padx=10)
+        # New UI Settings editor button:
+        ttk.Button(top_frame, text="Edit UI Settings", command=self.open_ui_settings_editor, style="Custom.TButton").pack(side="left", padx=10)
 
         main_frame = ttk.Frame(self.root)
         main_frame.pack(fill="both", expand=True)
