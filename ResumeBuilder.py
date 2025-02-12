@@ -74,7 +74,7 @@ class ResumeGeneratorGUI:
         """Opens an editor window to update the main window title, font size, width, and height."""
         ui_window = tk.Toplevel(self.root)
         ui_window.title("Edit UI Settings")
-        ui_window.geometry("400x350")  # Adjust as needed
+        ui_window.geometry("400x350")  # Set geometry to 400x350
 
         # --- Field: Main Window Title ---
         ttk.Label(ui_window, text="Main Window Title:", style="Custom.TLabel").pack(anchor="w", padx=10, pady=5)
@@ -136,15 +136,9 @@ class ResumeGeneratorGUI:
             self.master_resume[0]["window_width"] = str(width)
             self.master_resume[0]["window_length"] = str(length)
 
-            # Write data, reload file, refresh GUI and close the settings window
+            # Write data and perform a full refresh (including updating the title and geometry)
             self.write_master_resume()
-            self.load_master_resume()
-            self.create_styles()
-            for widget in self.root.winfo_children():
-                if isinstance(widget, tk.Toplevel):
-                    continue
-                widget.destroy()
-            self.create_gui()
+            self.refresh_main_window()
             ui_window.destroy()
 
         ttk.Button(ui_window, text="Save", command=save_ui_settings, style="Custom.TButton").pack(pady=10)
@@ -343,6 +337,9 @@ class ResumeGeneratorGUI:
         self.load_master_resume()
         self.create_styles()
         self.set_dimensions()
+        # Update the main window title if defined
+        if self.master_resume and self.master_resume[0].get("window_title"):
+            self.root.title(self.master_resume[0]["window_title"])
         for widget in self.root.winfo_children():
             if isinstance(widget, tk.Toplevel):
                 continue
