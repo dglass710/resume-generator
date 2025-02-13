@@ -73,7 +73,7 @@ class ResumeGeneratorGUI:
     def open_ui_settings_editor(self):
         """Opens an editor window to update the main window title, font size, width, and height."""
         ui_window = tk.Toplevel(self.root)
-        ui_window.title("Edit UI Settings")
+        ui_window.title("Customize UI")
         ui_window.geometry("400x350")  # Set geometry to 400x350
 
         # --- Field: Main Window Title ---
@@ -142,6 +142,12 @@ class ResumeGeneratorGUI:
             ui_window.destroy()
 
         ttk.Button(ui_window, text="Save", command=save_ui_settings, style="Custom.TButton").pack(pady=10)
+
+    def open_advanced_editor(self):
+        """Prompt the user before opening the advanced JSON editor."""
+        if messagebox.askyesno("Advanced Feature",
+                               "This option is intended for advanced users only. Are you sure you want to open the advanced JSON editor?"):
+            self.open_editor_window()
 
     def set_dimensions(self):
         try:
@@ -255,7 +261,7 @@ class ResumeGeneratorGUI:
 
     def open_information_window(self):
         info_window = tk.Toplevel(self.root)
-        info_window.title("Information")
+        info_window.title("Help")
         info_window.geometry("600x500")
         info_text = tk.Text(info_window, wrap="word", font=("Arial", 16), state="normal")
         info_text.pack(fill="both", expand=True, padx=10, pady=10)
@@ -264,31 +270,33 @@ class ResumeGeneratorGUI:
         info_text.configure(yscrollcommand=scrollbar.set)
         information_content = (
             "Welcome to the Resume Generator!\n\n"
-            "This tool enables you to quickly create a custom, professional resume for each job application. "
-            "Instead of using a generic template, you can handpick the specific sections, skills, and details that best match the role you’re applying for.\n\n"
+            "This tool empowers you to quickly create a custom, professional resume tailored for each job application. "
+            "Rather than relying on a generic template, you can choose exactly which sections, skills, and details to include so that your resume best fits the position you're applying for.\n\n"
             "Key Features:\n\n"
-            "1. Custom Title & Content\n"
-            "   - Create a unique resume title and tailor each section exactly how you want it.\n"
-            "   - Decide which personal information, skills, education, and professional experience to include.\n\n"
-            "2. Intuitive Editing & Reordering\n"
-            "   - Each resume section has its own editor. Click \"Edit Section\" to open an interface where you can add, edit, remove, and reorder items.\n"
-            "   - To modify an individual entry, select it and click \"Edit\" to open a small Item Editor. Make your changes, press \"Done,\" and see the update in the Section Editor.\n"
-            "   - Use the Up and Down buttons within the editor to change the order of items (note that the Core Competencies section is auto-sorted and cannot be manually reordered).\n\n"
-            "3. Selective Inclusion via Checkboxes\n"
-            "   - For sections like Education and Professional Experience, all items are checked by default—since you typically want to include everything.\n"
-            "   - For sections with long lists (such as Technical Projects and Core Competencies), items start unchecked. This encourages you to actively choose only the most relevant skills and projects, helping you build a focused, concise resume.\n"
-            "   - In the Core Competencies editor, items appear in alphabetical order for easy selection, while in the main window they’re arranged into columns in a way that most optimally uses horizontal space.\n\n"
-            "4. Easy Saving & Refreshing\n"
-            "   - After making your changes, simply click \"Save\" in the editor to update your resume. The main window refreshes to reflect your updates, ensuring your resume is always current and tailored to your application.\n\n"
-            "By guiding you to select what to include—especially in sections with many options—this tool helps you produce a resume that is both comprehensive and sharply focused on your strengths.\n\n"
-            "For any questions or feedback, please contact the developer."
+            "1. Customize UI\n"
+            "   - Personalize the main window by changing its title, size, and font. Adjust these settings to match your preferences and ensure the app remains readable and user-friendly.\n\n"
+            "2. Browse Files\n"
+            "   - Quickly access the folder where your resume files and JSON data are stored. This makes it easy to manage, back up, or share your files.\n\n"
+            "3. Reset Data\n"
+            "   - Restore the default resume data with a single click. This is useful if you wish to start over or remove customizations (note: this will wipe all personalized information).\n\n"
+            "4. Advanced JSON Editor\n"
+            "   - (Advanced) Directly edit the underlying JSON data. This option is intended for power users. Please use it with caution, as incorrect modifications may lead to errors.\n\n"
+            "Additional Functionalities:\n\n"
+            " - Intuitive Editing & Reordering:\n"
+            "   Each resume section has its own editor where you can add, edit, remove, and reorder items easily. For sections such as Education and Professional Experience, items are pre-selected by default to ensure all relevant information is included.\n\n"
+            " - Selective Inclusion:\n"
+            "   Use checkboxes and radio buttons to choose which sections and individual items appear on your resume. This helps you build a focused, concise document tailored to each job application.\n\n"
+            " - Easy Saving & Refreshing:\n"
+            "   Simply click 'Save' in any editor to update your resume data. The main window refreshes automatically, ensuring that your resume is always current.\n\n"
+            "For any questions, feedback, or issues, please contact the developer."
         )
         info_text.insert("1.0", information_content)
         info_text.configure(state="disabled")
 
     def open_editor_window(self):
+        """Opens the advanced JSON editor (raw data editor)."""
         editor_window = tk.Toplevel(self.root)
-        editor_window.title("Edit Resume Data (JSON)")
+        editor_window.title("Advanced JSON Editor")
         try:
             width = int(self.master_resume[0]["editor_window_width"])
             height = int(self.master_resume[0]["editor_window_length"])
@@ -675,12 +683,12 @@ class ResumeGeneratorGUI:
     def create_gui(self):
         top_frame = ttk.Frame(self.root)
         top_frame.pack(fill="x", pady=10)
-        ttk.Button(top_frame, text="Edit Resume Data", command=self.open_editor_window, style="Custom.TButton").pack(side="left", padx=10)
-        ttk.Button(top_frame, text="Reset to Default Data", command=self.reset_to_default, style="Custom.TButton").pack(side="left", padx=10)
-        ttk.Button(top_frame, text="View Files", command=self.open_app_directory, style="Custom.TButton").pack(side="left", padx=10)
-        ttk.Button(top_frame, text="Information", command=self.open_information_window, style="Custom.TButton").pack(side="left", padx=10)
-        # New UI Settings editor button:
-        ttk.Button(top_frame, text="Edit UI Settings", command=self.open_ui_settings_editor, style="Custom.TButton").pack(side="left", padx=10)
+        # New order and renamed buttons:
+        ttk.Button(top_frame, text="Customize UI", command=self.open_ui_settings_editor, style="Custom.TButton").pack(side="left", padx=10)
+        ttk.Button(top_frame, text="Browse Files", command=self.open_app_directory, style="Custom.TButton").pack(side="left", padx=10)
+        ttk.Button(top_frame, text="Help", command=self.open_information_window, style="Custom.TButton").pack(side="left", padx=10)
+        ttk.Button(top_frame, text="Reset Data", command=self.reset_to_default, style="Custom.TButton").pack(side="left", padx=10)
+        ttk.Button(top_frame, text="Advanced JSON Editor", command=self.open_advanced_editor, style="Custom.TButton").pack(side="left", padx=10)
 
         main_frame = ttk.Frame(self.root)
         main_frame.pack(fill="both", expand=True)
@@ -934,6 +942,120 @@ class ResumeGeneratorGUI:
             messagebox.showerror("JSON Error", f"Invalid JSON format:\n{je}")
         except Exception as e:
             messagebox.showerror("Error", f"Could not save changes: {e}")
+
+    def refresh_main_window(self):
+        """Reload data.json and completely redraw the main window (except Toplevel windows)."""
+        self.load_master_resume()
+        self.create_styles()
+        self.set_dimensions()
+        # Update the main window title if defined
+        if self.master_resume and self.master_resume[0].get("window_title"):
+            self.root.title(self.master_resume[0]["window_title"])
+        for widget in self.root.winfo_children():
+            if isinstance(widget, tk.Toplevel):
+                continue
+            widget.destroy()
+        self.create_gui()
+
+    def edit_section_content(self, section):
+        """
+        Opens an editor for a given section.
+        For Professional Experience and Education, a structured editor is used.
+        For all other sections, a simple editor (with single-line input) is used.
+        """
+        if section["title"] in ["Professional Experience", "Education"]:
+            self.edit_structured_section_content(section)
+        else:
+            self.edit_simple_section_content(section)
+
+    def create_gui(self):
+        top_frame = ttk.Frame(self.root)
+        top_frame.pack(fill="x", pady=10)
+        # New order and renamed buttons:
+        ttk.Button(top_frame, text="Customize UI", command=self.open_ui_settings_editor, style="Custom.TButton").pack(side="left", padx=10)
+        ttk.Button(top_frame, text="Browse Files", command=self.open_app_directory, style="Custom.TButton").pack(side="left", padx=10)
+        ttk.Button(top_frame, text="Help", command=self.open_information_window, style="Custom.TButton").pack(side="left", padx=10)
+        ttk.Button(top_frame, text="Reset Data", command=self.reset_to_default, style="Custom.TButton").pack(side="left", padx=10)
+        ttk.Button(top_frame, text="Advanced JSON Editor", command=self.open_advanced_editor, style="Custom.TButton").pack(side="left", padx=10)
+
+        main_frame = ttk.Frame(self.root)
+        main_frame.pack(fill="both", expand=True)
+        self.canvas = tk.Canvas(main_frame)
+        self.scrollbar = ttk.Scrollbar(main_frame, orient="vertical", command=self.canvas.yview)
+        self.scrollable_frame = ttk.Frame(self.canvas)
+        self.scrollable_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
+        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+        self.canvas.pack(side="left", fill="both", expand=True)
+        self.scrollbar.pack(side="right", fill="y")
+        self.canvas.bind("<Enter>", self.bind_mousewheel)
+        self.canvas.bind("<Leave>", self.unbind_mousewheel)
+
+        for section in self.master_resume:
+            self.add_section_widgets(self.scrollable_frame, section)
+
+        bottom_frame = ttk.Frame(self.root)
+        bottom_frame.pack(fill="x", pady=10)
+        ttk.Label(bottom_frame, text="Output File Name:", style="Custom.TLabel").pack(side="left", padx=5)
+        entry = ttk.Entry(bottom_frame, textvariable=self.output_file_name_var, width=30)
+        entry.pack(side="left", padx=5)
+        entry.configure(font=("Arial", self.get_main_font_size()))
+        ttk.Button(bottom_frame, text="Generate Resume", command=self.generate_resume, style="Custom.TButton").pack(side="left", padx=10)
+
+    def bind_mousewheel(self, event=None):
+        self.canvas.bind_all("<MouseWheel>", self.on_mousewheel)
+        self.canvas.bind_all("<Button-4>", self.on_mousewheel_mac)
+        self.canvas.bind_all("<Button-5>", self.on_mousewheel_mac)
+
+    def unbind_mousewheel(self, event=None):
+        self.canvas.unbind_all("<MouseWheel>")
+        self.canvas.unbind_all("<Button-4>")
+        self.canvas.unbind_all("<Button-5>")
+
+    def on_mousewheel(self, event):
+        if event.delta > 0:
+            self.canvas.yview_scroll(-1, "units")
+        else:
+            self.canvas.yview_scroll(1, "units")
+
+    def on_mousewheel_mac(self, event):
+        if event.num == 4:
+            self.canvas.yview_scroll(-1, "units")
+        elif event.num == 5:
+            self.canvas.yview_scroll(1, "units")
+
+    def add_section_widgets(self, parent, section):
+        section_var = tk.BooleanVar(value=True)
+        self.section_vars[section["title"]] = section_var
+        section_frame = ttk.Frame(parent)
+        section_frame.pack(fill="x", pady=5)
+        # Checkbox at the top
+        section_checkbox = ttk.Checkbutton(
+            section_frame,
+            text=section["title"],
+            variable=section_var,
+            command=lambda: self.toggle_suboptions(section["title"], section_var.get()),
+            style="Custom.TCheckbutton"
+        )
+        section_checkbox.pack(anchor="w")
+        # Edit Section button positioned below the checkbox
+        ttk.Button(
+            section_frame,
+            text="Edit Section",
+            command=lambda: self.edit_section_content(section),
+            style="Custom.TButton"
+        ).pack(anchor="w", padx=20, pady=2)
+        if "content" in section and isinstance(section["content"], list):
+            if section["title"] == "Personal Information":
+                return
+            subsection_frame = ttk.Frame(section_frame)
+            subsection_frame.pack(fill="x", padx=20)
+            if section["title"] == "Objective":
+                self.add_objective_options(subsection_frame, section["content"])
+            elif section["title"] == "Education":
+                self.add_education_options(subsection_frame, section["content"], section["title"])
+            else:
+                self.add_suboptions(subsection_frame, section["content"], section["title"])
 
 if __name__ == "__main__":
     root = tk.Tk()
