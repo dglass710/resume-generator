@@ -8,7 +8,7 @@ This tool empowers you to quickly create a custom, professional resume tailored 
 
 ## **Using the GUI**
 
-When you launch the application (for example, by running `resume_generator.exe` on Windows), you’ll see a toolbar at the top with the following buttons (from left to right):
+When you launch the application (for example, by running the executable on your system), you’ll see a toolbar at the top with the following buttons (from left to right):
 
 1. **Customize UI**
    - Opens an interface where you can change the main window title, size, and font.
@@ -26,8 +26,8 @@ When you launch the application (for example, by running `resume_generator.exe` 
    - *Warning:* This will remove all customizations you’ve made.
 
 5. **Advanced JSON Editor**
-   - (Advanced) Directly edit the raw JSON data that defines your resume.
-   - **Note:** This option is intended for power users only. A confirmation prompt will appear before launching the editor to discourage casual use.
+   - **Advanced Feature:** This option allows you to directly edit the raw JSON data that defines your resume.
+   - A confirmation prompt appears before launching this editor to ensure that only experienced users proceed.
 
 ### **Saving and Refreshing**
 
@@ -35,9 +35,9 @@ When you launch the application (for example, by running `resume_generator.exe` 
 
 ---
 
-## **Editing Resume Data**
+## **Editing Resume Data (Advanced)**
 
-The resume data is now stored in JSON files rather than a Python dictionary. The primary file is `data.json` (with `default_data.json` providing the defaults). These files define a variable called `master_resume`, which is a JSON array containing your resume sections.
+*Note: Editing the resume data directly is an advanced feature intended for experienced users. The resume data is stored in JSON files, with `data.json` containing the active configuration and `default_data.json` providing a default version.*
 
 ### **Structure of the JSON Data**
 
@@ -48,7 +48,7 @@ The resume data is now stored in JSON files rather than a Python dictionary. The
   Each object includes keys such as:
   - `"title"`: The name of the section (e.g., "Personal Information").
   - `"content"`: An array of items that represent the content for that section.
-  - Optional fields for more complex sections (like `"subtitle"`, `"date"`, or `"details"`) are also supported.
+  - Additional keys (like `"subtitle"`, `"date"`, or `"details"`) may be present for more complex sections.
 
 ### **Examples**
 
@@ -97,47 +97,14 @@ The resume data is now stored in JSON files rather than a Python dictionary. The
 ```
 - Fill in the appropriate job details and responsibilities.
 
-> **Note:** Always maintain the JSON structure as shown to ensure the application functions correctly. Validate your JSON for correct syntax, proper commas, and accurate nesting.
-
----
-
-## **Advanced Editing**
-
-### **Advanced JSON Editor**
-
-- **Purpose:**  
-  For power users, the Advanced JSON Editor allows you to directly modify the raw JSON data in `data.json`.
-  
-- **Safety:**  
-  A confirmation dialog appears before the editor launches, making it clear that this feature is intended only for advanced users.
-
----
-
-## **Packing with PyInstaller**
-
-To create a standalone executable:
-
-1. **Install PyInstaller** (if not already installed):
-   ```bash
-   pip install pyinstaller
-   ```
-
-2. **Generate the Executable**:
-   ```bash
-   pyinstaller --onefile --name resume_generator resume_generator.py
-   ```
-   - The `--onefile` flag packages the application into a single executable.
-   - Replace `resume_generator.py` with your main script’s filename.
-
-3. **Distribution:**
-   - Distribute the resulting executable along with `default_data.json` so users have a default configuration to start with.
+> **Important:** Always maintain the JSON structure as shown to ensure the application functions correctly. Validate your JSON for proper syntax and structure before saving your changes.
 
 ---
 
 ## **Final Notes**
 
 - **GUI Refresh:**  
-  Any changes made through the UI (for example, customizing the UI or editing sections) trigger a full refresh of the main window. This ensures that updates—such as the window title, size, and font—are applied immediately.
+  Any changes made through the GUI (such as customizing the UI or editing sections) trigger a full refresh of the main window. This ensures that updates—such as changes to the window title, size, and font—are applied immediately.
 
 - **Support:**  
   If you encounter any issues or have questions, please contact the developer.
