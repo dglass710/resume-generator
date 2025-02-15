@@ -1,0 +1,137 @@
+[
+    {
+        "title": "Personal Information",
+        "window_title": "Security Engineer",
+        "window_width": "1000",
+        "window_length": "500",
+        "editor_window_width": "900",
+        "editor_window_length": "500",
+        "main_window_font_size": "20",
+        "editor_text_size": "16",
+        "content": [
+            "DAVID GLASS",
+            "Chicago, IL 60618 ⋄ 847.764.9200 ⋄ dglass2525@gmail.com ⋄ thedavidglass.com ⋄ github.com/dglass710 ⋄ linkedin.com/in/david-a-glass"
+        ]
+    },
+    {
+        "title": "Objective",
+        "content": [
+            "To leverage my expertise in cryptography, penetration testing, and secure system design to build robust security frameworks that protect organizational assets. I aim to contribute to proactive threat mitigation and ensure the integrity of critical infrastructure.",
+            "To utilize my knowledge of encryption protocols, secure software development, and penetration testing to design, implement, and maintain applications and systems with a focus on minimizing vulnerabilities and maximizing resilience.",
+            "To apply my skills in penetration testing, vulnerability assessment, and cryptographic methods to anticipate and mitigate threats, ensuring enterprise systems are prepared for emerging cybersecurity challenges."
+        ]
+    },
+    {
+        "title": "Certifications",
+        "content": [
+            "CompTIA Security+ (SY0-701)"
+        ]
+    },
+    {
+        "title": "Education",
+        "content": [
+            [
+                "Northwestern University Cybersecurity Program: Graduated June 2024"
+            ],
+            [
+                "DePaul University: Graduated March 2022",
+                "B.S. in Applied and Computational Mathematics; Minors in Computer Science and Physics."
+            ]
+        ]
+    },
+    {
+        "title": "Core Competencies",
+        "content": [
+            "OSINT Techniques",
+            "Password Cracking (Hashcat)",
+            "Technical Documentation",
+            "Data Visualization (Splunk Dashboards)",
+            "Cron Jobs",
+            "Security Onion",
+            "Ethical Hacking",
+            "Load Balancers",
+            "Incident Response",
+            "Docker",
+            "System Hardening",
+            "Firewall Policy Development",
+            "Shodan",
+            "SIEM Analysis",
+            "Report Writing",
+            "Firewalls (UFW, firewalld)",
+            "Active Directory",
+            "Linux Administration",
+            "Google Dorking",
+            "Cloud Infrastructure (OCI, Linode)",
+            "Digital Evidence Preservation",
+            "Risk Assessment",
+            "Automation Scripting",
+            "macOS Administration",
+            "Forensic Evidence Collection",
+            "Analytical Thinking",
+            "SSL Certificates",
+            "Steganography",
+            "Packet Analysis",
+            "Autopsy",
+            "Recon-ng",
+            "Technical Communication",
+            "Log Correlation and Alerts",
+            "Splunk",
+            "Network Security",
+            "Backup and Archive Management",
+            "Penetration Testing",
+            "Vulnerability Prioritization",
+            "Dashboard and Alert Design",
+            "Threat Mitigation",
+            "Advanced Nmap Scans",
+            "Incident Reporting",
+            "Vulnerability Scanning",
+            "Exploit Development",
+            "Log Analysis",
+            "Process Management",
+            "SQL Query Design",
+            "Snort rules",
+            "Scripting Maintenance Tasks",
+            "Problem Solving",
+            "Group Policy",
+            "Windows Administration",
+            "User and Permissions Management",
+            "Digital Forensics",
+            "GPG Encryption",
+            "Data Integrity Validation",
+            "Containerization",
+            "Cryptography",
+            "Privilege Escalation"
+        ]
+    },
+    {
+        "title": "Professional Experience",
+        "content": [
+            {
+                "subtitle": "Mathnasium – Mathematics Instructor",
+                "date": "April 2023 – Present, Chicago, IL",
+                "details": [
+                    "Instructed 370 students in mathematical concepts.",
+                    "Enhanced security of iPads used in instruction by implementing guided access controls."
+                ]
+            },
+            {
+                "subtitle": "DePaul University Math Department – Undergraduate Student Researcher",
+                "date": "November 2020 – May 2022, Chicago, IL",
+                "details": [
+                    "Developed Python tools for research, focusing on preventing rounding errors in fraction representations.",
+                    "Advanced the understanding of the Frobenius coin problem and computed symmetry in large data sets."
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Technical Projects",
+        "content": [
+            "Developed a secure file-sharing application using encryption protocols like AES and RSA to ensure confidentiality and integrity during data transfer.",
+            "Performed application penetration tests to identify vulnerabilities, providing detailed reports and remediation strategies to developers for secure software improvements.",
+            "Implemented SSL/TLS encryption for a web application and managed secure certificate handling, ensuring encrypted communication between users and servers.",
+            "Designed and executed custom Python scripts to automate vulnerability scanning and mitigate risks across an organization’s network infrastructure.",
+            "Created secure Docker container deployments, configuring firewalls and access controls to minimize attack surfaces in production environments."
+        ]
+    }
+]

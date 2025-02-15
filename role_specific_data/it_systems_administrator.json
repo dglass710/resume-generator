@@ -1,0 +1,98 @@
+[
+    {
+        "title": "Personal Information",
+        "window_title": "IT Systems Administrator",
+        "window_width": "1000",
+        "window_length": "500",
+        "editor_window_width": "900",
+        "editor_window_length": "500",
+        "main_window_font_size": "20",
+        "editor_text_size": "16",
+        "content": [
+            "DAVID GLASS",
+            "Chicago, IL 60618 ⋄ 847.764.9200 ⋄ dglass2525@gmail.com ⋄ thedavidglass.com ⋄ github.com/dglass710 ⋄ linkedin.com/in/david-a-glass"
+        ]
+    },
+    {
+        "title": "Objective",
+        "content": [
+            "To secure a position as an IT Systems Administrator, maintaining and optimizing enterprise systems and infrastructure while ensuring reliable and secure network operations across on-premises and cloud environments.",
+            "To contribute as an IT Systems Administrator by implementing automation scripts, managing cloud resources, and ensuring seamless integration of new technologies to drive operational efficiency.",
+            "To leverage my expertise in system configuration, user management, and security hardening to support corporate IT environments, ensuring end-users have secure and reliable access to necessary resources."
+        ]
+    },
+    {
+        "title": "Certifications",
+        "content": [
+            "CompTIA Security+ (SY0-701)"
+        ]
+    },
+    {
+        "title": "Education",
+        "content": [
+            [
+                "Northwestern University Cybersecurity Program: Graduated June 2024"
+            ],
+            [
+                "DePaul University: Graduated March 2022",
+                "B.S. in Applied and Computational Mathematics; Minors in Computer Science and Physics."
+            ]
+        ]
+    },
+    {
+        "title": "Core Competencies",
+        "content": [
+            "Linux Administration",
+            "macOS Administration",
+            "Windows Administration",
+            "Active Directory",
+            "Group Policy",
+            "System Hardening",
+            "User and Permissions Management",
+            "Firewalls (UFW, firewalld)",
+            "Process Management",
+            "Backup and Archive Management",
+            "Cron Jobs",
+            "Scripting Maintenance Tasks",
+            "Cloud Infrastructure (Azure, AWS)",
+            "Containerization",
+            "Load Balancers",
+            "SQL Query Design",
+            "Docker",
+            "Automation Scripting",
+            "Technical Communication",
+            "Problem Solving"
+        ]
+    },
+    {
+        "title": "Professional Experience",
+        "content": [
+            {
+                "subtitle": "Mathnasium – Mathematics Instructor",
+                "date": "April 2023 – Present, Chicago, IL",
+                "details": [
+                    "Instructed 370 students in mathematical concepts.",
+                    "Enhanced security of iPads used in instruction by implementing guided access controls."
+                ]
+            },
+            {
+                "subtitle": "DePaul University Math Department – Undergraduate Student Researcher",
+                "date": "November 2020 – May 2022, Chicago, IL",
+                "details": [
+                    "Developed Python tools for research, focusing on preventing rounding errors in fraction representations.",
+                    "Advanced the understanding of the Frobenius coin problem and computed symmetry in large data sets."
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Technical Projects",
+        "content": [
+            "Developed and implemented firewall policies using UFW and firewalld to ensure secure server configurations and restrict unauthorized access.",
+            "Automated user account creation and permissions assignment with Bash scripts, improving efficiency for onboarding processes.",
+            "Built and managed a virtual private cloud (VPC) on Azure, deploying virtual machines and configuring secure remote access via SSH.",
+            "Deployed and maintained Docker containers for streamlined application development and environment consistency.",
+            "Configured cron jobs to automate system maintenance, including backups, log rotation, and system updates."
+        ]
+    }
+]
