@@ -27,6 +27,7 @@ def generate_resume(selected_sections, output_file="Custom_Resume.docx"):
                     run.bold = True
                     run.font.size = Pt(14)
                 set_single_spacing(para)
+            doc.add_paragraph("")
             continue
 
         title_para = doc.add_heading(section["title"], level=1)
