@@ -10,8 +10,8 @@ zip -r Executable/ResumeBuilder.zip dist/ResumeBuilder.app
 git add Executable/ResumeBuilder.zip
 
 # Step 4: Commit the changes with a standardized message
-git commit -m "Automated build: Updated ResumeBuilder.zip from the latest PyInstaller build"
+#git commit -m "Automated build: Updated ResumeBuilder.zip from the latest PyInstaller build"
 
 # Optional: Push the changes to the remote repository
 # Uncomment the next line if you want to auto-push
-git push
+#git push

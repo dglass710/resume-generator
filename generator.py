@@ -56,6 +56,10 @@ def generate_resume(selected_sections, output_file="Custom_Resume.docx"):
                 for detail in item["details"]:
                     detail_para = doc.add_paragraph(detail, style='List Bullet')
                     set_single_spacing(detail_para)
+        elif section["title"] == "Technical Projects":
+            for project in section["content"]:
+                para = doc.add_paragraph(project, style='List Bullet')
+                set_single_spacing(para)
         else:
             for item in section["content"]:
                 if isinstance(item, dict):
