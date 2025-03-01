@@ -7,6 +7,3 @@ REM Build the executable with PyInstaller.
 REM The --noconfirm flag tells PyInstaller to overwrite existing builds without asking.
 pyinstaller --onefile --noconsole --noconfirm --add-data "data.json;." --add-data "default_data.json;." --add-data "generator.py;." ResumeBuilder.py
 
-REM Pause so you can see any output/errors before the window closes.
-pause
-
