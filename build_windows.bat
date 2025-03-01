@@ -1,7 +1,7 @@
 @echo off
 REM Fetch latest changes from git and move to the head of your branch.
 git fetch
-git reset --hard origin/master
+git reset --hard origin/main
 
 REM Build the executable with PyInstaller.
 REM The --noconfirm flag tells PyInstaller to overwrite existing builds without asking.
