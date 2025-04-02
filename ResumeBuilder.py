@@ -866,7 +866,12 @@ class ResumeGeneratorGUI:
             self.canvas.yview_scroll(1, "units")
 
     def add_section_widgets(self, parent, section):
-        section_var = tk.BooleanVar(value=True)
+        if section["title"] == "Personal Information":
+            section_var = tk.BooleanVar(value=True)
+        else:
+            # Check if the section has any subsections.
+            section_var = tk.BooleanVar(value=bool(section.get("content")))
+        # section_var = tk.BooleanVar(value=True) Old lazy version checks all sections (even empty ones)
         self.section_vars[section["title"]] = section_var
         section_frame = ttk.Frame(parent)
         section_frame.pack(fill="x", pady=5)
