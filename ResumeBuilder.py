@@ -620,7 +620,7 @@ class ResumeGeneratorGUI:
                 item_editor.title(f"Add Item for {section['title']}")
             else:
                 item_editor.title(f"Edit Item for {section['title']}")
-            item_editor.geometry("500x400")
+            item_editor.geometry("500x500")
 
             # Field: Title
             ttk.Label(item_editor, text="Title:", style="Custom.TLabel").pack(anchor="w", padx=10, pady=5)
@@ -645,6 +645,25 @@ class ResumeGeneratorGUI:
             details_scrollbar.pack(side="right", fill="y")
             details_listbox.config(yscrollcommand=details_scrollbar.set)
             details = []  # Local list for details
+
+            def on_start_drag_detail(event):
+                details_listbox._drag_start_index = details_listbox.nearest(event.y)
+
+            def on_drag_motion_detail(event):
+                new_index = details_listbox.nearest(event.y)
+                if new_index != details_listbox._drag_start_index:
+                    # Reorder the underlying details list.
+                    details.insert(new_index, details.pop(details_listbox._drag_start_index))
+                    refresh_details_listbox()
+                    details_listbox._drag_start_index = new_index
+
+            def on_drop_detail(event):
+                pass
+
+            # Bind the drag-and-drop events to the details_listbox.
+            details_listbox.bind("<ButtonPress-1>", on_start_drag_detail)
+            details_listbox.bind("<B1-Motion>", on_drag_motion_detail)
+            details_listbox.bind("<ButtonRelease-1>", on_drop_detail)
 
             def refresh_details_listbox():
                 details_listbox.delete(0, tk.END)
