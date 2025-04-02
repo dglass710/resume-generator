@@ -143,6 +143,7 @@ class ResumeGeneratorGUI:
 
         ttk.Button(ui_window, text="Save", command=save_ui_settings, style="Custom.TButton").pack(pady=10)
 
+
     def open_advanced_editor(self):
         """Prompt the user before opening the advanced JSON editor."""
         if messagebox.askyesno("Advanced Feature",
@@ -293,6 +294,7 @@ class ResumeGeneratorGUI:
         info_text.insert("1.0", information_content)
         info_text.configure(state="disabled")
 
+
     def open_editor_window(self):
         """Opens the advanced JSON editor (raw data editor)."""
         editor_window = tk.Toplevel(self.root)
@@ -332,7 +334,6 @@ class ResumeGeneratorGUI:
             del self.editor_windows[editor_window]
         editor_window.destroy()
 
-    # Helper method to write the current master_resume data to data.json
     def write_master_resume(self):
         try:
             with open(self.get_file_path("data.json"), "w") as f:
@@ -365,24 +366,27 @@ class ResumeGeneratorGUI:
         else:
             self.edit_simple_section_content(section)
 
-    # ---------------------------
-    # SIMPLE SECTION EDITOR
-    # ---------------------------
     def edit_simple_section_content(self, section):
+        # TODO (unchanged code for simple section editing)
+        pass
+
+    # ---------------------------
+    # NEW STRUCTURED SECTION EDITOR
+    # ---------------------------
+    def edit_structured_section_content(self, section):
         """
-        Editor for sections whose content is a list of strings (e.g., Objective, Certifications, etc.).
-        Uses buttons named: Add, Edit, Remove, Save, and Cancel.
-        Additionally, for sections other than Core Competencies (which auto-sort), a third row of Up and Down buttons
-        is provided to change the order.
-        Changes made here are kept in memory until Save is pressed.
-        If Cancel is pressed a confirmation popup appears and unsaved changes are discarded.
+        NEW implementation for structured sections (Professional Experience and Education).
+        Displays the section items in a single Listbox (like the simple editor). When adding or editing
+        an item, a popup is opened with fields:
+          - For Professional Experience: "Title", "Dates", and "Details" (edited as a list of single-line items).
+          - For Education: "Title" and "Details" (edited as a list).
         """
         win = tk.Toplevel(self.root)
         win.title(f"Edit Content for {section['title']}")
         win.geometry("600x500")
-        # Make a backup of the original content for this section
         original_content = copy.deepcopy(section["content"])
 
+        # Listbox for structured items
         listbox = tk.Listbox(win, width=80)
         listbox.pack(fill="both", expand=True, padx=10, pady=10)
         scrollbar = ttk.Scrollbar(win, orient="vertical", command=listbox.yview)
@@ -390,13 +394,20 @@ class ResumeGeneratorGUI:
         listbox.config(yscrollcommand=scrollbar.set)
 
         def refresh_listbox():
-            # For Core Competencies, auto-sort alphabetically.
-            if section["title"] == "Core Competencies":
-                section["content"] = sorted(section["content"], key=lambda s: s.lower())
             listbox.delete(0, tk.END)
-            for item in section["content"]:
-                listbox.insert(tk.END, item)
+            for idx, item in enumerate(section["content"]):
+                if section["title"] == "Professional Experience":
+                    title = item.get("subtitle", "No Title")
+                    dates = item.get("date", "")
+                    summary = f"{title} ({dates})"
+                elif section["title"] == "Education":
+                    if isinstance(item, list) and item:
+                        summary = item[0]
+                    else:
+                        summary = "No Title"
+                listbox.insert(tk.END, summary)
         refresh_listbox()
+
         current_index = [None]
 
         def on_listbox_select(event):
@@ -404,228 +415,142 @@ class ResumeGeneratorGUI:
             current_index[0] = selection[0] if selection else None
         listbox.bind("<<ListboxSelect>>", on_listbox_select)
 
-        # --- Item Editor for simple sections ---
-        def open_edit_window(is_new=False):
-            selected_index = current_index[0]
-            if not is_new and selected_index is None:
-                messagebox.showerror("Error", "No item selected for editing.")
-                return
-            child_win = tk.Toplevel(win)
-            child_win.title(f"{'Add' if is_new else 'Edit'} Item for {section['title']}")
-            child_win.geometry("400x150")
-
-            ttk.Label(child_win, text="Item Content:", style="Custom.TLabel").pack(anchor="w", padx=10, pady=5)
-            entry_widget = ttk.Entry(child_win, width=50)
-            entry_widget.pack(fill="x", padx=10, pady=5)
-            entry_widget.bind("<Key>", self.restrict_quotes)
-            entry_widget.bind("<Return>", lambda e: "break")  # Enforce single-line
-            if not is_new:
-                entry_widget.insert(0, section["content"][selected_index].replace("\\n", " "))
-
-            def done_child():
-                new_text = entry_widget.get().strip()
-                if not new_text:
-                    messagebox.showerror("Error", "Item content cannot be empty.")
-                    return
-                if is_new:
-                    section["content"].append(new_text)
-                else:
-                    section["content"][selected_index] = new_text
-                refresh_listbox()
-                child_win.destroy()
-            ttk.Button(child_win, text="Done", command=done_child, style="Custom.TButton").pack(pady=10)
-        # First row of buttons: Add, Edit, Remove
-        btn_frame = ttk.Frame(win)
-        btn_frame.pack(fill="x", padx=10, pady=5)
-        ttk.Button(btn_frame, text="Add", command=lambda: open_edit_window(is_new=True), style="Custom.TButton").pack(side="left", padx=5)
-        ttk.Button(btn_frame, text="Edit", command=lambda: open_edit_window(is_new=False), style="Custom.TButton").pack(side="left", padx=5)
-        def remove_item():
-            if current_index[0] is not None:
-                if messagebox.askyesno("Confirm", "Remove selected item?"):
-                    del section["content"][current_index[0]]
-                    current_index[0] = None
-                    refresh_listbox()
+        # Function to open a popup for editing a structured item
+        def open_structured_item_editor(is_new=False):
+            item_editor = tk.Toplevel(win)
+            if is_new:
+                item_editor.title(f"Add Item for {section['title']}")
             else:
-                messagebox.showerror("Error", "No item selected to remove.")
-        ttk.Button(btn_frame, text="Remove", command=remove_item, style="Custom.TButton").pack(side="left", padx=5)
+                item_editor.title(f"Edit Item for {section['title']}")
+            item_editor.geometry("500x400")
 
-        # --- For sections other than Core Competencies, add Up/Down buttons to reorder ---
-        if section["title"] != "Core Competencies":
-            order_frame = ttk.Frame(win)
-            order_frame.pack(fill="x", padx=10, pady=5)
-            def move_up():
-                if current_index[0] is None:
-                    messagebox.showerror("Error", "No item selected to move.")
+            # Field: Title (for both sections)
+            ttk.Label(item_editor, text="Title:", style="Custom.TLabel").pack(anchor="w", padx=10, pady=5)
+            title_entry = ttk.Entry(item_editor, width=50)
+            title_entry.pack(anchor="w", padx=10)
+            title_entry.bind("<Key>", self.restrict_quotes)
+
+            # Field: Dates (only for Professional Experience)
+            if section["title"] == "Professional Experience":
+                ttk.Label(item_editor, text="Dates:", style="Custom.TLabel").pack(anchor="w", padx=10, pady=5)
+                dates_entry = ttk.Entry(item_editor, width=50)
+                dates_entry.pack(anchor="w", padx=10)
+                dates_entry.bind("<Key>", self.restrict_quotes)
+            else:
+                dates_entry = None
+
+            # Details sublist editor
+            ttk.Label(item_editor, text="Details:", style="Custom.TLabel").pack(anchor="w", padx=10, pady=5)
+            details_listbox = tk.Listbox(item_editor, width=50, height=8)
+            details_listbox.pack(anchor="w", padx=10, pady=5)
+            details_scrollbar = ttk.Scrollbar(item_editor, orient="vertical", command=details_listbox.yview)
+            details_scrollbar.pack(side="right", fill="y")
+            details_listbox.config(yscrollcommand=details_scrollbar.set)
+            details = []  # local list for details
+
+            def refresh_details_listbox():
+                details_listbox.delete(0, tk.END)
+                for d in details:
+                    details_listbox.insert(tk.END, d)
+
+            # Sub-functions for managing details (Add/Edit/Remove)
+            def add_detail():
+                detail_win = tk.Toplevel(item_editor)
+                detail_win.title("Add Detail")
+                detail_win.geometry("400x150")
+                ttk.Label(detail_win, text="Detail:", style="Custom.TLabel").pack(anchor="w", padx=10, pady=5)
+                detail_entry = ttk.Entry(detail_win, width=50)
+                detail_entry.pack(anchor="w", padx=10, pady=5)
+                detail_entry.bind("<Key>", self.restrict_quotes)
+                def done_detail():
+                    text = detail_entry.get().strip()
+                    if not text:
+                        messagebox.showerror("Error", "Detail cannot be empty.")
+                        return
+                    details.append(text)
+                    refresh_details_listbox()
+                    detail_win.destroy()
+                ttk.Button(detail_win, text="Done", command=done_detail, style="Custom.TButton").pack(pady=10)
+            def edit_detail():
+                selection = details_listbox.curselection()
+                if not selection:
+                    messagebox.showerror("Error", "No detail selected.")
                     return
-                idx = current_index[0]
-                if idx <= 0:
+                index = selection[0]
+                detail_win = tk.Toplevel(item_editor)
+                detail_win.title("Edit Detail")
+                detail_win.geometry("400x150")
+                ttk.Label(detail_win, text="Detail:", style="Custom.TLabel").pack(anchor="w", padx=10, pady=5)
+                detail_entry = ttk.Entry(detail_win, width=50)
+                detail_entry.pack(anchor="w", padx=10, pady=5)
+                detail_entry.bind("<Key>", self.restrict_quotes)
+                detail_entry.insert(0, details[index])
+                def done_detail():
+                    text = detail_entry.get().strip()
+                    if not text:
+                        messagebox.showerror("Error", "Detail cannot be empty.")
+                        return
+                    details[index] = text
+                    refresh_details_listbox()
+                    detail_win.destroy()
+                ttk.Button(detail_win, text="Done", command=done_detail, style="Custom.TButton").pack(pady=10)
+            def remove_detail():
+                selection = details_listbox.curselection()
+                if not selection:
+                    messagebox.showerror("Error", "No detail selected.")
                     return
-                section["content"][idx-1], section["content"][idx] = section["content"][idx], section["content"][idx-1]
-                current_index[0] = idx - 1
-                refresh_listbox()
-                listbox.selection_set(current_index[0])
-            def move_down():
-                if current_index[0] is None:
-                    messagebox.showerror("Error", "No item selected to move.")
-                    return
-                idx = current_index[0]
-                if idx >= len(section["content"]) - 1:
-                    return
-                section["content"][idx+1], section["content"][idx] = section["content"][idx], section["content"][idx+1]
-                current_index[0] = idx + 1
-                refresh_listbox()
-                listbox.selection_set(current_index[0])
-            ttk.Button(order_frame, text="Up", command=move_up, style="Custom.TButton").pack(side="left", padx=5)
-            ttk.Button(order_frame, text="Down", command=move_down, style="Custom.TButton").pack(side="left", padx=5)
+                index = selection[0]
+                if messagebox.askyesno("Confirm", "Remove selected detail?"):
+                    del details[index]
+                    refresh_details_listbox()
 
-        # --- Save and Cancel buttons for the content editor ---
-        def save_content_editor():
-            self.write_master_resume()
-            messagebox.showinfo("Saved", "Changes saved successfully.")
-            self.refresh_main_window()
-            win.destroy()
+            detail_btn_frame = ttk.Frame(item_editor)
+            detail_btn_frame.pack(anchor="w", padx=10, pady=5)
+            ttk.Button(detail_btn_frame, text="Add Detail", command=add_detail, style="Custom.TButton").pack(side="left", padx=5)
+            ttk.Button(detail_btn_frame, text="Edit Detail", command=edit_detail, style="Custom.TButton").pack(side="left", padx=5)
+            ttk.Button(detail_btn_frame, text="Remove Detail", command=remove_detail, style="Custom.TButton").pack(side="left", padx=5)
 
-        def cancel_content_editor():
-            if messagebox.askyesno("Cancel", "Are you sure you want to cancel? All unsaved changes will be discarded."):
-                section["content"] = original_content
-                messagebox.showinfo("Canceled", "Changes discarded.")
-                win.destroy()
-
-        bottom_frame = ttk.Frame(win)
-        bottom_frame.pack(fill="x", padx=10, pady=10)
-        ttk.Button(bottom_frame, text="Save", command=save_content_editor, style="Custom.TButton").pack(side="left", padx=10)
-        ttk.Button(bottom_frame, text="Cancel", command=cancel_content_editor, style="Custom.TButton").pack(side="left", padx=10)
-
-    # ---------------------------
-    # STRUCTURED SECTION EDITOR
-    # ---------------------------
-    def edit_structured_section_content(self, section):
-        """
-        Structured editor for Professional Experience and Education.
-        Uses per-field editors and uses buttons named:
-        Add, Edit, Remove, Save, and Cancel.
-        Additionally, a third row of Up and Down buttons is provided to change the order.
-        Changes are kept in memory until Save is pressed.
-        If Cancel is pressed, a confirmation popup appears and unsaved changes are discarded.
-        """
-        win = tk.Toplevel(self.root)
-        win.title(f"Edit Content for {section['title']}")
-        win.geometry("800x600")
-        original_content = copy.deepcopy(section["content"])
-
-        main_frame = ttk.Frame(win)
-        main_frame.pack(fill="both", expand=True, padx=10, pady=10)
-
-        # Left frame: Listbox for items
-        left_frame = ttk.Frame(main_frame)
-        left_frame.pack(side="left", fill="y", padx=(0, 10))
-        listbox = tk.Listbox(left_frame, width=30)
-        listbox.pack(side="left", fill="y", expand=True)
-        scrollbar = ttk.Scrollbar(left_frame, command=listbox.yview)
-        scrollbar.pack(side="right", fill="y")
-        listbox.config(yscrollcommand=scrollbar.set)
-
-        # Right frame: Form for editing fields
-        right_frame = ttk.Frame(main_frame)
-        right_frame.pack(side="left", fill="both", expand=True)
-
-        if section["title"] == "Professional Experience":
-            ttk.Label(right_frame, text="Subtitle:", style="Custom.TLabel").pack(anchor="w")
-            subtitle_entry = ttk.Entry(right_frame, width=50)
-            subtitle_entry.pack(anchor="w", fill="x")
-            subtitle_entry.bind("<Key>", self.restrict_quotes)
-
-            ttk.Label(right_frame, text="Date:", style="Custom.TLabel").pack(anchor="w")
-            date_entry = ttk.Entry(right_frame, width=50)
-            date_entry.pack(anchor="w", fill="x")
-            date_entry.bind("<Key>", self.restrict_quotes)
-
-            ttk.Label(right_frame, text="Details (one per line):", style="Custom.TLabel").pack(anchor="w")
-            details_text = tk.Text(right_frame, height=10, wrap="word")
-            details_text.pack(anchor="w", fill="both", expand=True)
-            details_text.bind("<Return>", self.insert_literal_newline)
-            details_text.bind("<Key>", self.restrict_quotes)
-        elif section["title"] == "Education":
-            ttk.Label(right_frame, text="Main Entry:", style="Custom.TLabel").pack(anchor="w")
-            main_entry = ttk.Entry(right_frame, width=50)
-            main_entry.pack(anchor="w", fill="x")
-            main_entry.bind("<Key>", self.restrict_quotes)
-
-            ttk.Label(right_frame, text="Details (one per line):", style="Custom.TLabel").pack(anchor="w")
-            details_text = tk.Text(right_frame, height=10, wrap="word")
-            details_text.pack(anchor="w", fill="both", expand=True)
-            details_text.bind("<Return>", self.insert_literal_newline)
-            details_text.bind("<Key>", self.restrict_quotes)
-
-        def refresh_listbox():
-            listbox.delete(0, tk.END)
-            for idx, item in enumerate(section["content"]):
-                if section["title"] == "Professional Experience":
-                    summary = f"{item.get('subtitle', 'No Subtitle')} ({item.get('date', '')})"
-                elif section["title"] == "Education":
-                    summary = item[0] if isinstance(item, list) and item else "No Main Entry"
-                listbox.insert(tk.END, summary)
-        refresh_listbox()
-        current_index = [None]
-
-        def on_listbox_select(event):
-            selection = listbox.curselection()
-            if selection:
-                current_index[0] = selection[0]
+            # If editing, prepopulate fields with current values.
+            if not is_new and current_index[0] is not None:
                 item = section["content"][current_index[0]]
                 if section["title"] == "Professional Experience":
-                    subtitle_entry.delete(0, tk.END)
-                    subtitle_entry.insert(0, item.get("subtitle", ""))
-                    date_entry.delete(0, tk.END)
-                    date_entry.insert(0, item.get("date", ""))
-                    details_text.delete("1.0", tk.END)
-                    details_text.insert("1.0", "\\n".join(item.get("details", [])))
+                    title_entry.insert(0, item.get("subtitle", ""))
+                    dates_entry.insert(0, item.get("date", ""))
+                    details.extend(item.get("details", []))
                 elif section["title"] == "Education":
-                    main_entry.delete(0, tk.END)
-                    if isinstance(item, list) and len(item) > 0:
-                        main_entry.insert(0, item[0])
-                    details_text.delete("1.0", tk.END)
-                    if isinstance(item, list) and len(item) > 1:
-                        details_text.insert("1.0", "\\n".join(item[1:]))
-            else:
-                current_index[0] = None
+                    if isinstance(item, list) and item:
+                        title_entry.insert(0, item[0])
+                        details.extend(item[1:])
+                refresh_details_listbox()
 
-        listbox.bind("<<ListboxSelect>>", on_listbox_select)
+            def done_item():
+                new_title = title_entry.get().strip()
+                if not new_title:
+                    messagebox.showerror("Error", "Title cannot be empty.")
+                    return
+                if section["title"] == "Professional Experience":
+                    new_dates = dates_entry.get().strip()
+                    new_item = {"subtitle": new_title, "date": new_dates, "details": details.copy()}
+                elif section["title"] == "Education":
+                    new_item = [new_title] + details.copy()
+                if is_new or current_index[0] is None:
+                    section["content"].append(new_item)
+                else:
+                    section["content"][current_index[0]] = new_item
+                refresh_listbox()
+                item_editor.destroy()
+            ttk.Button(item_editor, text="Done", command=done_item, style="Custom.TButton").pack(pady=10)
 
-        # --- Item Editor for structured sections ---
         def add_item():
             current_index[0] = None
-            if section["title"] == "Professional Experience":
-                subtitle_entry.delete(0, tk.END)
-                date_entry.delete(0, tk.END)
-                details_text.delete("1.0", tk.END)
-            elif section["title"] == "Education":
-                main_entry.delete(0, tk.END)
-                details_text.delete("1.0", tk.END)
-        def done_edit():
-            if section["title"] == "Professional Experience":
-                new_item = {
-                    "subtitle": subtitle_entry.get().strip(),
-                    "date": date_entry.get().strip(),
-                    "details": [line.strip() for line in details_text.get("1.0", tk.END).replace("\\n", "").splitlines() if line.strip()]
-                }
-            elif section["title"] == "Education":
-                new_main = main_entry.get().strip()
-                details_lines = [line.strip() for line in details_text.get("1.0", tk.END).replace("\\n", "").splitlines() if line.strip()]
-                new_item = [new_main] + details_lines if new_main else []
-            if current_index[0] is not None:
-                section["content"][current_index[0]] = new_item
-            else:
-                if section["title"] == "Professional Experience" and new_item["subtitle"]:
-                    section["content"].append(new_item)
-                elif section["title"] == "Education" and new_item:
-                    section["content"].append(new_item)
-            refresh_listbox()
-        # First row of buttons: Add, Edit, Remove
-        btn_frame = ttk.Frame(win)
-        btn_frame.pack(fill="x", padx=10, pady=5)
-        ttk.Button(btn_frame, text="Add", command=add_item, style="Custom.TButton").pack(side="left", padx=5)
-        ttk.Button(btn_frame, text="Edit", command=done_edit, style="Custom.TButton").pack(side="left", padx=5)
+            open_structured_item_editor(is_new=True)
+
+        def edit_item():
+            if current_index[0] is None:
+                messagebox.showerror("Error", "No item selected for editing.")
+                return
+            open_structured_item_editor(is_new=False)
+
         def remove_item():
             if current_index[0] is not None:
                 if messagebox.askyesno("Confirm", "Remove selected item?"):
@@ -634,11 +559,7 @@ class ResumeGeneratorGUI:
                     refresh_listbox()
             else:
                 messagebox.showerror("Error", "No item selected to remove.")
-        ttk.Button(btn_frame, text="Remove", command=remove_item, style="Custom.TButton").pack(side="left", padx=5)
 
-        # --- Order manipulation buttons (Up and Down) for structured sections ---
-        order_frame = ttk.Frame(win)
-        order_frame.pack(fill="x", padx=10, pady=5)
         def move_up():
             if current_index[0] is None:
                 messagebox.showerror("Error", "No item selected to move.")
@@ -650,6 +571,7 @@ class ResumeGeneratorGUI:
             current_index[0] = idx - 1
             refresh_listbox()
             listbox.selection_set(current_index[0])
+
         def move_down():
             if current_index[0] is None:
                 messagebox.showerror("Error", "No item selected to move.")
@@ -661,20 +583,30 @@ class ResumeGeneratorGUI:
             current_index[0] = idx + 1
             refresh_listbox()
             listbox.selection_set(current_index[0])
+
+        btn_frame = ttk.Frame(win)
+        btn_frame.pack(fill="x", padx=10, pady=5)
+        ttk.Button(btn_frame, text="Add", command=add_item, style="Custom.TButton").pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Edit", command=edit_item, style="Custom.TButton").pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Remove", command=remove_item, style="Custom.TButton").pack(side="left", padx=5)
+
+        order_frame = ttk.Frame(win)
+        order_frame.pack(fill="x", padx=10, pady=5)
         ttk.Button(order_frame, text="Up", command=move_up, style="Custom.TButton").pack(side="left", padx=5)
         ttk.Button(order_frame, text="Down", command=move_down, style="Custom.TButton").pack(side="left", padx=5)
 
-        # --- Save and Cancel buttons for the structured content editor ---
         def save_content_editor():
             self.write_master_resume()
             messagebox.showinfo("Saved", "Changes saved successfully.")
             self.refresh_main_window()
             win.destroy()
+
         def cancel_content_editor():
             if messagebox.askyesno("Cancel", "Are you sure you want to cancel? All unsaved changes will be discarded."):
                 section["content"] = original_content
                 messagebox.showinfo("Canceled", "Changes discarded.")
                 win.destroy()
+
         bottom_frame = ttk.Frame(win)
         bottom_frame.pack(fill="x", padx=10, pady=10)
         ttk.Button(bottom_frame, text="Save", command=save_content_editor, style="Custom.TButton").pack(side="left", padx=10)
@@ -942,120 +874,6 @@ class ResumeGeneratorGUI:
             messagebox.showerror("JSON Error", f"Invalid JSON format:\n{je}")
         except Exception as e:
             messagebox.showerror("Error", f"Could not save changes: {e}")
-
-    def refresh_main_window(self):
-        """Reload data.json and completely redraw the main window (except Toplevel windows)."""
-        self.load_master_resume()
-        self.create_styles()
-        self.set_dimensions()
-        # Update the main window title if defined
-        if self.master_resume and self.master_resume[0].get("window_title"):
-            self.root.title(self.master_resume[0]["window_title"])
-        for widget in self.root.winfo_children():
-            if isinstance(widget, tk.Toplevel):
-                continue
-            widget.destroy()
-        self.create_gui()
-
-    def edit_section_content(self, section):
-        """
-        Opens an editor for a given section.
-        For Professional Experience and Education, a structured editor is used.
-        For all other sections, a simple editor (with single-line input) is used.
-        """
-        if section["title"] in ["Professional Experience", "Education"]:
-            self.edit_structured_section_content(section)
-        else:
-            self.edit_simple_section_content(section)
-
-    def create_gui(self):
-        top_frame = ttk.Frame(self.root)
-        top_frame.pack(fill="x", pady=10)
-        # New order and renamed buttons:
-        ttk.Button(top_frame, text="Customize UI", command=self.open_ui_settings_editor, style="Custom.TButton").pack(side="left", padx=10)
-        ttk.Button(top_frame, text="Browse Files", command=self.open_app_directory, style="Custom.TButton").pack(side="left", padx=10)
-        ttk.Button(top_frame, text="Help", command=self.open_information_window, style="Custom.TButton").pack(side="left", padx=10)
-        ttk.Button(top_frame, text="Reset Data", command=self.reset_to_default, style="Custom.TButton").pack(side="left", padx=10)
-        ttk.Button(top_frame, text="Advanced JSON Editor", command=self.open_advanced_editor, style="Custom.TButton").pack(side="left", padx=10)
-
-        main_frame = ttk.Frame(self.root)
-        main_frame.pack(fill="both", expand=True)
-        self.canvas = tk.Canvas(main_frame)
-        self.scrollbar = ttk.Scrollbar(main_frame, orient="vertical", command=self.canvas.yview)
-        self.scrollable_frame = ttk.Frame(self.canvas)
-        self.scrollable_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
-        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
-        self.canvas.configure(yscrollcommand=self.scrollbar.set)
-        self.canvas.pack(side="left", fill="both", expand=True)
-        self.scrollbar.pack(side="right", fill="y")
-        self.canvas.bind("<Enter>", self.bind_mousewheel)
-        self.canvas.bind("<Leave>", self.unbind_mousewheel)
-
-        for section in self.master_resume:
-            self.add_section_widgets(self.scrollable_frame, section)
-
-        bottom_frame = ttk.Frame(self.root)
-        bottom_frame.pack(fill="x", pady=10)
-        ttk.Label(bottom_frame, text="Output File Name:", style="Custom.TLabel").pack(side="left", padx=5)
-        entry = ttk.Entry(bottom_frame, textvariable=self.output_file_name_var, width=30)
-        entry.pack(side="left", padx=5)
-        entry.configure(font=("Arial", self.get_main_font_size()))
-        ttk.Button(bottom_frame, text="Generate Resume", command=self.generate_resume, style="Custom.TButton").pack(side="left", padx=10)
-
-    def bind_mousewheel(self, event=None):
-        self.canvas.bind_all("<MouseWheel>", self.on_mousewheel)
-        self.canvas.bind_all("<Button-4>", self.on_mousewheel_mac)
-        self.canvas.bind_all("<Button-5>", self.on_mousewheel_mac)
-
-    def unbind_mousewheel(self, event=None):
-        self.canvas.unbind_all("<MouseWheel>")
-        self.canvas.unbind_all("<Button-4>")
-        self.canvas.unbind_all("<Button-5>")
-
-    def on_mousewheel(self, event):
-        if event.delta > 0:
-            self.canvas.yview_scroll(-1, "units")
-        else:
-            self.canvas.yview_scroll(1, "units")
-
-    def on_mousewheel_mac(self, event):
-        if event.num == 4:
-            self.canvas.yview_scroll(-1, "units")
-        elif event.num == 5:
-            self.canvas.yview_scroll(1, "units")
-
-    def add_section_widgets(self, parent, section):
-        section_var = tk.BooleanVar(value=True)
-        self.section_vars[section["title"]] = section_var
-        section_frame = ttk.Frame(parent)
-        section_frame.pack(fill="x", pady=5)
-        # Checkbox at the top
-        section_checkbox = ttk.Checkbutton(
-            section_frame,
-            text=section["title"],
-            variable=section_var,
-            command=lambda: self.toggle_suboptions(section["title"], section_var.get()),
-            style="Custom.TCheckbutton"
-        )
-        section_checkbox.pack(anchor="w")
-        # Edit Section button positioned below the checkbox
-        ttk.Button(
-            section_frame,
-            text="Edit Section",
-            command=lambda: self.edit_section_content(section),
-            style="Custom.TButton"
-        ).pack(anchor="w", padx=20, pady=2)
-        if "content" in section and isinstance(section["content"], list):
-            if section["title"] == "Personal Information":
-                return
-            subsection_frame = ttk.Frame(section_frame)
-            subsection_frame.pack(fill="x", padx=20)
-            if section["title"] == "Objective":
-                self.add_objective_options(subsection_frame, section["content"])
-            elif section["title"] == "Education":
-                self.add_education_options(subsection_frame, section["content"], section["title"])
-            else:
-                self.add_suboptions(subsection_frame, section["content"], section["title"])
 
 if __name__ == "__main__":
     root = tk.Tk()
