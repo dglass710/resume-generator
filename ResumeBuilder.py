@@ -412,8 +412,132 @@ class ResumeGeneratorGUI:
             self.edit_simple_section_content(section)
 
     def edit_simple_section_content(self, section):
-        # TODO (unchanged code for simple section editing)
-        pass
+        """
+        Editor for sections whose content is a list of strings (e.g., Objective, Certifications, etc.).
+        This version uses drag and drop in the Listbox for reordering items instead of up/down buttons.
+        Changes are kept in memory until Save is pressed. Cancel discards unsaved changes.
+        """
+        win = tk.Toplevel(self.root)
+        win.title(f"Edit Content for {section['title']}")
+        win.geometry("700x500")
+        # Backup original content.
+        original_content = copy.deepcopy(section["content"])
+
+        # NOTE: Inform users they can drag and drop to reorder items.
+        ttk.Label(win, text="Drag and drop items to reorder them.", style="Custom.TLabel").pack(anchor="w", padx=10, pady=5)
+
+        # Create Listbox for items.
+        listbox = tk.Listbox(win, width=80)
+        listbox.pack(fill="both", expand=True, padx=10, pady=10)
+        scrollbar = ttk.Scrollbar(win, orient="vertical", command=listbox.yview)
+        scrollbar.pack(side="right", fill="y")
+        listbox.config(yscrollcommand=scrollbar.set)
+
+        def refresh_listbox():
+            # For Core Competencies, sort alphabetically.
+            if section["title"] == "Core Competencies":
+                section["content"] = sorted(section["content"], key=lambda s: s.lower())
+            listbox.delete(0, tk.END)
+            for item in section["content"]:
+                listbox.insert(tk.END, item)
+        refresh_listbox()
+        current_index = [None]
+
+        def on_listbox_select(event):
+            selection = listbox.curselection()
+            current_index[0] = selection[0] if selection else None
+        listbox.bind("<<ListboxSelect>>", on_listbox_select)
+
+        # Child popup for adding/editing an item.
+        def open_edit_window(is_new=False):
+            selected_index = current_index[0]
+            if not is_new and selected_index is None:
+                messagebox.showerror("Error", "No item selected for editing.")
+                return
+            child_win = tk.Toplevel(win)
+            child_win.title(f"{'Add' if is_new else 'Edit'} Item for {section['title']}")
+            child_win.geometry("400x150")
+
+            ttk.Label(child_win, text="Item Content:", style="Custom.TLabel").pack(anchor="w", padx=10, pady=5)
+            entry_widget = ttk.Entry(child_win, width=50)
+            entry_widget.pack(fill="x", padx=10, pady=5)
+            entry_widget.bind("<Key>", self.restrict_quotes)
+            entry_widget.bind("<Return>", lambda e: "break")
+            if not is_new:
+                entry_widget.insert(0, section["content"][selected_index].replace("\\n", " "))
+
+            def done_child():
+                new_text = entry_widget.get().strip()
+                if not new_text:
+                    messagebox.showerror("Error", "Item content cannot be empty.")
+                    return
+                if is_new:
+                    section["content"].append(new_text)
+                else:
+                    section["content"][selected_index] = new_text
+                refresh_listbox()
+                child_win.destroy()
+            ttk.Button(child_win, text="Done", command=done_child, style="Custom.TButton").pack(pady=10)
+
+        ttk.Button(win, text="Add", command=lambda: open_edit_window(is_new=True), style="Custom.TButton").pack(side="left", padx=5)
+        ttk.Button(win, text="Edit", command=lambda: open_edit_window(is_new=False), style="Custom.TButton").pack(side="left", padx=5)
+        
+        def remove_item():
+            if current_index[0] is not None:
+                if messagebox.askyesno("Confirm", "Remove selected item?"):
+                    del section["content"][current_index[0]]
+                    current_index[0] = None
+                    refresh_listbox()
+            else:
+                messagebox.showerror("Error", "No item selected to remove.")
+        ttk.Button(win, text="Remove", command=remove_item, style="Custom.TButton").pack(side="left", padx=5)
+
+        # --- DRAG AND DROP EVENT HANDLERS ---
+        def on_start_drag(event):
+            widget = event.widget
+            widget._drag_start_index = widget.nearest(event.y)
+
+        def on_drag_motion(event):
+            widget = event.widget
+            new_index = widget.nearest(event.y)
+            if new_index != widget._drag_start_index:
+                # Update the underlying list: move the item.
+                section["content"].insert(new_index, section["content"].pop(widget._drag_start_index))
+                # Refresh the Listbox.
+                widget.delete(0, tk.END)
+                for i in section["content"]:
+                    widget.insert(tk.END, i)
+                widget._drag_start_index = new_index
+                widget.selection_clear(0, tk.END)
+                widget.selection_set(new_index)
+
+        def on_drop(event):
+            # No extra processing required on drop.
+            pass
+
+        listbox.bind("<ButtonPress-1>", on_start_drag)
+        listbox.bind("<B1-Motion>", on_drag_motion)
+        listbox.bind("<ButtonRelease-1>", on_drop)
+        # --- END DRAG AND DROP ---
+
+        # Save and Cancel buttons.
+        bottom_frame = ttk.Frame(win)
+        bottom_frame.pack(fill="x", padx=10, pady=10)
+        
+        def save_content_editor():
+            self.write_master_resume()
+            messagebox.showinfo("Saved", "Changes saved successfully.")
+            self.refresh_main_window()
+            win.destroy()
+
+        def cancel_content_editor():
+            if messagebox.askyesno("Cancel", "Are you sure you want to cancel? All unsaved changes will be discarded."):
+                section["content"] = original_content
+                messagebox.showinfo("Canceled", "Changes discarded.")
+                win.destroy()
+
+        ttk.Button(bottom_frame, text="Save", command=save_content_editor, style="Custom.TButton").pack(side="left", padx=10)
+        ttk.Button(bottom_frame, text="Cancel", command=cancel_content_editor, style="Custom.TButton").pack(side="left", padx=10)
 
     # ---------------------------
     # NEW STRUCTURED SECTION EDITOR
@@ -430,6 +554,10 @@ class ResumeGeneratorGUI:
         win.title(f"Edit Content for {section['title']}")
         win.geometry("600x500")
         original_content = copy.deepcopy(section["content"])
+
+        # NOTE: Inform users they can drag and drop to reorder items.
+        ttk.Label(win, text="Drag and drop items to reorder them.", style="Custom.TLabel").pack(anchor="w", padx=10, pady=5)
+
 
         # Listbox for structured items
         listbox = tk.Listbox(win, width=80)
@@ -605,40 +733,11 @@ class ResumeGeneratorGUI:
             else:
                 messagebox.showerror("Error", "No item selected to remove.")
 
-        def move_up():
-            if current_index[0] is None:
-                messagebox.showerror("Error", "No item selected to move.")
-                return
-            idx = current_index[0]
-            if idx <= 0:
-                return
-            section["content"][idx-1], section["content"][idx] = section["content"][idx], section["content"][idx-1]
-            current_index[0] = idx - 1
-            refresh_listbox()
-            listbox.selection_set(current_index[0])
-
-        def move_down():
-            if current_index[0] is None:
-                messagebox.showerror("Error", "No item selected to move.")
-                return
-            idx = current_index[0]
-            if idx >= len(section["content"]) - 1:
-                return
-            section["content"][idx+1], section["content"][idx] = section["content"][idx], section["content"][idx+1]
-            current_index[0] = idx + 1
-            refresh_listbox()
-            listbox.selection_set(current_index[0])
-
         btn_frame = ttk.Frame(win)
         btn_frame.pack(fill="x", padx=10, pady=5)
         ttk.Button(btn_frame, text="Add", command=add_item, style="Custom.TButton").pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Edit", command=edit_item, style="Custom.TButton").pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Remove", command=remove_item, style="Custom.TButton").pack(side="left", padx=5)
-
-        order_frame = ttk.Frame(win)
-        order_frame.pack(fill="x", padx=10, pady=5)
-        ttk.Button(order_frame, text="Up", command=move_up, style="Custom.TButton").pack(side="left", padx=5)
-        ttk.Button(order_frame, text="Down", command=move_down, style="Custom.TButton").pack(side="left", padx=5)
 
         def save_content_editor():
             self.write_master_resume()
@@ -950,7 +1049,6 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = ResumeGeneratorGUI(root)
     root.mainloop()
-
 
 
 
