@@ -700,18 +700,36 @@ class ResumeGeneratorGUI:
                 self.add_education_options(subsection_frame, section["content"], section["title"])
             else:
                 self.add_suboptions(subsection_frame, section["content"], section["title"])
+    def on_label_click_radio(self, event):
+        widget = event.widget
+        if hasattr(widget, "custom_value"):
+            self.selected_objective.set(widget.custom_value)
+
 
     def add_objective_options(self, parent, options):
         for option in options:
             label_frame = ttk.Frame(parent)
             label_frame.pack(anchor="w", pady=2)
-            ttk.Radiobutton(
+            rb = ttk.Radiobutton(
                 label_frame,
                 variable=self.selected_objective,
                 value=option,
                 style="Custom.TRadiobutton"
-            ).pack(side="left")
-            ttk.Label(label_frame, text=option, wraplength=self.wrap_length, style="Custom.TLabel").pack(side="left")
+            )
+            rb.pack(side="left")
+            label = ttk.Label(
+                label_frame,
+                text=option,
+                wraplength=self.wrap_length,
+                style="Custom.TLabel"
+            )
+            # Attach the option value to the label
+            label.custom_value = option
+            label.pack(side="left")
+            # Bind a single callback for all labels
+            label.bind("<Button-1>", self.on_label_click_radio)
+
+        # Custom objective (remains unchanged)
         custom_frame = ttk.Frame(parent)
         custom_frame.pack(anchor="w", pady=5)
         ttk.Radiobutton(
@@ -734,16 +752,40 @@ class ResumeGeneratorGUI:
             self.subsection_vars[(section_title, main_entry)] = var
             ttk.Checkbutton(parent, text=main_entry, variable=var, style="Custom.TCheckbutton").pack(anchor="w")
 
+    def on_label_click_toggle(self, event):
+        widget = event.widget
+        if hasattr(widget, "custom_var"):
+            current = widget.custom_var.get()
+            widget.custom_var.set(not current)
+
     def add_suboptions(self, parent, options, section_title):
-        if section_title == "Core Competencies":
-            sorted_options = sorted(options, key=lambda s: s.lower())
-            core_frame = ttk.Frame(parent)
-            core_frame.pack(fill="x", padx=20)
-            for option in sorted_options:
+        if section_title == "Technical Projects":
+            for option in options:
                 var = tk.BooleanVar(value=False)
                 self.subsection_vars[(section_title, option)] = var
-                ttk.Checkbutton(core_frame, text=option, variable=var, style="Custom.TCheckbutton").pack(anchor="w")
+                frame = ttk.Frame(parent)
+                frame.pack(fill="x", pady=2)
+                cb = ttk.Checkbutton(
+                    frame,
+                    text="",
+                    variable=var,
+                    style="Custom.TCheckbutton"
+                )
+                cb.pack(side="left", padx=5)
+                label = ttk.Label(
+                    frame,
+                    text=option,
+                    wraplength=self.wrap_length,
+                    style="Custom.TLabel",
+                    justify="left"
+                )
+                # Attach the BooleanVar to the label
+                label.custom_var = var
+                label.pack(side="left")
+                # Bind the label click to the common callback
+                label.bind("<Button-1>", self.on_label_click_toggle)
         else:
+            # ... (other section code remains unchanged)
             for option in options:
                 if isinstance(option, dict):
                     subtitle = option["subtitle"]
@@ -751,17 +793,10 @@ class ResumeGeneratorGUI:
                     self.subsection_vars[(section_title, subtitle)] = var
                     ttk.Checkbutton(parent, text=subtitle, variable=var, style="Custom.TCheckbutton").pack(anchor="w")
                 else:
-                    # For Technical Projects, default to unchecked.
                     initial_state = False if section_title == "Technical Projects" else True
                     var = tk.BooleanVar(value=initial_state)
                     self.subsection_vars[(section_title, option)] = var
-                    if section_title == "Technical Projects":
-                        frame = ttk.Frame(parent)
-                        frame.pack(fill="x", pady=2)
-                        ttk.Checkbutton(frame, text="", variable=var, style="Custom.TCheckbutton").pack(side="left", padx=5)
-                        ttk.Label(frame, text=option, wraplength=self.wrap_length, style="Custom.TLabel", justify="left").pack(side="left")
-                    else:
-                        ttk.Checkbutton(parent, text=option, variable=var, style="Custom.TCheckbutton").pack(anchor="w")
+                    ttk.Checkbutton(parent, text=option, variable=var, style="Custom.TCheckbutton").pack(anchor="w")
 
     def toggle_suboptions(self, section_title, enabled):
         for key, var in self.subsection_vars.items():
@@ -857,3 +892,36 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = ResumeGeneratorGUI(root)
     root.mainloop()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
