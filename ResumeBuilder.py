@@ -736,35 +736,13 @@ class ResumeGeneratorGUI:
 
     def add_suboptions(self, parent, options, section_title):
         if section_title == "Core Competencies":
-            sorted_options = sorted(options, key=len, reverse=True)
-            n = len(sorted_options)
-            rearranged_options = [None] * n
-            middle_indexes = range(1, n, 3)
-            for i, index in enumerate(middle_indexes):
-                if index < n:
-                    rearranged_options[index] = sorted_options[i]
-            first_indexes = range(0, n, 3)
-            for i, index in enumerate(first_indexes):
-                if index < n:
-                    rearranged_options[index] = sorted_options[len(middle_indexes) + i]
-            last_indexes = range(2, n, 3)
-            for i, index in enumerate(last_indexes):
-                if index < n:
-                    rearranged_options[index] = sorted_options[len(middle_indexes) + len(first_indexes) + i]
-            num_columns = 3
-            columns = [[] for _ in range(num_columns)]
-            for idx, option in enumerate(rearranged_options):
-                if option:
-                    columns[idx % num_columns].append(option)
+            sorted_options = sorted(options, key=lambda s: s.lower())
             core_frame = ttk.Frame(parent)
             core_frame.pack(fill="x", padx=20)
-            for col_idx, column in enumerate(columns):
-                column_frame = ttk.Frame(core_frame)
-                column_frame.pack(side="left", padx=10, anchor="n")
-                for option in column:
-                    var = tk.BooleanVar(value=False)
-                    self.subsection_vars[(section_title, option)] = var
-                    ttk.Checkbutton(column_frame, text=option, variable=var, style="Custom.TCheckbutton").pack(anchor="w")
+            for option in sorted_options:
+                var = tk.BooleanVar(value=False)
+                self.subsection_vars[(section_title, option)] = var
+                ttk.Checkbutton(core_frame, text=option, variable=var, style="Custom.TCheckbutton").pack(anchor="w")
         else:
             for option in options:
                 if isinstance(option, dict):
