@@ -6,6 +6,16 @@ This tool empowers you to quickly create a custom, professional resume tailored 
 
 ---
 
+## What's New
+
+- **Improved Structured Section Editing:**  
+  In the structured section editors for **Education** and **Professional Experience**, editing an entry now replaces the existing item rather than appending a new one. This change ensures that your modifications update the correct entry.
+
+- **Drag and Drop Reordering:**  
+  You can now drag and drop items within structured sections (Education and Professional Experience) to reorder them. Simply click on an item in the list and drag it to your desired position.
+
+---
+
 ## **Using the GUI**
 
 When you launch the application (for example, by running the executable on your system), you’ll see a toolbar at the top with the following buttons (from left to right):
@@ -104,7 +114,7 @@ When you launch the application (for example, by running the executable on your 
 ## **Final Notes**
 
 - **GUI Refresh:**  
-  Any changes made through the GUI (such as customizing the UI or editing sections) trigger a full refresh of the main window. This ensures that updates—such as changes to the window title, size, and font—are applied immediately.
+  Any changes made through the GUI (such as customizing the UI, editing sections, or reordering items via drag and drop) trigger a full refresh of the main window. This ensures that updates—such as changes to the window title, size, and font—are applied immediately.
 
 - **Support:**  
   If you encounter any issues or have questions, please contact the developer.
