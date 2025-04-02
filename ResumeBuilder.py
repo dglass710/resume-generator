@@ -583,13 +583,38 @@ class ResumeGeneratorGUI:
 
         current_index = [None]
 
+        def on_start_drag(event):
+            widget = event.widget
+            widget._drag_start_index = widget.nearest(event.y)
+
+        def on_drag_motion(event):
+            widget = event.widget
+            new_index = widget.nearest(event.y)
+            if new_index != widget._drag_start_index:
+                # Move the item in the underlying JSON data.
+                section["content"].insert(new_index, section["content"].pop(widget._drag_start_index))
+                # Refresh the listbox display.
+                refresh_listbox()
+                widget._drag_start_index = new_index
+
+        def on_drop(event):
+            # No additional processing required on drop.
+            pass
+
+        listbox.bind("<ButtonPress-1>", on_start_drag)
+        listbox.bind("<B1-Motion>", on_drag_motion)
+        listbox.bind("<ButtonRelease-1>", on_drop)
+
         def on_listbox_select(event):
             selection = listbox.curselection()
             current_index[0] = selection[0] if selection else None
         listbox.bind("<<ListboxSelect>>", on_listbox_select)
 
-        # Function to open a popup for editing a structured item
-        def open_structured_item_editor(is_new=False):
+        
+
+
+
+        def open_structured_item_editor(selected_index, is_new=False):
             item_editor = tk.Toplevel(win)
             if is_new:
                 item_editor.title(f"Add Item for {section['title']}")
@@ -597,7 +622,7 @@ class ResumeGeneratorGUI:
                 item_editor.title(f"Edit Item for {section['title']}")
             item_editor.geometry("500x400")
 
-            # Field: Title (for both sections)
+            # Field: Title
             ttk.Label(item_editor, text="Title:", style="Custom.TLabel").pack(anchor="w", padx=10, pady=5)
             title_entry = ttk.Entry(item_editor, width=50)
             title_entry.pack(anchor="w", padx=10)
@@ -619,14 +644,14 @@ class ResumeGeneratorGUI:
             details_scrollbar = ttk.Scrollbar(item_editor, orient="vertical", command=details_listbox.yview)
             details_scrollbar.pack(side="right", fill="y")
             details_listbox.config(yscrollcommand=details_scrollbar.set)
-            details = []  # local list for details
+            details = []  # Local list for details
 
             def refresh_details_listbox():
                 details_listbox.delete(0, tk.END)
                 for d in details:
                     details_listbox.insert(tk.END, d)
 
-            # Sub-functions for managing details (Add/Edit/Remove)
+            # Sub-functions for managing details
             def add_detail():
                 detail_win = tk.Toplevel(item_editor)
                 detail_win.title("Add Detail")
@@ -644,6 +669,7 @@ class ResumeGeneratorGUI:
                     refresh_details_listbox()
                     detail_win.destroy()
                 ttk.Button(detail_win, text="Done", command=done_detail, style="Custom.TButton").pack(pady=10)
+
             def edit_detail():
                 selection = details_listbox.curselection()
                 if not selection:
@@ -667,6 +693,7 @@ class ResumeGeneratorGUI:
                     refresh_details_listbox()
                     detail_win.destroy()
                 ttk.Button(detail_win, text="Done", command=done_detail, style="Custom.TButton").pack(pady=10)
+
             def remove_detail():
                 selection = details_listbox.curselection()
                 if not selection:
@@ -683,9 +710,9 @@ class ResumeGeneratorGUI:
             ttk.Button(detail_btn_frame, text="Edit Detail", command=edit_detail, style="Custom.TButton").pack(side="left", padx=5)
             ttk.Button(detail_btn_frame, text="Remove Detail", command=remove_detail, style="Custom.TButton").pack(side="left", padx=5)
 
-            # If editing, prepopulate fields with current values.
-            if not is_new and current_index[0] is not None:
-                item = section["content"][current_index[0]]
+            # Prepopulate fields if editing an existing item.
+            if not is_new and selected_index is not None:
+                item = section["content"][selected_index]
                 if section["title"] == "Professional Experience":
                     title_entry.insert(0, item.get("subtitle", ""))
                     dates_entry.insert(0, item.get("date", ""))
@@ -695,6 +722,8 @@ class ResumeGeneratorGUI:
                         title_entry.insert(0, item[0])
                         details.extend(item[1:])
                 refresh_details_listbox()
+
+
 
             def done_item():
                 new_title = title_entry.get().strip()
@@ -706,12 +735,13 @@ class ResumeGeneratorGUI:
                     new_item = {"subtitle": new_title, "date": new_dates, "details": details.copy()}
                 elif section["title"] == "Education":
                     new_item = [new_title] + details.copy()
-                if is_new or current_index[0] is None:
+                if is_new or selected_index is None:
                     section["content"].append(new_item)
                 else:
-                    section["content"][current_index[0]] = new_item
+                    section["content"][selected_index] = new_item
                 refresh_listbox()
                 item_editor.destroy()
+
             ttk.Button(item_editor, text="Done", command=done_item, style="Custom.TButton").pack(pady=10)
 
         def add_item():
@@ -719,10 +749,14 @@ class ResumeGeneratorGUI:
             open_structured_item_editor(is_new=True)
 
         def edit_item():
-            if current_index[0] is None:
+            selection = listbox.curselection()
+            if not selection:
                 messagebox.showerror("Error", "No item selected for editing.")
                 return
-            open_structured_item_editor(is_new=False)
+            # Capture the selected index immediately.
+            selected_index = selection[0]
+            # Open the structured item editor with the captured index.
+            open_structured_item_editor(selected_index=selected_index, is_new=False)
 
         def remove_item():
             if current_index[0] is not None:
