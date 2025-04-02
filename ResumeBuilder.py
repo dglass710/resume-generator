@@ -71,16 +71,15 @@ class ResumeGeneratorGUI:
             return "break"
 
     def open_ui_settings_editor(self):
-        """Opens an editor window to update the main window title, font size, width, and height."""
+        """Opens an editor window to update the UI settings and allow reordering of sections."""
         ui_window = tk.Toplevel(self.root)
         ui_window.title("Customize UI")
-        ui_window.geometry("400x350")  # Set geometry to 400x350
+        ui_window.geometry("400x600")  # Increased height for the drag and drop list
 
         # --- Field: Main Window Title ---
         ttk.Label(ui_window, text="Main Window Title:", style="Custom.TLabel").pack(anchor="w", padx=10, pady=5)
         title_entry = ttk.Entry(ui_window, width=30)
         title_entry.pack(anchor="w", padx=10)
-        # Prepopulate with current title (from the master resume’s first element)
         title_entry.insert(0, self.master_resume[0].get("window_title", "Master"))
 
         # --- Field: Main Window Font Size ---
@@ -104,6 +103,20 @@ class ResumeGeneratorGUI:
         length_entry.insert(0, self.master_resume[0].get("window_length", "500"))
         length_entry.bind("<Key>", self.restrict_to_digits)
 
+        # --- New: Drag and Drop Listbox for Reordering Sections ---
+        ttk.Label(ui_window, text="Reorder Sections (Drag and Drop):", style="Custom.TLabel").pack(anchor="w", padx=10, pady=5)
+        drag_listbox = tk.Listbox(ui_window, width=50, height=10)
+        drag_listbox.pack(padx=10, pady=5)
+
+        # Populate the listbox with section titles from master_resume.
+        for section in self.master_resume:
+            drag_listbox.insert(tk.END, section.get("title", "No Title"))
+
+        # Bind drag and drop events.
+        drag_listbox.bind("<ButtonPress-1>", self.on_start_drag)
+        drag_listbox.bind("<B1-Motion>", self.on_drag_motion)
+        drag_listbox.bind("<ButtonRelease-1>", self.on_drop)
+
         # --- Save Button ---
         def save_ui_settings():
             title = title_entry.get().strip()
@@ -119,7 +132,7 @@ class ResumeGeneratorGUI:
                 messagebox.showerror("Error", "Font size, width, and height must be integers.")
                 return
 
-            # Validate requirements
+            # Validate requirements.
             if title == "" or width < 1000 or length < 300 or font_size < 8:
                 msg = ("Please ensure that:\n"
                        "- The Title is not empty.\n"
@@ -130,13 +143,23 @@ class ResumeGeneratorGUI:
                 messagebox.showerror("Invalid UI Settings", msg)
                 return
 
-            # Update the settings in the master resume data (assumed to be in the first element)
+            # Update the settings in the master resume data (first element).
             self.master_resume[0]["window_title"] = title
             self.master_resume[0]["main_window_font_size"] = str(font_size)
             self.master_resume[0]["window_width"] = str(width)
             self.master_resume[0]["window_length"] = str(length)
 
-            # Write data and perform a full refresh (including updating the title and geometry)
+            # Reorder the sections based on the new order in the drag_listbox.
+            new_order = []
+            listbox_items = drag_listbox.get(0, tk.END)
+            for item in listbox_items:
+                for section in self.master_resume:
+                    if section.get("title") == item:
+                        new_order.append(section)
+                        break
+            self.master_resume = new_order
+
+            # Write updated JSON and refresh the main UI.
             self.write_master_resume()
             self.refresh_main_window()
             ui_window.destroy()
@@ -144,6 +167,28 @@ class ResumeGeneratorGUI:
         ttk.Button(ui_window, text="Save", command=save_ui_settings, style="Custom.TButton").pack(pady=10)
 
 
+    def on_start_drag(self, event):
+        """Record the index where the drag starts."""
+        widget = event.widget
+        self._drag_start_index = widget.nearest(event.y)
+
+
+    def on_drag_motion(self, event):
+        """Swap items in the listbox as the user drags."""
+        widget = event.widget
+        new_index = widget.nearest(event.y)
+        if new_index != self._drag_start_index:
+            # Get the item, delete it, and insert it at the new index.
+            item = widget.get(self._drag_start_index)
+            widget.delete(self._drag_start_index)
+            widget.insert(new_index, item)
+            self._drag_start_index = new_index
+
+
+    def on_drop(self, event):
+        """Called when the drag is released. No additional action needed here."""
+        pass
+    
     def open_advanced_editor(self):
         """Prompt the user before opening the advanced JSON editor."""
         if messagebox.askyesno("Advanced Feature",
@@ -905,7 +950,6 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = ResumeGeneratorGUI(root)
     root.mainloop()
-
 
 
 
