@@ -968,10 +968,9 @@ class ResumeGeneratorGUI:
 
     def add_suboptions(self, parent, options, section_title):
         if section_title == "Technical Projects":
-            for index, option in enumerate(options):
+            for option in options:
                 var = tk.BooleanVar(value=False)
-                # Use a unique key with index and option text.
-                self.subsection_vars[(section_title, index, option)] = var
+                self.subsection_vars[(section_title, option)] = var
                 frame = ttk.Frame(parent)
                 frame.pack(fill="x", pady=2)
                 cb = ttk.Checkbutton(frame, text="", variable=var, style="Custom.TCheckbutton")
@@ -982,9 +981,9 @@ class ResumeGeneratorGUI:
                 label.bind("<Button-1>", lambda e, v=var: v.set(not v.get()))
         elif section_title == "Core Competencies":
             sorted_options = sorted(options, key=lambda s: s.lower())
-            for index, option in enumerate(sorted_options):
+            for option in sorted_options:
                 var = tk.BooleanVar(value=False)
-                self.subsection_vars[(section_title, index, option)] = var
+                self.subsection_vars[(section_title, option)] = var
                 frame = ttk.Frame(parent)
                 frame.pack(fill="x", pady=2)
                 cb = ttk.Checkbutton(frame, text="", variable=var, style="Custom.TCheckbutton")
