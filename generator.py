@@ -168,7 +168,7 @@ def generate_resume(selected_sections, output_file="Custom_Resume.docx"):
             for item in section["content"]:
                 # Change label from "subtitle" to "Title/Company" for clarity.
                 title_para = doc.add_paragraph()
-                title_run = title_para.add_run(f"Title/Company: {item['subtitle']} ({item['date']})")
+                title_run = title_para.add_run(f"{item['subtitle']} ({item['date']})")
                 title_run.bold = True
                 title_run.font.size = Pt(11)
                 set_single_spacing(title_para)
