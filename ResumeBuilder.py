@@ -206,8 +206,14 @@ class ResumeGeneratorGUI:
             self.wrap_length = 500
 
     def get_file_path(self, filename):
+        """
+        Returns the full path for the given filename.
+        When running as frozen, returns the path in the persistent folder.
+        Otherwise, returns the local file path.
+        """
         if getattr(sys, 'frozen', False):
-            base_path = sys._MEIPASS
+            # Use persistent folder in user's Documents
+            base_path = self.get_app_directory()
         else:
             base_path = os.path.dirname(os.path.abspath(__file__))
         return os.path.join(base_path, filename)
@@ -228,8 +234,13 @@ class ResumeGeneratorGUI:
             return 14
 
     def load_master_resume(self):
+        """
+        Loads resume data from data.json.
+        If running frozen, tries to load the persistent version from the Documents folder.
+        """
         try:
-            with open(self.get_file_path('data.json'), "r") as f:
+            file_path = self.get_file_path('data.json')
+            with open(file_path, "r") as f:
                 self.master_resume = json.load(f)
         except Exception as e:
             messagebox.showerror("Error", f"Could not load data.json: {e}")
@@ -272,6 +283,10 @@ class ResumeGeneratorGUI:
         self.open_directory(self.get_app_directory())
 
     def get_app_directory(self):
+        """
+        Returns the path to the persistent application folder in the user's Documents directory.
+        If the folder does not exist, it is created.
+        """
         documents_folder = os.path.expanduser("~/Documents")
         app_folder_name = "ResumeGeneratorApp"
         app_directory = os.path.join(documents_folder, app_folder_name)
@@ -380,8 +395,13 @@ class ResumeGeneratorGUI:
         editor_window.destroy()
 
     def write_master_resume(self):
+        """
+        Writes the current master resume data to data.json.
+        When running as frozen, this writes to the persistent folder.
+        """
         try:
-            with open(self.get_file_path("data.json"), "w") as f:
+            file_path = self.get_file_path('data.json')
+            with open(file_path, "w") as f:
                 json.dump(self.master_resume, f, indent=4)
         except Exception as e:
             messagebox.showerror("Error", f"Could not write data.json: {e}")
@@ -1106,9 +1126,6 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = ResumeGeneratorGUI(root)
     root.mainloop()
-
-
-
 
 
 
