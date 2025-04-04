@@ -85,13 +85,13 @@ To bundle the application as a standalone executable, use the following commands
 - **For Windows:**
 
    ```bash
-   pyinstaller --onefile --noconsole --add-data "data.json;." --add-data "default_data.json;." --add-data "generator.py;." ResumeBuilder.py
+   pyinstaller --onefile --noconsole --add-data "default_data.json;." --add-data "generator.py;." ResumeBuilder.py
    ```
 
-- **For macOS:**
+- **For macOS/Linux:**
 
    ```bash
-   pyinstaller --onefile --noconsole --add-data "data.json:." --add-data "default_data.json:." --add-data "generator.py:." ResumeBuilder.py
+   pyinstaller --onefile --noconsole --add-data "default_data.json:." --add-data "generator.py:." ResumeBuilder.py
    ```
 
 ## Data Format
