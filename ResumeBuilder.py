@@ -248,33 +248,49 @@ class ResumeGeneratorGUI:
 
     def load_master_resume(self):
         """
-        Loads resume data from data.json.
-        If running frozen, tries to load the persistent version from the Documents folder.
-        If the persistent file does not exist, falls back to the bundled version.
-        If neither exist, initializes an empty resume.
+        Loads resume data.
+        - When running frozen: first check for a persistent data.json in the user's Documents/ResumeGeneratorApp folder.
+          If it exists, load it. If not, load default_data.json from the packaged environment.
+          (The app will no longer expect a data.json file to be packaged in the executable.)
+        - When not frozen: first check for data.json in the local directory.
+          If not found, load default_data.json from the local directory.
+        If neither file is found, initializes an empty resume.
         """
-        file_path = self.get_file_path('data.json')
+        file_path = None
 
-        # If running frozen and the persistent file doesn't exist,
-        # try to use the bundled file.
-        if getattr(sys, 'frozen', False) and not os.path.exists(file_path):
-            try:
-                bundled_path = os.path.join(sys._MEIPASS, 'data.json')
-                if os.path.exists(bundled_path):
-                    file_path = bundled_path
-            except Exception:
-                pass
+        if getattr(sys, 'frozen', False):
+            # Frozen mode
+            persistent_file = os.path.join(self.get_app_directory(), 'data.json')
+            if os.path.exists(persistent_file):
+                file_path = persistent_file
+            else:
+                # Fall back to default_data.json in the bundled environment
+                try:
+                    bundled_default = os.path.join(sys._MEIPASS, 'default_data.json')
+                    if os.path.exists(bundled_default):
+                        file_path = bundled_default
+                except Exception:
+                    file_path = None
+        else:
+            # Non-frozen mode: look for data.json locally
+            local_data = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data.json')
+            if os.path.exists(local_data):
+                file_path = local_data
+            else:
+                # Fall back to default_data.json locally
+                local_default = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'default_data.json')
+                if os.path.exists(local_default):
+                    file_path = local_default
 
-        # Attempt to load the file if it exists.
+        # Attempt to load the file if found; otherwise, initialize an empty resume.
         if file_path and os.path.exists(file_path):
             try:
                 with open(file_path, "r") as f:
                     self.master_resume = json.load(f)
             except Exception as e:
-                messagebox.showerror("Error", f"Could not load data.json: {e}")
+                messagebox.showerror("Error", f"Could not load resume data: {e}")
                 self.master_resume = []
         else:
-            # If no file is found, set master_resume to an empty list.
             self.master_resume = []
 
     def update_editor_window_dimensions(self):
