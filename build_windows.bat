@@ -1,6 +1,7 @@
 @echo off
 REM Step 0: Update the repository by fetching the latest changes and hard-resetting to origin/main
-git fetch origin && git reset --hard origin/main
+git fetch origin
+git reset --hard origin/main
 
 REM Step 1: Build the executable using PyInstaller (auto-confirm overwrite)
 pyinstaller --onefile --noconsole --noconfirm --add-data "data.json^;." --add-data "default_data.json^;." --add-data "generator.py^;." ResumeBuilder.py
