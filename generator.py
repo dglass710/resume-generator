@@ -1,5 +1,6 @@
+# generate.py
 from docx import Document
-from docx.shared import Pt
+from docx.shared import Pt, RGBColor
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
@@ -74,8 +75,10 @@ def generate_resume(selected_sections, output_file="Custom_Resume.docx"):
     
     Personal Information is rendered with the first item as the name (centered, bold, larger)
     and all remaining items (links, emails, phone numbers) concatenated on one line,
-    separated by a diamond (U+22C4). Other sections are processed as before.
-    A header is added with "<Name> - Resume".
+    separated by a diamond (U+22C4). Other sections are preceded by a header with the section title,
+    styled in 16pt bold, underlined text.
+    
+    Additionally, a document header is added with "<Name> - Resume" in blue, bold, and underlined.
     """
     doc = Document()
     
@@ -93,18 +96,22 @@ def generate_resume(selected_sections, output_file="Custom_Resume.docx"):
             break
     if applicant_name:
         header = doc.sections[0].header
-        # If header is empty, add a paragraph.
         if len(header.paragraphs) == 0:
             header_para = header.add_paragraph()
         else:
             header_para = header.paragraphs[0]
-        header_para.text = applicant_name + " - Resume"
+        header_para.text = ""
+        header_run = header_para.add_run(applicant_name + " - Resume")
+        header_run.bold = True
+        header_run.font.size = Pt(14)
+        header_run.font.color.rgb = RGBColor(0, 0, 255)  # Blue color
+        header_run.underline = True
         header_para.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
     
     # --- Process each section ---
     for section in selected_sections:
         if section["title"] == "Personal Information":
-            # First item is the name.
+            # Personal Information: display name and links on one line (no section header)
             if section["content"]:
                 name_para = doc.add_paragraph()
                 name_run = name_para.add_run(section["content"][0])
@@ -112,12 +119,10 @@ def generate_resume(selected_sections, output_file="Custom_Resume.docx"):
                 name_run.font.size = Pt(14)
                 name_para.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
                 set_single_spacing(name_para)
-            # Concatenate remaining items into one line.
             if len(section["content"]) > 1:
                 links_para = doc.add_paragraph()
                 for idx, item in enumerate(section["content"][1:]):
                     if idx > 0:
-                        # Use diamond separator (U+22C4) with spaces around it.
                         links_para.add_run(" \u22C4 ")
                     token = item.strip()
                     if is_email(token):
@@ -134,15 +139,20 @@ def generate_resume(selected_sections, output_file="Custom_Resume.docx"):
             doc.add_paragraph("")  # Extra space after Personal Information.
             continue
         
-        # For Core Competencies, join all content with commas.
+        # For all other sections, add a section title/header.
+        title_para = doc.add_heading(section["title"], level=1)
+        for run in title_para.runs:
+            run.font.size = Pt(16)
+            run.bold = True
+            run.underline = True
+        set_single_spacing(title_para)
+        
+        # Process section content by type.
         if section["title"] == "Core Competencies":
             competencies = ", ".join(section["content"]) + "."
             comp_para = doc.add_paragraph(competencies)
             set_single_spacing(comp_para)
-            continue
-        
-        # For Education, assume a 2D array: first element is header; subsequent elements are details.
-        if section["title"] == "Education":
+        elif section["title"] == "Education":
             for item in section["content"]:
                 if not item:
                     continue
@@ -152,10 +162,7 @@ def generate_resume(selected_sections, output_file="Custom_Resume.docx"):
                     detail_para = doc.add_paragraph(detail)
                     detail_para.paragraph_format.left_indent = Pt(36)
                     set_single_spacing(detail_para)
-            continue
-        
-        # For Professional Experience, each item is a dict with 'subtitle', 'date', and 'details'.
-        if section["title"] == "Professional Experience":
+        elif section["title"] == "Professional Experience":
             for item in section["content"]:
                 exp_para = doc.add_paragraph()
                 title_text = f"{item.get('subtitle', '')} ({item.get('date', '')})"
@@ -167,32 +174,28 @@ def generate_resume(selected_sections, output_file="Custom_Resume.docx"):
                     detail_para = doc.add_paragraph(detail, style='List Bullet')
                     detail_para.paragraph_format.left_indent = Pt(18)
                     set_single_spacing(detail_para)
-            continue
-        
-        # For Technical Projects, each project is a simple string.
-        if section["title"] == "Technical Projects":
+        elif section["title"] == "Technical Projects":
             for project in section["content"]:
                 proj_para = doc.add_paragraph(project, style='List Bullet')
                 proj_para.paragraph_format.left_indent = Pt(18)
                 set_single_spacing(proj_para)
-            continue
-        
-        # Fallback for any other sections.
-        for item in section["content"]:
-            if isinstance(item, dict):
-                other_para = doc.add_paragraph()
-                other_run = other_para.add_run(f"{item.get('subtitle', '')} ({item.get('date', '')})")
-                other_run.bold = True
-                other_run.font.size = Pt(12)
-                set_single_spacing(other_para)
-                for detail in item.get("details", []):
-                    detail_para = doc.add_paragraph(detail, style='List Bullet')
-                    detail_para.paragraph_format.left_indent = Pt(18)
-                    set_single_spacing(detail_para)
-            else:
-                simple_para = doc.add_paragraph(item)
-                set_single_spacing(simple_para)
-                
+        else:
+            # Fallback: if the section content is a mix of dicts and strings.
+            for item in section["content"]:
+                if isinstance(item, dict):
+                    other_para = doc.add_paragraph()
+                    other_run = other_para.add_run(f"{item.get('subtitle', '')} ({item.get('date', '')})")
+                    other_run.bold = True
+                    other_run.font.size = Pt(12)
+                    set_single_spacing(other_para)
+                    for detail in item.get("details", []):
+                        detail_para = doc.add_paragraph(detail, style='List Bullet')
+                        detail_para.paragraph_format.left_indent = Pt(18)
+                        set_single_spacing(detail_para)
+                else:
+                    simple_para = doc.add_paragraph(item)
+                    set_single_spacing(simple_para)
+                    
     doc.save(output_file)
     print(f"Resume saved as {output_file}")
 
