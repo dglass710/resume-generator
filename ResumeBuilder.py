@@ -250,21 +250,20 @@ class ResumeGeneratorGUI:
         """
         Loads resume data.
         - When running frozen: first check for a persistent data.json in the user's Documents/ResumeGeneratorApp folder.
-          If it exists, load it. If not, load default_data.json from the packaged environment.
-          (The app will no longer expect a data.json file to be packaged in the executable.)
+          If it exists, load it. If not, load default_data.json from the bundled environment.
         - When not frozen: first check for data.json in the local directory.
-          If not found, load default_data.json from the local directory.
+          If not found, load default_data.json from the same local directory.
         If neither file is found, initializes an empty resume.
         """
         file_path = None
 
         if getattr(sys, 'frozen', False):
-            # Frozen mode
+            # Frozen mode: look for persistent file first
             persistent_file = os.path.join(self.get_app_directory(), 'data.json')
             if os.path.exists(persistent_file):
                 file_path = persistent_file
             else:
-                # Fall back to default_data.json in the bundled environment
+                # Fall back to default_data.json from the bundled environment
                 try:
                     bundled_default = os.path.join(sys._MEIPASS, 'default_data.json')
                     if os.path.exists(bundled_default):
@@ -272,12 +271,12 @@ class ResumeGeneratorGUI:
                 except Exception:
                     file_path = None
         else:
-            # Non-frozen mode: look for data.json locally
+            # Non-frozen mode: look for data.json in the same directory as the script
             local_data = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data.json')
             if os.path.exists(local_data):
                 file_path = local_data
             else:
-                # Fall back to default_data.json locally
+                # Fall back to default_data.json in the same directory
                 local_default = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'default_data.json')
                 if os.path.exists(local_default):
                     file_path = local_default
@@ -292,6 +291,7 @@ class ResumeGeneratorGUI:
                 self.master_resume = []
         else:
             self.master_resume = []
+
 
     def update_editor_window_dimensions(self):
         try:
