@@ -5,6 +5,9 @@ from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.opc.constants import RELATIONSHIP_TYPE
+import os
+import sys
+from pathlib import Path
 
 def set_single_spacing(paragraph):
     """Set single spacing and remove extra space before/after the paragraph."""
@@ -69,6 +72,19 @@ def is_url(token):
         return True
     return False
 
+def get_output_path(output_file):
+    """
+    Determine an output path for the generated resume.
+    When running frozen on macOS, save to a persistent folder in ~/Documents/ResumeGeneratorApp.
+    Otherwise, return the output_file as-is (which will be in the current working directory).
+    """
+    if getattr(sys, 'frozen', False) and sys.platform == "darwin":
+        persistent_dir = Path.home() / "Documents" / "ResumeGeneratorApp"
+        persistent_dir.mkdir(parents=True, exist_ok=True)
+        return str(persistent_dir / output_file)
+    else:
+        return output_file
+
 def generate_resume(selected_sections, output_file="Custom_Resume.docx"):
     """
     Generates a Word document resume based on the selected sections.
@@ -78,7 +94,7 @@ def generate_resume(selected_sections, output_file="Custom_Resume.docx"):
     separated by a diamond (U+22C4). Other sections are preceded by a header with the section title,
     styled in 16pt bold, underlined text.
     
-    Additionally, a document header is added with "<Name> - Resume" in blue, bold, and underlined.
+    Additionally, a document header is added with "<Name> - Resume" in blue, bold, underlined, and centered.
     """
     doc = Document()
     
@@ -111,7 +127,7 @@ def generate_resume(selected_sections, output_file="Custom_Resume.docx"):
     # --- Process each section ---
     for section in selected_sections:
         if section["title"] == "Personal Information":
-            # Personal Information: display name and links on one line (no section header)
+            # First item is the name.
             if section["content"]:
                 name_para = doc.add_paragraph()
                 name_run = name_para.add_run(section["content"][0])
@@ -119,6 +135,7 @@ def generate_resume(selected_sections, output_file="Custom_Resume.docx"):
                 name_run.font.size = Pt(14)
                 name_para.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
                 set_single_spacing(name_para)
+            # Concatenate remaining items into one line.
             if len(section["content"]) > 1:
                 links_para = doc.add_paragraph()
                 for idx, item in enumerate(section["content"][1:]):
@@ -139,7 +156,7 @@ def generate_resume(selected_sections, output_file="Custom_Resume.docx"):
             doc.add_paragraph("")  # Extra space after Personal Information.
             continue
         
-        # For all other sections, add a section title/header.
+        # For all other sections, add a section header.
         title_para = doc.add_heading(section["title"], level=1)
         for run in title_para.runs:
             run.font.size = Pt(16)
@@ -147,7 +164,7 @@ def generate_resume(selected_sections, output_file="Custom_Resume.docx"):
             run.underline = True
         set_single_spacing(title_para)
         
-        # Process section content by type.
+        # Process section content.
         if section["title"] == "Core Competencies":
             competencies = ", ".join(section["content"]) + "."
             comp_para = doc.add_paragraph(competencies)
@@ -180,7 +197,6 @@ def generate_resume(selected_sections, output_file="Custom_Resume.docx"):
                 proj_para.paragraph_format.left_indent = Pt(18)
                 set_single_spacing(proj_para)
         else:
-            # Fallback: if the section content is a mix of dicts and strings.
             for item in section["content"]:
                 if isinstance(item, dict):
                     other_para = doc.add_paragraph()
@@ -196,8 +212,16 @@ def generate_resume(selected_sections, output_file="Custom_Resume.docx"):
                     simple_para = doc.add_paragraph(item)
                     set_single_spacing(simple_para)
                     
-    doc.save(output_file)
-    print(f"Resume saved as {output_file}")
+    # Determine output path based on platform and frozen status.
+    output_path = get_output_path(output_file)
+    doc.save(output_path)
+    print(f"Resume saved as {output_path}")
+    
+    # Attempt to open the document automatically.
+    if sys.platform == "darwin":
+        os.system(f'open "{output_path}"')
+    elif os.name == 'nt':
+        os.startfile(output_path)
 
 # Example usage (uncomment the lines below to test the function):
 # if __name__ == "__main__":
