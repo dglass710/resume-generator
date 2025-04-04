@@ -74,7 +74,7 @@ class ResumeGeneratorGUI:
         """Opens an editor window to update the UI settings and allow reordering of sections."""
         ui_window = tk.Toplevel(self.root)
         ui_window.title("Customize UI")
-        ui_window.geometry("400x600")  # Increased height for the drag and drop list
+        ui_window.geometry("401x600")  # Increased height for the drag and drop list
 
         # --- Field: Main Window Title ---
         ttk.Label(ui_window, text="Main Window Title:", style="Custom.TLabel").pack(anchor="w", padx=10, pady=5)
