@@ -208,15 +208,28 @@ class ResumeGeneratorGUI:
     def get_file_path(self, filename):
         """
         Returns the full path for the given filename.
-        When running as frozen, returns the path in the persistent folder.
-        Otherwise, returns the local file path.
+        When running frozen, it first checks if the persistent file exists in the user's
+        Documents/ResumeGeneratorApp folder. If it does, that path is returned.
+        Otherwise, it falls back to the bundled version (if available) or the persistent path.
+        In non-frozen mode, returns the local file path.
         """
         if getattr(sys, 'frozen', False):
-            # Use persistent folder in user's Documents
-            base_path = self.get_app_directory()
+            # Get persistent file path
+            persistent_path = os.path.join(self.get_app_directory(), filename)
+            if os.path.exists(persistent_path):
+                return persistent_path
+            else:
+                # Fallback: use bundled file if available
+                try:
+                    bundled_path = os.path.join(sys._MEIPASS, filename)
+                    if os.path.exists(bundled_path):
+                        return bundled_path
+                except AttributeError:
+                    pass
+                # If no persistent file exists yet, return the persistent path
+                return persistent_path
         else:
-            base_path = os.path.dirname(os.path.abspath(__file__))
-        return os.path.join(base_path, filename)
+            return os.path.join(os.path.dirname(os.path.abspath(__file__)), filename)
 
     def create_styles(self):
         main_font_size = self.get_main_font_size()
@@ -237,13 +250,31 @@ class ResumeGeneratorGUI:
         """
         Loads resume data from data.json.
         If running frozen, tries to load the persistent version from the Documents folder.
+        If the persistent file does not exist, falls back to the bundled version.
+        If neither exist, initializes an empty resume.
         """
-        try:
-            file_path = self.get_file_path('data.json')
-            with open(file_path, "r") as f:
-                self.master_resume = json.load(f)
-        except Exception as e:
-            messagebox.showerror("Error", f"Could not load data.json: {e}")
+        file_path = self.get_file_path('data.json')
+
+        # If running frozen and the persistent file doesn't exist,
+        # try to use the bundled file.
+        if getattr(sys, 'frozen', False) and not os.path.exists(file_path):
+            try:
+                bundled_path = os.path.join(sys._MEIPASS, 'data.json')
+                if os.path.exists(bundled_path):
+                    file_path = bundled_path
+            except Exception:
+                pass
+
+        # Attempt to load the file if it exists.
+        if file_path and os.path.exists(file_path):
+            try:
+                with open(file_path, "r") as f:
+                    self.master_resume = json.load(f)
+            except Exception as e:
+                messagebox.showerror("Error", f"Could not load data.json: {e}")
+                self.master_resume = []
+        else:
+            # If no file is found, set master_resume to an empty list.
             self.master_resume = []
 
     def update_editor_window_dimensions(self):
@@ -398,9 +429,14 @@ class ResumeGeneratorGUI:
         """
         Writes the current master resume data to data.json.
         When running as frozen, this writes to the persistent folder.
+        If the persistent directory does not exist, it is created.
         """
         try:
             file_path = self.get_file_path('data.json')
+            # Ensure the directory exists
+            directory = os.path.dirname(file_path)
+            if not os.path.exists(directory):
+                os.makedirs(directory)
             with open(file_path, "w") as f:
                 json.dump(self.master_resume, f, indent=4)
         except Exception as e:
