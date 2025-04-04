@@ -4,7 +4,7 @@ git fetch origin
 git reset --hard origin/main
 
 REM Step 1: Build the executable using PyInstaller (auto-confirm overwrite)
-pyinstaller --onefile --noconsole --noconfirm --add-data "data.json^;." --add-data "default_data.json^;." --add-data "generator.py^;." ResumeBuilder.py
+pyinstaller --onefile --noconsole --noconfirm --add-data "data.json;." --add-data "default_data.json;." --add-data "generator.py;." ResumeBuilder.py
 
 REM Step 2: Copy the generated executable from the dist folder to the Executable directory
 IF NOT EXIST Executable mkdir Executable
