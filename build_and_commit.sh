@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Step 1: Build the executable using PyInstaller (auto-confirm overwrite)
-yes | pyinstaller --onefile --noconsole --add-data "data.json:." --add-data "default_data.json:." --add-data "generator.py:." ResumeBuilder.py
+yes | pyinstaller --onefile --noconsole --add-data "default_data.json:." --add-data "generator.py:." ResumeBuilder.py
 
 # Step 2: Zip the generated .app file into the Executable directory
 zip -r Executable/ResumeBuilder.zip dist/ResumeBuilder.app
