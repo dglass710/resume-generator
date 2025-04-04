@@ -19,3 +19,8 @@ git commit -m "Automated build: Updated ResumeBuilder.zip from the latest PyInst
 REM Step 5: Optional: Push the changes to the remote repository
 REM Uncomment the next line if you want to auto-push the commit to your remote repository
 git push
+
+
+REM Step 6: Install locally by copying the executable to the designated folder
+IF NOT EXIST "C:\Program Files\Resume Generator\" mkdir "C:\Program Files\Resume Generator\"
+copy "dist\ResumeBuilder.exe" "C:\Program Files\Resume Generator\"
