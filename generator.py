@@ -1,5 +1,6 @@
+# generate.py
 from docx import Document
-from docx.shared import Pt, Inches
+from docx.shared import Pt
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
@@ -14,31 +15,28 @@ def set_single_spacing(paragraph):
 
 def add_hyperlink(paragraph, url, text):
     """
-    A function that places a hyperlink within a paragraph.
-    This code is based on known workarounds for python-docx.
+    Inserts a hyperlink into a paragraph. Returns the hyperlink element.
     """
     part = paragraph.part
     r_id = part.relate_to(url, RELATIONSHIP_TYPE.HYPERLINK, is_external=True)
     
-    # Create the w:hyperlink tag and set its relationship id.
+    # Create the w:hyperlink element and set its relationship id.
     hyperlink = OxmlElement('w:hyperlink')
     hyperlink.set(qn('r:id'), r_id)
     
-    # Create a w:r element and a w:rPr element.
+    # Create a run inside the hyperlink.
     new_run = OxmlElement('w:r')
     rPr = OxmlElement('w:rPr')
     
-    # Optionally, you can set the font color and underline for hyperlinks.
+    # Set hyperlink styling (blue, underlined).
     color = OxmlElement('w:color')
     color.set(qn('w:val'), "0000FF")
     rPr.append(color)
     u = OxmlElement('w:u')
     u.set(qn('w:val'), "single")
     rPr.append(u)
-    
     new_run.append(rPr)
     
-    # Set the text for the run.
     new_run_text = OxmlElement('w:t')
     new_run_text.text = text
     new_run.append(new_run_text)
@@ -49,23 +47,20 @@ def add_hyperlink(paragraph, url, text):
     return hyperlink
 
 def is_email(token):
-    """Determine if the token should be treated as an email address."""
+    """Return True if token contains an '@' and a period."""
     token = token.strip()
     return "@" in token and "." in token
 
 def is_phone(token):
     """
-    Determine if the token looks like a phone number.
-    This function strips non-digit characters and checks for exactly 10 digits.
+    Return True if token consists of (or can be reduced to) exactly 10 digits.
     """
     digits = ''.join(ch for ch in token if ch.isdigit())
     return len(digits) == 10
 
 def is_url(token):
     """
-    Determine if the token should be treated as a URL.
-    Returns True if the token starts with http(s)://, www.,
-    or if it contains a dot and no spaces.
+    Return True if token starts with http(s):// or www., or if it contains a dot and no spaces.
     """
     token = token.strip()
     if token.startswith("http://") or token.startswith("https://") or token.startswith("www."):
@@ -78,22 +73,20 @@ def generate_resume(selected_sections, output_file="Custom_Resume.docx"):
     """
     Generates a Word document resume based on the selected sections.
     
-    Applies enhancements to improve visual appeal while keeping the layout
-    clear and ATS-friendly.
-    
-    Args:
-        selected_sections (list): List of sections with titles and content.
-        output_file (str): The output file name.
+    Personal Information is rendered with the first item as the name (centered, bold, larger)
+    and all remaining items (links, emails, phone numbers) concatenated on one line,
+    separated by a diamond (U+22C4). Other sections are processed as before.
+    A header is added with "<Name> - Resume".
     """
     doc = Document()
-
-    # Set default style (Arial, 11pt) for consistency.
+    
+    # Set default style to Arial 11pt.
     style = doc.styles['Normal']
     font = style.font
-    font.name = 'Arial'
+    font.name = "Arial"
     font.size = Pt(11)
-
-    # Optionally, add a header with the applicant's name (from Personal Information)
+    
+    # --- Header: Add applicant name with " - Resume" ---
     applicant_name = ""
     for section in selected_sections:
         if section["title"] == "Personal Information" and section["content"]:
@@ -101,103 +94,112 @@ def generate_resume(selected_sections, output_file="Custom_Resume.docx"):
             break
     if applicant_name:
         header = doc.sections[0].header
-        header_para = header.paragraphs[0]
+        # If header is empty, add a paragraph.
+        if len(header.paragraphs) == 0:
+            header_para = header.add_paragraph()
+        else:
+            header_para = header.paragraphs[0]
         header_para.text = applicant_name + " - Resume"
         header_para.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
-
+    
+    # --- Process each section ---
     for section in selected_sections:
         if section["title"] == "Personal Information":
-            for index, line in enumerate(section["content"]):
-                if index == 0:
-                    # For the first line (name), center and bold it.
-                    para = doc.add_paragraph()
-                    run = para.add_run(line)
-                    run.bold = True
-                    run.font.size = Pt(14)
-                    para.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
-                else:
-                    # Split the line by the delimiter (diamond character).
-                    tokens = line.split(" \u22c4 ")
-                    para = doc.add_paragraph()
-                    for i, token in enumerate(tokens):
-                        if i > 0:
-                            para.add_run(" \u22c4 ")
-                        token = token.strip()
-                        if is_email(token):
-                            add_hyperlink(para, f"mailto:{token}", token)
-                        elif is_phone(token):
-                            digits = ''.join(ch for ch in token if ch.isdigit())
-                            add_hyperlink(para, f"tel:{digits}", token)
-                        elif is_url(token):
-                            # Prepend http:// if missing for proper linking.
-                            link = token if token.startswith("http") else "http://" + token
-                            add_hyperlink(para, link, token)
-                        else:
-                            para.add_run(token)
-                set_single_spacing(para)
+            # First item is the name.
+            if section["content"]:
+                name_para = doc.add_paragraph()
+                name_run = name_para.add_run(section["content"][0])
+                name_run.bold = True
+                name_run.font.size = Pt(14)
+                name_para.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+                set_single_spacing(name_para)
+            # Concatenate remaining items into one line.
+            if len(section["content"]) > 1:
+                links_para = doc.add_paragraph()
+                for idx, item in enumerate(section["content"][1:]):
+                    if idx > 0:
+                        # Use diamond separator (U+22C4) with spaces around it.
+                        links_para.add_run(" \u22C4 ")
+                    token = item.strip()
+                    if is_email(token):
+                        add_hyperlink(links_para, f"mailto:{token}", token)
+                    elif is_phone(token):
+                        digits = ''.join(ch for ch in token if ch.isdigit())
+                        add_hyperlink(links_para, f"tel:{digits}", token)
+                    elif is_url(token):
+                        link_url = token if token.startswith("http") else "http://" + token
+                        add_hyperlink(links_para, link_url, token)
+                    else:
+                        links_para.add_run(token)
+                set_single_spacing(links_para)
             doc.add_paragraph("")  # Extra space after Personal Information.
             continue
-
-        # Refine section headings: increase size, bold, and underline.
-        title_para = doc.add_heading(section["title"], level=1)
-        for run in title_para.runs:
-            run.font.size = Pt(16)
-            run.bold = True
-            run.underline = True
-        set_single_spacing(title_para)
-
+        
+        # For Core Competencies, join all content with commas.
         if section["title"] == "Core Competencies":
             competencies = ", ".join(section["content"]) + "."
-            para = doc.add_paragraph(competencies)
-            set_single_spacing(para)
-
-        elif section["title"] == "Education":
+            comp_para = doc.add_paragraph(competencies)
+            set_single_spacing(comp_para)
+            continue
+        
+        # For Education, assume a 2D array: first element is header; subsequent elements are details.
+        if section["title"] == "Education":
             for item in section["content"]:
                 if not item:
                     continue
-                # The first element is the institution/program (header).
-                para = doc.add_paragraph(item[0])
-                set_single_spacing(para)
-                # Subsequent details are indented using proper left indent.
+                header_para = doc.add_paragraph(item[0])
+                set_single_spacing(header_para)
                 for detail in item[1:]:
-                    indented_para = doc.add_paragraph(detail)
-                    indented_para.paragraph_format.left_indent = Pt(36)
-                    set_single_spacing(indented_para)
-
-        elif section["title"] == "Professional Experience":
+                    detail_para = doc.add_paragraph(detail)
+                    detail_para.paragraph_format.left_indent = Pt(36)
+                    set_single_spacing(detail_para)
+            continue
+        
+        # For Professional Experience, each item is a dict with 'subtitle', 'date', and 'details'.
+        if section["title"] == "Professional Experience":
             for item in section["content"]:
-                # Change label from "subtitle" to "Title/Company" for clarity.
-                title_para = doc.add_paragraph()
-                title_run = title_para.add_run(f"{item['subtitle']} ({item['date']})")
-                title_run.bold = True
-                title_run.font.size = Pt(11)
-                set_single_spacing(title_para)
-                for detail in item["details"]:
+                exp_para = doc.add_paragraph()
+                title_text = f"{item.get('subtitle', '')} ({item.get('date', '')})"
+                exp_run = exp_para.add_run(title_text)
+                exp_run.bold = True
+                exp_run.font.size = Pt(11)
+                set_single_spacing(exp_para)
+                for detail in item.get("details", []):
                     detail_para = doc.add_paragraph(detail, style='List Bullet')
                     detail_para.paragraph_format.left_indent = Pt(18)
                     set_single_spacing(detail_para)
-
-        elif section["title"] == "Technical Projects":
+            continue
+        
+        # For Technical Projects, each project is a simple string.
+        if section["title"] == "Technical Projects":
             for project in section["content"]:
-                para = doc.add_paragraph(project, style='List Bullet')
-                para.paragraph_format.left_indent = Pt(18)
-                set_single_spacing(para)
-
-        else:
-            for item in section["content"]:
-                if isinstance(item, dict):
-                    subheading = doc.add_paragraph()
-                    subheading_run = subheading.add_run(f"{item.get('subtitle', 'No Title')} ({item.get('date', '')})")
-                    subheading_run.bold = True
-                    subheading_run.font.size = Pt(12)
-                    set_single_spacing(subheading)
-                    for detail in item.get("details", []):
-                        detail_para = doc.add_paragraph(detail, style='List Bullet')
-                        detail_para.paragraph_format.left_indent = Pt(18)
-                        set_single_spacing(detail_para)
-                else:
-                    para = doc.add_paragraph(item)
-                    set_single_spacing(para)
-
+                proj_para = doc.add_paragraph(project, style='List Bullet')
+                proj_para.paragraph_format.left_indent = Pt(18)
+                set_single_spacing(proj_para)
+            continue
+        
+        # Fallback for any other sections.
+        for item in section["content"]:
+            if isinstance(item, dict):
+                other_para = doc.add_paragraph()
+                other_run = other_para.add_run(f"{item.get('subtitle', '')} ({item.get('date', '')})")
+                other_run.bold = True
+                other_run.font.size = Pt(12)
+                set_single_spacing(other_para)
+                for detail in item.get("details", []):
+                    detail_para = doc.add_paragraph(detail, style='List Bullet')
+                    detail_para.paragraph_format.left_indent = Pt(18)
+                    set_single_spacing(detail_para)
+            else:
+                simple_para = doc.add_paragraph(item)
+                set_single_spacing(simple_para)
+                
     doc.save(output_file)
     print(f"Resume saved as {output_file}")
+
+# Example usage (uncomment the lines below to test the function):
+# if __name__ == "__main__":
+#     import json
+#     with open("data.json", "r") as f:
+#         selected_sections = json.load(f)
+#     generate_resume(selected_sections)

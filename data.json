@@ -1,9 +1,14 @@
-[
+[
     {
         "title": "Personal Information",
         "content": [
             "DAVID GLASS",
-            "Chicago, IL 60618 \u22c4 847.764.9200 \u22c4 dglass2525@gmail.com \u22c4 thedavidglass.com \u22c4 github.com/dglass710 \u22c4 linkedin.com/in/david-a-glass"
+            "Chicago, IL 60618",
+            "847.764.9200",
+            "dglass2525@gmail.com",
+            "thedavidglass.com",
+            "github.com/dglass710",
+            "linkedin.com/in/david-a-glass"
         ],
         "window_title": "Master",
         "window_width": "1200",
@@ -30,7 +35,7 @@
     {
         "title": "Certifications",
         "content": [
-	    "CompTIA Security+ (SY0-701) - Certified",
+            "CompTIA Security+ (SY0-701) - Certified",
             "CompTIA PenTest+ (PTO-003) - In Progress"
         ]
     },
