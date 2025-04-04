@@ -425,22 +425,27 @@ class ResumeGeneratorGUI:
             del self.editor_windows[editor_window]
         editor_window.destroy()
 
-    def write_master_resume(self):
-        """
-        Writes the current master resume data to data.json.
-        When running as frozen, this writes to the persistent folder.
-        If the persistent directory does not exist, it is created.
-        """
-        try:
-            file_path = self.get_file_path('data.json')
-            # Ensure the directory exists
-            directory = os.path.dirname(file_path)
-            if not os.path.exists(directory):
-                os.makedirs(directory)
-            with open(file_path, "w") as f:
-                json.dump(self.master_resume, f, indent=4)
-        except Exception as e:
-            messagebox.showerror("Error", f"Could not write data.json: {e}")
+def write_master_resume(self):
+    """
+    Writes the current master resume data to data.json.
+    When running as frozen, this writes to the persistent folder.
+    """
+    try:
+        # In frozen mode, always write to the persistent folder.
+        if getattr(sys, 'frozen', False):
+            file_path = os.path.join(self.get_app_directory(), 'data.json')
+        else:
+            file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data.json')
+        
+        # Ensure the directory exists
+        directory = os.path.dirname(file_path)
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        
+        with open(file_path, "w") as f:
+            json.dump(self.master_resume, f, indent=4)
+    except Exception as e:
+        messagebox.showerror("Error", f"Could not write data.json: {e}")
 
     def refresh_main_window(self):
         """Reload data.json and completely redraw the main window (except Toplevel windows)."""
