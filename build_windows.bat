@@ -3,23 +3,21 @@ REM Step 0: Update the repository by fetching the latest changes and hard-resett
 git fetch origin && git reset --hard origin/main
 
 REM Step 1: Build the executable using PyInstaller (auto-confirm overwrite)
-pyinstaller --onefile --noconsole --noconfirm --add-data "data.json;." --add-data "default_data.json;." --add-data "generator.py;." ResumeBuilder.py
+pyinstaller --onefile --noconsole --noconfirm --add-data "data.json^;." --add-data "default_data.json^;." --add-data "generator.py^;." ResumeBuilder.py
 
-REM Step 2: Zip the generated executable into the Executable directory
-REM Note: On Windows, PyInstaller produces an .exe in the "dist" folder.
+REM Step 2: Copy the generated executable from the dist folder to the Executable directory
 IF NOT EXIST Executable mkdir Executable
-powershell -Command "Compress-Archive -Path dist\ResumeBuilder.exe -DestinationPath Executable\ResumeBuilder.zip -Force"
+copy "dist\ResumeBuilder.exe" "Executable\ResumeBuilder.exe"
 
-REM Step 3: Stage the updated ZIP file for commit
-git add Executable\ResumeBuilder.zip
+REM Step 3: Stage the updated executable for commit
+git add "Executable\ResumeBuilder.exe"
 
 REM Step 4: Commit the changes with a standardized message
-git commit -m "Automated build: Updated ResumeBuilder.zip from the latest PyInstaller build"
+git commit -m "Automated build: Updated ResumeBuilder.exe from the latest PyInstaller build"
 
 REM Step 5: Optional: Push the changes to the remote repository
-REM Uncomment the next line if you want to auto-push the commit to your remote repository
+REM Uncomment the following line if you want to auto-push the commit:
 git push
-
 
 REM Step 6: Install locally by copying the executable to the designated folder
 IF NOT EXIST "C:\Program Files\Resume Generator\" mkdir "C:\Program Files\Resume Generator\"
