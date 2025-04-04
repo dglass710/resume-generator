@@ -53,6 +53,11 @@ class ResumeGeneratorGUI:
 
         self.create_gui()
 
+        # Global binding for mouse wheel events so scrolling works anywhere in the root window
+        self.root.bind_all("<MouseWheel>", self.on_mousewheel)
+        self.root.bind_all("<Button-4>", self.on_mousewheel_mac)
+        self.root.bind_all("<Button-5>", self.on_mousewheel_mac)
+
     def restrict_quotes(self, event):
         """Block typing of double quotes and backslashes."""
         if event.char in ['"', '\\']:
@@ -166,12 +171,10 @@ class ResumeGeneratorGUI:
 
         ttk.Button(ui_window, text="Save", command=save_ui_settings, style="Custom.TButton").pack(pady=10)
 
-
     def on_start_drag(self, event):
         """Record the index where the drag starts."""
         widget = event.widget
         self._drag_start_index = widget.nearest(event.y)
-
 
     def on_drag_motion(self, event):
         """Swap items in the listbox as the user drags."""
@@ -183,7 +186,6 @@ class ResumeGeneratorGUI:
             widget.delete(self._drag_start_index)
             widget.insert(new_index, item)
             self._drag_start_index = new_index
-
 
     def on_drop(self, event):
         """Called when the drag is released. No additional action needed here."""
@@ -292,7 +294,6 @@ class ResumeGeneratorGUI:
         else:
             self.master_resume = []
 
-
     def update_editor_window_dimensions(self):
         try:
             width = int(self.master_resume[0]["editor_window_width"])
@@ -400,7 +401,6 @@ class ResumeGeneratorGUI:
         )
         info_text.insert("1.0", information_content)
         info_text.configure(state="disabled")
-
 
     def open_editor_window(self):
         """Opens the advanced JSON editor (raw data editor)."""
@@ -1030,16 +1030,6 @@ class ResumeGeneratorGUI:
         entry.configure(font=("Arial", self.get_main_font_size()))
         ttk.Button(bottom_frame, text="Generate Resume", command=self.generate_resume, style="Custom.TButton").pack(side="left", padx=10)
 
-    def bind_mousewheel(self, event=None):
-        self.canvas.bind_all("<MouseWheel>", self.on_mousewheel)
-        self.canvas.bind_all("<Button-4>", self.on_mousewheel_mac)
-        self.canvas.bind_all("<Button-5>", self.on_mousewheel_mac)
-
-    def unbind_mousewheel(self, event=None):
-        self.canvas.unbind_all("<MouseWheel>")
-        self.canvas.unbind_all("<Button-4>")
-        self.canvas.unbind_all("<Button-5>")
-
     def on_mousewheel(self, event):
         if event.delta > 0:
             self.canvas.yview_scroll(-1, "units")
@@ -1107,9 +1097,6 @@ class ResumeGeneratorGUI:
         if hasattr(widget, "custom_var"):
             current = widget.custom_var.get()
             widget.custom_var.set(not current)
-
-
-
 
     def add_objective_options(self, parent, options):
         # Create a radio button + label for each objective option.
@@ -1289,35 +1276,31 @@ class ResumeGeneratorGUI:
         except Exception as e:
             messagebox.showerror("Error", f"Could not save changes: {e}")
 
+    # Global mouse wheel event handlers (used by the global binding in __init__)
+    def on_mousewheel(self, event):
+        if event.delta > 0:
+            self.canvas.yview_scroll(-1, "units")
+        else:
+            self.canvas.yview_scroll(1, "units")
+
+    def on_mousewheel_mac(self, event):
+        if event.num == 4:
+            self.canvas.yview_scroll(-1, "units")
+        elif event.num == 5:
+            self.canvas.yview_scroll(1, "units")
+
+    # The following methods are kept for reference even though global binding is used
+    def bind_mousewheel(self, event):
+        self.canvas.bind_all("<MouseWheel>", self.on_mousewheel)
+        self.canvas.bind_all("<Button-4>", self.on_mousewheel_mac)
+        self.canvas.bind_all("<Button-5>", self.on_mousewheel_mac)
+
+    def unbind_mousewheel(self, event):
+        self.canvas.unbind_all("<MouseWheel>")
+        self.canvas.unbind_all("<Button-4>")
+        self.canvas.unbind_all("<Button-5>")
+
 if __name__ == "__main__":
     root = tk.Tk()
     app = ResumeGeneratorGUI(root)
     root.mainloop()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
