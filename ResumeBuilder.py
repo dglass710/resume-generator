@@ -437,7 +437,7 @@ class ResumeGeneratorGUI:
         # Create a new Toplevel window with a wider geometry.
         win = tk.Toplevel(self.root)
         win.title("Edit Personal Information")
-        win.geometry("700x500")  # Wider window for ample space
+        win.geometry("900x500")  # Wider window for ample space
 
         # --- Name Field ---
         ttk.Label(win, text="Name:", style="Custom.TLabel").pack(anchor="w", padx=10, pady=5)
@@ -570,7 +570,7 @@ class ResumeGeneratorGUI:
         """
         win = tk.Toplevel(self.root)
         win.title(f"Edit Content for {section['title']}")
-        win.geometry("700x500")
+        win.geometry("900x500")
         # Backup original content.
         original_content = copy.deepcopy(section["content"])
 
@@ -703,7 +703,7 @@ class ResumeGeneratorGUI:
         """
         win = tk.Toplevel(self.root)
         win.title(f"Edit Content for {section['title']}")
-        win.geometry("700x500")
+        win.geometry("900x500")
         original_content = copy.deepcopy(section["content"])
 
         # NOTE: Inform users they can drag and drop to reorder items.
