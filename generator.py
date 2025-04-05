@@ -8,6 +8,7 @@ from docx.opc.constants import RELATIONSHIP_TYPE
 import os
 import sys
 from pathlib import Path
+import re
 
 def set_single_spacing(paragraph):
     """Set single spacing and remove extra space before/after the paragraph."""
@@ -19,6 +20,7 @@ def set_single_spacing(paragraph):
 def add_hyperlink(paragraph, url, text):
     """
     Inserts a hyperlink into a paragraph. Returns the hyperlink element.
+    After adding the hyperlink, an empty run is appended to break the hyperlink's scope.
     """
     part = paragraph.part
     r_id = part.relate_to(url, RELATIONSHIP_TYPE.HYPERLINK, is_external=True)
@@ -47,13 +49,18 @@ def add_hyperlink(paragraph, url, text):
     
     # Append the hyperlink element to the paragraph.
     paragraph._p.append(hyperlink)
+    # Append an empty run to ensure the hyperlink formatting does not continue.
+    paragraph.add_run("")
     return hyperlink
 
+# Refined token checks using regular expressions.
+_email_re = re.compile(r'^[\w\.-]+@[\w\.-]+\.\w+$')
 def is_email(token):
-    """Return True if token contains an '@' and a period."""
+    """Return True if token is a valid email."""
     token = token.strip()
-    return "@" in token and "." in token
+    return bool(_email_re.match(token))
 
+_phone_re = re.compile(r'^\D*(\d\D*){10}$')
 def is_phone(token):
     """
     Return True if token consists of (or can be reduced to) exactly 10 digits.
@@ -61,14 +68,16 @@ def is_phone(token):
     digits = ''.join(ch for ch in token if ch.isdigit())
     return len(digits) == 10
 
+_url_re = re.compile(r'^(https?://|www\.)', re.IGNORECASE)
 def is_url(token):
     """
-    Return True if token starts with http(s):// or www., or if it contains a dot and no spaces.
+    Return True if token is a URL. It checks if the token starts with http(s):// or www.,
+    or if it contains a dot and no spaces.
     """
     token = token.strip()
-    if token.startswith("http://") or token.startswith("https://") or token.startswith("www."):
+    if _url_re.match(token):
         return True
-    if "." in token and " " not in token:
+    if '.' in token and ' ' not in token:
         return True
     return False
 
@@ -135,10 +144,11 @@ def generate_resume(selected_sections, output_file="Custom_Resume.docx"):
                 name_run.font.size = Pt(14)
                 name_para.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
                 set_single_spacing(name_para)
-            # Concatenate remaining items into one line.
+            # Process remaining items: each token is handled in its own run.
             if len(section["content"]) > 1:
                 links_para = doc.add_paragraph()
-                for idx, item in enumerate(section["content"][1:]):
+                tokens = section["content"][1:]
+                for idx, item in enumerate(tokens):
                     if idx > 0:
                         links_para.add_run(" \u22C4 ")
                     token = item.strip()
@@ -148,7 +158,7 @@ def generate_resume(selected_sections, output_file="Custom_Resume.docx"):
                         digits = ''.join(ch for ch in token if ch.isdigit())
                         add_hyperlink(links_para, f"tel:{digits}", token)
                     elif is_url(token):
-                        link_url = token if token.startswith("http") else "http://" + token
+                        link_url = token if token.lower().startswith("http") else "http://" + token
                         add_hyperlink(links_para, link_url, token)
                     else:
                         links_para.add_run(token)
