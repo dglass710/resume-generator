@@ -3,7 +3,12 @@
         "title": "Personal Information",
         "content": [
             "Your Name Here",
-            "City, State ZIP \u22c4 Phone Number \u22c4 Email Address \u22c4 Personal Website \u22c4 GitHub URL \u22c4 LinkedIn URL"
+            "City, State ZIP",
+	   "Phone Number",
+	   "Email Address",
+	   "Personal Website",
+	   "GitHub URL",
+	   "LinkedIn URL"
         ],
         "window_title": "Resume Generator",
         "window_width": "1200",
