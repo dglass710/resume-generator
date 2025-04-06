@@ -49,7 +49,7 @@ class ResumeGeneratorGUI:
         self.section_vars = {}      # Main section checkboxes
         self.subsection_vars = {}   # Sub-options checkboxes
         self.selected_objective = tk.StringVar()
-        self.output_file_name_var = tk.StringVar(value="Custom_Resume")
+        self.output_file_name_var = tk.StringVar(value="Custom Resume")
 
         self.create_gui()
 
