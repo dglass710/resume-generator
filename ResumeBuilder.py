@@ -16,7 +16,8 @@ from tkinter import ttk, messagebox
 import os
 import sys
 import copy
-from generator import generate_resume  # Uses python-docx to create the resume document
+from datetime import datetime
+from generator import Generator  # Uses python-docx to create the resume document
 
 class ResumeGeneratorGUI:
     def __init__(self, root):
@@ -622,14 +623,20 @@ class ResumeGeneratorGUI:
     def edit_simple_section_content(self, section):
         """
         Editor for sections whose content is a list of strings (e.g., Objective, Certifications, etc.).
-        This version uses drag and drop in the Listbox for reordering items instead of up/down buttons.
-        Changes are kept in memory until Save is pressed. Cancel discards unsaved changes.
+        Features:
+        - Drag and drop reordering
+        - Duplicate entry prevention
+        - Selection state preservation
+        - Improved error handling
         """
         win = tk.Toplevel(self.root)
         win.title(f"Edit Content for {section['title']}")
         win.geometry("900x500")
-        # Backup original content.
+        win.transient(self.root)  # Make it modal
+        
+        # Backup original content and current selection
         original_content = copy.deepcopy(section["content"])
+        current_selection = None
 
         # NOTE: Inform users they can drag and drop to reorder items.
         ttk.Label(win, text="Drag and drop items to reorder them.", style="Custom.TLabel").pack(anchor="w", padx=10, pady=5)
@@ -642,12 +649,25 @@ class ResumeGeneratorGUI:
         listbox.config(yscrollcommand=scrollbar.set)
 
         def refresh_listbox():
-            # For Core Competencies, sort alphabetically.
-            if section["title"] == "Core Competencies":
-                section["content"] = sorted(section["content"], key=lambda s: s.lower())
-            listbox.delete(0, tk.END)
-            for item in section["content"]:
-                listbox.insert(tk.END, item)
+            try:
+                # Store current selection
+                selection = listbox.curselection()
+                selected_index = selection[0] if selection else None
+                
+                # For Core Competencies, sort alphabetically
+                if section["title"] == "Core Competencies":
+                    section["content"] = sorted(section["content"], key=lambda s: s.lower())
+                
+                listbox.delete(0, tk.END)
+                for item in section["content"]:
+                    listbox.insert(tk.END, item)
+                
+                # Restore selection if possible
+                if selected_index is not None and selected_index < listbox.size():
+                    listbox.selection_set(selected_index)
+                    listbox.see(selected_index)
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to refresh list: {str(e)}")
         refresh_listbox()
         current_index = [None]
 
@@ -675,16 +695,26 @@ class ResumeGeneratorGUI:
                 entry_widget.insert(0, section["content"][selected_index].replace("\\n", " "))
 
             def done_child():
-                new_text = entry_widget.get().strip()
-                if not new_text:
-                    messagebox.showerror("Error", "Item content cannot be empty.")
-                    return
-                if is_new:
-                    section["content"].append(new_text)
-                else:
-                    section["content"][selected_index] = new_text
-                refresh_listbox()
-                child_win.destroy()
+                try:
+                    new_text = entry_widget.get().strip()
+                    if not new_text:
+                        messagebox.showerror("Error", "Item content cannot be empty.")
+                        return
+                    
+                    # Check for duplicates
+                    if new_text in section["content"] and (is_new or new_text != section["content"][selected_index]):
+                        messagebox.showerror("Error", "This item already exists in the list.")
+                        return
+                    
+                    if is_new:
+                        section["content"].append(new_text)
+                    else:
+                        section["content"][selected_index] = new_text
+                    
+                    refresh_listbox()
+                    child_win.destroy()
+                except Exception as e:
+                    messagebox.showerror("Error", f"Failed to save item: {str(e)}")
             ttk.Button(child_win, text="Done", command=done_child, style="Custom.TButton").pack(pady=10)
 
         ttk.Button(win, text="Add", command=lambda: open_edit_window(is_new=True), style="Custom.TButton").pack(side="left", padx=5)
@@ -706,18 +736,21 @@ class ResumeGeneratorGUI:
             widget._drag_start_index = widget.nearest(event.y)
 
         def on_drag_motion(event):
-            widget = event.widget
-            new_index = widget.nearest(event.y)
-            if new_index != widget._drag_start_index:
-                # Update the underlying list: move the item.
-                section["content"].insert(new_index, section["content"].pop(widget._drag_start_index))
-                # Refresh the Listbox.
-                widget.delete(0, tk.END)
-                for i in section["content"]:
-                    widget.insert(tk.END, i)
-                widget._drag_start_index = new_index
-                widget.selection_clear(0, tk.END)
-                widget.selection_set(new_index)
+            try:
+                widget = event.widget
+                new_index = widget.nearest(event.y)
+                if new_index != widget._drag_start_index:
+                    # Update the underlying list: move the item
+                    section["content"].insert(new_index, section["content"].pop(widget._drag_start_index))
+                    # Refresh the Listbox
+                    widget.delete(0, tk.END)
+                    for i in section["content"]:
+                        widget.insert(tk.END, i)
+                    widget._drag_start_index = new_index
+                    widget.selection_clear(0, tk.END)
+                    widget.selection_set(new_index)
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to reorder items: {str(e)}")
 
         def on_drop(event):
             # No extra processing required on drop.
@@ -752,15 +785,19 @@ class ResumeGeneratorGUI:
     # ---------------------------
     def edit_structured_section_content(self, section):
         """
-        NEW implementation for structured sections (Professional Experience and Education).
-        Displays the section items in a single Listbox (like the simple editor). When adding or editing
-        an item, a popup is opened with fields:
-          - For Professional Experience: "Title", "Dates", and "Details" (edited as a list of single-line items).
-          - For Education: "Title" and "Details" (edited as a list).
+        Implementation for structured sections (Professional Experience and Education).
+        Displays the section items in a single Listbox with drag-and-drop support.
+        When adding or editing an item, a popup is opened with fields:
+          - For Professional Experience: "Title", "Dates", and "Details" (edited as a list)
+          - For Education: "Title" and "Details" (edited as a list)
+        Includes validation for required fields and proper error handling.
         """
         win = tk.Toplevel(self.root)
         win.title(f"Edit Content for {section['title']}")
         win.geometry("900x500")
+        
+        # Backup original content
+        original_content = copy.deepcopy(section["content"])
         original_content = copy.deepcopy(section["content"])
 
         # NOTE: Inform users they can drag and drop to reorder items.
@@ -774,18 +811,26 @@ class ResumeGeneratorGUI:
         listbox.config(yscrollcommand=scrollbar.set)
 
         def refresh_listbox():
-            listbox.delete(0, tk.END)
-            for idx, item in enumerate(section["content"]):
-                if section["title"] == "Professional Experience":
-                    title = item.get("subtitle", "No Title")
-                    dates = item.get("date", "")
-                    summary = f"{title} ({dates})"
-                elif section["title"] == "Education":
-                    if isinstance(item, list) and item:
-                        summary = item[0]
-                    else:
-                        summary = "No Title"
-                listbox.insert(tk.END, summary)
+            try:
+                # Store current selection
+                current_selection = listbox.curselection()
+                selected_index = current_selection[0] if current_selection else None
+
+                listbox.delete(0, tk.END)
+                for item in section["content"]:
+                    if isinstance(item, list):  # Education
+                        listbox.insert(tk.END, item[0])
+                    else:  # Professional Experience
+                        listbox.insert(tk.END, f"{item['subtitle']} ({item['date']})")
+
+                # Restore selection if possible
+                if selected_index is not None and selected_index < listbox.size():
+                    listbox.selection_set(selected_index)
+                    listbox.see(selected_index)  # Ensure the selected item is visible
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to refresh list: {str(e)}")
+                return
+
         refresh_listbox()
 
         current_index = [None]
@@ -819,6 +864,7 @@ class ResumeGeneratorGUI:
 
         def open_structured_item_editor(selected_index, is_new=False):
             item_editor = tk.Toplevel(win)
+            item_editor.transient(win)  # Make it modal
             if is_new:
                 item_editor.title(f"Add Item for {section['title']}")
             else:
@@ -826,7 +872,7 @@ class ResumeGeneratorGUI:
             item_editor.geometry("500x500")
 
             # Field: Title
-            ttk.Label(item_editor, text="Title:", style="Custom.TLabel").pack(anchor="w", padx=10, pady=5)
+            ttk.Label(item_editor, text="Title:*", style="Custom.TLabel").pack(anchor="w", padx=10, pady=5)
             title_entry = ttk.Entry(item_editor, width=50)
             title_entry.pack(anchor="w", padx=10)
             title_entry.bind("<Key>", self.restrict_quotes)
@@ -861,7 +907,11 @@ class ResumeGeneratorGUI:
                     details_listbox._drag_start_index = new_index
 
             def on_drop_detail(event):
-                pass
+                try:
+                    refresh_details_listbox()
+                except Exception as e:
+                    messagebox.showerror("Error", f"Failed to update after drag: {str(e)}")
+                return
 
             # Bind the drag-and-drop events to the details_listbox.
             details_listbox.bind("<ButtonPress-1>", on_start_drag_detail)
@@ -945,22 +995,42 @@ class ResumeGeneratorGUI:
                         details.extend(item[1:])
                 refresh_details_listbox()
 
+            def validate_dates(date_str):
+                """Basic date format validation"""
+                if not date_str.strip():
+                    return False
+                # Could add more specific validation here if needed
+                return True
+
             def done_item():
-                new_title = title_entry.get().strip()
-                if not new_title:
-                    messagebox.showerror("Error", "Title cannot be empty.")
-                    return
-                if section["title"] == "Professional Experience":
-                    new_dates = dates_entry.get().strip()
-                    new_item = {"subtitle": new_title, "date": new_dates, "details": details.copy()}
-                elif section["title"] == "Education":
-                    new_item = [new_title] + details.copy()
-                if is_new or selected_index is None:
-                    section["content"].append(new_item)
-                else:
-                    section["content"][selected_index] = new_item
-                refresh_listbox()
-                item_editor.destroy()
+                try:
+                    new_title = title_entry.get().strip()
+                    if not new_title:
+                        messagebox.showerror("Error", "Title cannot be empty.")
+                        return
+
+                    if section["title"] == "Professional Experience":
+                        new_dates = dates_entry.get().strip()
+                        if not validate_dates(new_dates):
+                            messagebox.showerror("Error", "Please enter a valid date.")
+                            return
+                        new_item = {"subtitle": new_title, "date": new_dates, "details": details.copy()}
+                    elif section["title"] == "Education":
+                        new_item = [new_title] + details.copy()
+
+                    if not details:  # Ensure there's at least one detail
+                        messagebox.showerror("Error", "Please add at least one detail.")
+                        return
+
+                    if is_new or selected_index is None:
+                        section["content"].append(new_item)
+                    else:
+                        section["content"][selected_index] = new_item
+
+                    refresh_listbox()
+                    item_editor.destroy()
+                except Exception as e:
+                    messagebox.showerror("Error", f"Failed to save item: {str(e)}")
 
             ttk.Button(item_editor, text="Done", command=done_item, style="Custom.TButton").pack(pady=10)
 
@@ -1195,56 +1265,84 @@ class ResumeGeneratorGUI:
                     var.set(True)
 
     def generate_resume(self):
-        selected_sections = []
-        for section in self.master_resume:
-            if self.section_vars[section["title"]].get():
-                if section["title"] == "Personal Information":
-                    section_data = {"title": section["title"], "content": section["content"]}
-                elif section["title"] == "Objective":
-                    selected_objectives = []
-                    if self.selected_objective.get() == "Custom":
-                        custom_text = self.custom_objective_text.get().strip()
-                        if custom_text:
-                            selected_objectives.append(custom_text)
-                    else:
-                        selected_objectives.append(self.selected_objective.get())
-                    section_data = {"title": section["title"], "content": selected_objectives}
-                elif section["title"] == "Education":
-                    section_content = []
-                    for entry in section["content"]:
-                        main_entry = entry[0]
-                        if self.subsection_vars[(section["title"], main_entry)].get():
-                            entry_data = [main_entry] + entry[1:]
-                            section_content.append(entry_data)
-                    section_data = {"title": section["title"], "content": section_content}
-                elif section["title"] == "Professional Experience":
-                    section_content = [
-                        item for item in section["content"]
-                        if self.subsection_vars.get((section["title"], item["subtitle"]), tk.BooleanVar()).get()
-                    ]
-                    section_data = {"title": section["title"], "content": section_content}
-                else:
-                    section_data = {
-                        "title": section["title"],
-                        "content": [
-                            option for option in section["content"]
-                            if self.subsection_vars.get((section["title"], option), tk.BooleanVar()).get()
-                        ]
-                    }
-                selected_sections.append(section_data)
-        output_directory = self.get_app_directory() if getattr(sys, 'frozen', False) else os.path.dirname(os.path.abspath(__file__))
-        output_file_name = f"{self.output_file_name_var.get().strip()}.docx"
-        output_file_path = os.path.join(output_directory, output_file_name)
+        """
+        Generate the resume document and save it to the user's Documents folder.
+        For macOS, saves to ~/Documents/ResumeGeneratorApp/
+        For Windows, saves to Documents\ResumeGeneratorApp\
+        """
         try:
-            generate_resume(selected_sections, output_file=output_file_path)
-            if os.name == 'posix':
-                os.system(f'open "{output_file_path}"')
-            elif os.name == 'nt':
-                os.startfile(output_file_path)
-            else:
-                print(f"Resume generated as {output_file_name}. Open it manually.")
+            # Ensure output directory exists
+            output_dir = self.get_app_directory()
+            if not os.path.exists(output_dir):
+                os.makedirs(output_dir)
+
+            # Collect selected sections
+            selected_sections = []
+            for section in self.master_resume:
+                if self.section_vars[section["title"]].get():
+                    if section["title"] == "Personal Information":
+                        selected_sections.append({"title": section["title"], "content": section["content"]})
+                    elif section["title"] == "Objective":
+                        if self.selected_objective.get() == "Custom":
+                            custom_text = self.custom_objective_text.get().strip()
+                            if custom_text:
+                                selected_sections.append({
+                                    "title": section["title"],
+                                    "content": [custom_text]
+                                })
+                        else:
+                            selected_objective = self.selected_objective.get()
+                            if selected_objective in section["content"]:
+                                selected_sections.append({
+                                    "title": section["title"],
+                                    "content": [selected_objective]
+                                })
+                    else:
+                        # For other sections, filter by selected subsections
+                        selected_content = []
+                        for item in section["content"]:
+                            if isinstance(item, dict):
+                                key = item.get("subtitle", "No Title")
+                            else:
+                                key = item
+                            if (section["title"], key) in self.subsection_vars:
+                                if self.subsection_vars[(section["title"], key)].get():
+                                    selected_content.append(item)
+                        if selected_content:
+                            selected_sections.append({
+                                "title": section["title"],
+                                "content": selected_content
+                            })
+
+            if not selected_sections:
+                messagebox.showerror("Error", "No sections selected. Please select at least one section.")
+                return
+
+            # Generate output filename with timestamp to avoid overwrites
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            output_file_path = os.path.join(output_dir, f"resume_{timestamp}.docx")
+
+            try:
+                # Generate the resume
+                generator = Generator(selected_sections)
+                generator.generate(output_file_path)
+
+                # Open the generated file
+                try:
+                    if os.name == 'posix':  # macOS
+                        subprocess.run(['open', output_file_path], check=True)
+                    else:  # Windows
+                        os.startfile(output_file_path)
+                    messagebox.showinfo("Success", f"Resume generated successfully!\nSaved to: {output_file_path}")
+                except Exception as e:
+                    messagebox.showwarning("Warning", 
+                        f"Resume was generated but could not be opened automatically.\n" 
+                        f"File is saved at: {output_file_path}\n\n"
+                        f"Error: {str(e)}")
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to generate resume: {str(e)}")
         except Exception as e:
-            print(f"Error generating resume: {e}")
+            messagebox.showerror("Error", f"Failed to prepare resume data: {str(e)}")
 
     def save_changes(self, editor_window):
         if editor_window not in self.editor_windows:
