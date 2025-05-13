@@ -1083,12 +1083,16 @@ class ResumeGeneratorGUI:
         self.canvas.configure(yscrollcommand=self.scrollbar.set)
         self.canvas.pack(side="left", fill="both", expand=True)
         self.scrollbar.pack(side="right", fill="y")
-        self.canvas.bind("<Enter>", self.bind_mousewheel)
-        self.canvas.bind("<Leave>", self.unbind_mousewheel)
-
+        
+        # Bind mousewheel events
+        self.canvas.bind("<Enter>", self._on_enter)
+        self.canvas.bind("<Leave>", self._on_leave)
+        
+        # Add sections
         for section in self.master_resume:
             self.add_section_widgets(self.scrollable_frame, section)
-
+            
+        # Bottom frame
         bottom_frame = ttk.Frame(self.root)
         bottom_frame.pack(fill="x", pady=10)
         ttk.Label(bottom_frame, text="Output File Name:", style="Custom.TLabel").pack(side="left", padx=5)
@@ -1097,17 +1101,31 @@ class ResumeGeneratorGUI:
         entry.configure(font=("Arial", self.get_main_font_size()))
         ttk.Button(bottom_frame, text="Generate Resume", command=self.generate_resume, style="Custom.TButton").pack(side="left", padx=10)
 
-    def on_mousewheel(self, event):
+    def _on_mousewheel(self, event):
         if event.delta > 0:
             self.canvas.yview_scroll(-1, "units")
         else:
             self.canvas.yview_scroll(1, "units")
 
-    def on_mousewheel_mac(self, event):
+    def _on_mousewheel_mac(self, event):
         if event.num == 4:
             self.canvas.yview_scroll(-1, "units")
         elif event.num == 5:
             self.canvas.yview_scroll(1, "units")
+            
+    def _on_enter(self, event):
+        if platform.system() == 'Darwin':  # macOS
+            self.canvas.bind_all('<Button-4>', self._on_mousewheel_mac)
+            self.canvas.bind_all('<Button-5>', self._on_mousewheel_mac)
+        else:  # Windows
+            self.canvas.bind_all('<MouseWheel>', self._on_mousewheel)
+            
+    def _on_leave(self, event):
+        if platform.system() == 'Darwin':  # macOS
+            self.canvas.unbind_all('<Button-4>')
+            self.canvas.unbind_all('<Button-5>')
+        else:  # Windows
+            self.canvas.unbind_all('<MouseWheel>')
 
     def add_section_widgets(self, parent, section):
         if section["title"] == "Personal Information":
