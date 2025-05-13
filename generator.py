@@ -186,14 +186,14 @@ class Generator:
                         # Professional Experience items are dictionaries
                         # Add the title/institution
                         title_para = doc.add_paragraph()
-                        title_run = title_para.add_run(item["title"])
+                        title_run = title_para.add_run(item["subtitle"])
                         title_run.bold = True
                         set_single_spacing(title_para)
 
                         # Add dates if present (Professional Experience)
-                        if "dates" in item:
+                        if "date" in item:
                             dates_para = doc.add_paragraph()
-                            dates_run = dates_para.add_run(item["dates"])
+                            dates_run = dates_para.add_run(item["date"])
                             dates_run.italic = True
                             set_single_spacing(dates_para)
 
