@@ -905,7 +905,11 @@ class ResumeGeneratorGUI:
 
             def on_drop_detail(event):
                 try:
+                    # Get the current index where the mouse was released
+                    index = details_listbox.nearest(event.y)
                     refresh_details_listbox()
+                    # Restore selection after refresh
+                    details_listbox.selection_set(index)
                 except Exception as e:
                     messagebox.showerror("Error", f"Failed to update after drag: {str(e)}")
                 return
@@ -916,9 +920,17 @@ class ResumeGeneratorGUI:
             details_listbox.bind("<ButtonRelease-1>", on_drop_detail)
 
             def refresh_details_listbox():
+                # Save current selection if any
+                selected_indices = details_listbox.curselection()
+                selected_index = selected_indices[0] if selected_indices else None
+                
                 details_listbox.delete(0, tk.END)
                 for d in details:
                     details_listbox.insert(tk.END, d)
+                    
+                # Restore selection if there was one
+                if selected_index is not None and selected_index < len(details):
+                    details_listbox.selection_set(selected_index)
 
             # Sub-functions for managing details
             def add_detail():
