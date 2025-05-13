@@ -1353,7 +1353,6 @@ class ResumeGeneratorGUI:
                         subprocess.run(['open', output_file_path], check=True)
                     else:  # Windows
                         os.startfile(output_file_path)
-                    messagebox.showinfo("Success", f"Resume generated successfully!\nSaved to: {output_file_path}")
                 except Exception as e:
                     messagebox.showwarning("Warning", 
                         f"Resume was generated but could not be opened automatically.\n" 
