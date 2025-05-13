@@ -52,12 +52,9 @@ class ResumeGeneratorGUI:
         self.selected_objective = tk.StringVar()
         self.output_file_name_var = tk.StringVar(value="Custom Resume")
 
+        self.canvas = None  # Will be set in create_gui
         self.create_gui()
-
-        # Global binding for mouse wheel events so scrolling works anywhere in the root window
-        self.root.bind_all("<MouseWheel>", self.on_mousewheel)
-        self.root.bind_all("<Button-4>", self.on_mousewheel_mac)
-        self.root.bind_all("<Button-5>", self.on_mousewheel_mac)
+        self.setup_scrolling()
 
     def restrict_quotes(self, event):
         """Block typing of double quotes and backslashes."""
@@ -1374,29 +1371,48 @@ class ResumeGeneratorGUI:
         except Exception as e:
             messagebox.showerror("Error", f"Could not save changes: {e}")
 
-    # Global mouse wheel event handlers (used by the global binding in __init__)
-    def on_mousewheel(self, event):
-        if event.delta > 0:
-            self.canvas.yview_scroll(-1, "units")
-        else:
-            self.canvas.yview_scroll(1, "units")
+    def setup_scrolling(self):
+        """Set up scrolling for the main canvas and its children"""
+        if not self.canvas:
+            return
+            
+        def _on_mousewheel(event):
+            if event.delta > 0:
+                self.canvas.yview_scroll(-1, "units")
+            else:
+                self.canvas.yview_scroll(1, "units")
 
-    def on_mousewheel_mac(self, event):
-        if event.num == 4:
-            self.canvas.yview_scroll(-1, "units")
-        elif event.num == 5:
-            self.canvas.yview_scroll(1, "units")
+        def _on_mousewheel_mac(event):
+            if event.num == 4:
+                self.canvas.yview_scroll(-1, "units")
+            elif event.num == 5:
+                self.canvas.yview_scroll(1, "units")
 
-    # The following methods are kept for reference even though global binding is used
-    def bind_mousewheel(self, event):
-        self.canvas.bind_all("<MouseWheel>", self.on_mousewheel)
-        self.canvas.bind_all("<Button-4>", self.on_mousewheel_mac)
-        self.canvas.bind_all("<Button-5>", self.on_mousewheel_mac)
+        def _on_enter(event):
+            # Bind scrolling when mouse enters any widget in the canvas
+            widget = event.widget
+            while widget and widget != self.root:
+                if widget == self.canvas:
+                    self.root.bind_all("<MouseWheel>", _on_mousewheel)
+                    self.root.bind_all("<Button-4>", _on_mousewheel_mac)
+                    self.root.bind_all("<Button-5>", _on_mousewheel_mac)
+                    break
+                widget = widget.master
 
-    def unbind_mousewheel(self, event):
-        self.canvas.unbind_all("<MouseWheel>")
-        self.canvas.unbind_all("<Button-4>")
-        self.canvas.unbind_all("<Button-5>")
+        def _on_leave(event):
+            # Unbind scrolling when mouse leaves the canvas area
+            widget = event.widget
+            while widget and widget != self.root:
+                if widget == self.canvas:
+                    self.root.unbind_all("<MouseWheel>")
+                    self.root.unbind_all("<Button-4>")
+                    self.root.unbind_all("<Button-5>")
+                    break
+                widget = widget.master
+
+        # Bind enter/leave events to the canvas and all its children
+        self.canvas.bind("<Enter>", _on_enter)
+        self.canvas.bind("<Leave>", _on_leave)
 
 if __name__ == "__main__":
     root = tk.Tk()
