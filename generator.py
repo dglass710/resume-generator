@@ -168,25 +168,41 @@ class Generator:
 
                 # Process each item
                 for item in content:
-                    # Add the title/institution
-                    title_para = doc.add_paragraph()
-                    title_run = title_para.add_run(item["title"])
-                    title_run.bold = True
-                    set_single_spacing(title_para)
+                    # Handle Education items (which are lists) differently
+                    if title == "Education" and isinstance(item, list):
+                        # First item is the title
+                        title_para = doc.add_paragraph()
+                        title_run = title_para.add_run(item[0])
+                        title_run.bold = True
+                        set_single_spacing(title_para)
 
-                    # Add dates if present (Professional Experience)
-                    if "dates" in item:
-                        dates_para = doc.add_paragraph()
-                        dates_run = dates_para.add_run(item["dates"])
-                        dates_run.italic = True
-                        set_single_spacing(dates_para)
+                        # Remaining items are details
+                        for detail in item[1:]:
+                            detail_para = doc.add_paragraph()
+                            detail_para.paragraph_format.left_indent = Pt(18)  # 0.25 inches
+                            detail_run = detail_para.add_run("• " + detail)
+                            set_single_spacing(detail_para)
+                    else:
+                        # Professional Experience items are dictionaries
+                        # Add the title/institution
+                        title_para = doc.add_paragraph()
+                        title_run = title_para.add_run(item["title"])
+                        title_run.bold = True
+                        set_single_spacing(title_para)
 
-                    # Add details
-                    for detail in item["details"]:
-                        detail_para = doc.add_paragraph()
-                        detail_para.paragraph_format.left_indent = Pt(18)  # 0.25 inches
-                        detail_run = detail_para.add_run("• " + detail)
-                        set_single_spacing(detail_para)
+                        # Add dates if present (Professional Experience)
+                        if "dates" in item:
+                            dates_para = doc.add_paragraph()
+                            dates_run = dates_para.add_run(item["dates"])
+                            dates_run.italic = True
+                            set_single_spacing(dates_para)
+
+                        # Add details
+                        for detail in item["details"]:
+                            detail_para = doc.add_paragraph()
+                            detail_para.paragraph_format.left_indent = Pt(18)  # 0.25 inches
+                            detail_run = detail_para.add_run("• " + detail)
+                            set_single_spacing(detail_para)
 
                 doc.add_paragraph()  # Add space after section
 
