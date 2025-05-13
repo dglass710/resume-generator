@@ -1075,7 +1075,7 @@ class ResumeGeneratorGUI:
         ttk.Button(combined_frame, text="Edit", command=edit_item, style="Custom.TButton").pack(side="left", padx=5)
         ttk.Button(combined_frame, text="Remove", command=remove_item, style="Custom.TButton").pack(side="left", padx=5)
         ttk.Button(combined_frame, text="Save", command=lambda: (self.write_master_resume(), messagebox.showinfo("Saved", "Changes saved successfully."), self.refresh_main_window(), win.destroy()), style="Custom.TButton").pack(side="left", padx=5)
-        ttk.Button(combined_frame, text="Cancel", command=lambda: (section.update({"content": original_content}), messagebox.showinfo("Canceled", "Changes discarded."), win.destroy()) if messagebox.askyesno("Cancel", "Are you sure you want to cancel? All unsaved changes will be discarded.") else None, style="Custom.TButton").pack(side="left", padx=5)
+        ttk.Button(combined_frame, text="Cancel", command=lambda: (section.update({"content": original_content}), win.destroy()) if messagebox.askyesno("Cancel", "Are you sure you want to cancel? All unsaved changes will be discarded.") else None, style="Custom.TButton").pack(side="left", padx=5)
 
     def create_gui(self):
         top_frame = ttk.Frame(self.root)
