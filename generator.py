@@ -226,13 +226,6 @@ class Generator:
                 doc.add_paragraph()  # Add space after section
 
         # Ensure output directory exists
-        output_path = get_output_path(output_file)
-        output_dir = os.path.dirname(output_path)
-        if output_dir and not os.path.exists(output_dir):
-            os.makedirs(output_dir)
-
-        # Save the document to the provided absolute path
-        # Ensure the output directory exists
         output_dir = os.path.dirname(output_file)
         if output_dir and not os.path.exists(output_dir):
             os.makedirs(output_dir)
