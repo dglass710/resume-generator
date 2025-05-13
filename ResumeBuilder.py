@@ -1027,7 +1027,9 @@ class ResumeGeneratorGUI:
                     elif section["title"] == "Education":
                         new_item = [new_title] + details.copy()
 
-                    if not details:  # Ensure there's at least one detail
+                    # For Professional Experience, require at least one detail
+                    # For Education, details are optional
+                    if section["title"] == "Professional Experience" and not details:
                         messagebox.showerror("Error", "Please add at least one detail.")
                         return
 

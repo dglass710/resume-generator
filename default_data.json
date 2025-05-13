@@ -37,12 +37,15 @@
         "title": "Education",
         "content": [
             [
-                "First educational experience",
-                "Details about it (e.g., degree, graduation date)"
+                "University Name: Graduated May 2023",
+                "Degree in Major, Minor or Concentration"
             ],
             [
-                "Second educational experience",
-                "Details about it"
+                "Another University or College",
+                "B.S. in Computer Science, Minor in Mathematics"
+            ],
+            [
+                "Example: Northwestern University Cybersecurity Program: Graduated June 2024"
             ]
         ]
     },
