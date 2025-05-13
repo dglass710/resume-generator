@@ -1172,10 +1172,12 @@ class ResumeGeneratorGUI:
 
     def add_education_options(self, parent, education_content, section_title):
         for entry in education_content:
-            main_entry = entry[0]
-            var = tk.BooleanVar(value=True)
-            self.subsection_vars[(section_title, main_entry)] = var
-            ttk.Checkbutton(parent, text=main_entry, variable=var, style="Custom.TCheckbutton").pack(anchor="w")
+            if isinstance(entry, list) and entry:  # Check if entry is a non-empty list
+                main_entry = entry[0]  # Get the title (first element)
+                var = tk.BooleanVar(value=True)
+                # Use the title string as the key
+                self.subsection_vars[(section_title, str(main_entry))] = var
+                ttk.Checkbutton(parent, text=main_entry, variable=var, style="Custom.TCheckbutton").pack(anchor="w")
 
     def on_label_click_toggle(self, event):
         widget = event.widget
