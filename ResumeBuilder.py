@@ -1318,10 +1318,13 @@ class ResumeGeneratorGUI:
                         # For other sections, filter by selected subsections
                         selected_content = []
                         for item in section["content"]:
-                            if isinstance(item, dict):
+                            # Special handling for Education section
+                            if section["title"] == "Education" and isinstance(item, list) and item:
+                                key = str(item[0])  # Convert title to string for dictionary key
+                            elif isinstance(item, dict):
                                 key = item.get("subtitle", "No Title")
                             else:
-                                key = item
+                                key = str(item)
                             if (section["title"], key) in self.subsection_vars:
                                 if self.subsection_vars[(section["title"], key)].get():
                                     selected_content.append(item)
