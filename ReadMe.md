@@ -78,21 +78,26 @@ This project is a Python-based resume generator application that allows users to
    - **Generate Resume:**  
      Enter a file name and click "Generate Resume" to create a `.docx` file. The generated resume will open automatically (if supported by your operating system).
 
-## Packaging with PyInstaller
+## Building the Application
 
-To bundle the application as a standalone executable, use the following commands:
+To build the application as a standalone executable, use the provided build script:
 
-- **For Windows:**
+```bash
+./build.sh
+```
 
-   ```bash
-   pyinstaller --onefile --noconsole --add-data "default_data.json;." --add-data "generator.py;." ResumeBuilder.py
-   ```
+This script will:
+1. Detect your operating system (Windows or macOS)
+2. Build the appropriate executable using PyInstaller
+3. Package it correctly (exe for Windows, app for macOS)
+4. Optionally install it locally
+5. Commit the changes and optionally push to the remote repository
 
-- **For macOS/Linux:**
+To update your local repository with the latest changes:
 
-   ```bash
-   pyinstaller --onefile --noconsole --add-data "default_data.json:." --add-data "generator.py:." ResumeBuilder.py
-   ```
+```bash
+./update.sh
+```
 
 ## Data Format
 
