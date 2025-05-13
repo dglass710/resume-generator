@@ -69,8 +69,8 @@ fi
 
 # Handle commit and push
 if [[ "$AMEND" == true ]]; then
-    echo "\nAmending previous commit with macOS build..."
-    git commit --amend --no-edit
+    echo "\nAmending previous commit to include both platforms..."
+    git commit --amend -m "build: update executables for both platforms"
     git push --force-with-lease origin main
 else
     echo "\nCommitting build..."
