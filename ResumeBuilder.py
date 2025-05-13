@@ -1317,10 +1317,10 @@ class ResumeGeneratorGUI:
 
             # Generate output filename with timestamp to avoid overwrites
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            output_file_path = os.path.join(output_dir, f"resume_{timestamp}.docx")
+            output_file_path = os.path.abspath(os.path.join(output_dir, f"resume_{timestamp}.docx"))
 
             try:
-                # Generate the resume
+                # Generate the resume with absolute path
                 generator = Generator(selected_sections)
                 generator.generate(output_file_path)
 
