@@ -52,6 +52,8 @@ pyinstaller --onefile --noconsole --noconfirm \
 if [[ "$OSTYPE" == "darwin"* ]]; then
     # Zip and move the .app
     mkdir -p Executable
+    # Remove existing ZIP file to create a fresh one
+    [ -f Executable/ResumeBuilder.zip ] && rm Executable/ResumeBuilder.zip
     zip -r Executable/ResumeBuilder.zip dist/ResumeBuilder.app
     git add Executable/ResumeBuilder.zip
     
