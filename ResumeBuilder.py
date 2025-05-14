@@ -234,11 +234,21 @@ class ResumeGeneratorGUI:
     def create_styles(self):
         main_font_size = self.get_main_font_size()
         main_font = f"Arial {main_font_size}"
+        
+        # Calculate adaptive padding based on font size
+        h_padding = max(int(main_font_size * 0.4), 6)  # Minimum 6px horizontal padding
+        v_padding = max(int(main_font_size * 0.25), 4)  # Minimum 4px vertical padding
+        
+        # Increase padding for macOS to address the click area issue
+        if platform.system() == 'Darwin':  # macOS
+            h_padding = max(int(main_font_size * 0.6), 8)  # More horizontal padding on macOS
+            v_padding = max(int(main_font_size * 0.4), 6)  # More vertical padding on macOS
+        
         style = ttk.Style(self.root)
         style.configure("Custom.TCheckbutton", font=main_font)
         style.configure("Custom.TRadiobutton", font=main_font)
         style.configure("Custom.TLabel", font=main_font)
-        style.configure("Custom.TButton", font=main_font)
+        style.configure("Custom.TButton", font=main_font, padding=(h_padding, v_padding))
 
     def get_main_font_size(self):
         try:
@@ -1299,7 +1309,7 @@ class ResumeGeneratorGUI:
         """
         Generate the resume document and save it to the user's Documents folder.
         For macOS, saves to ~/Documents/ResumeGeneratorApp/
-        For Windows, saves to Documents\ResumeGeneratorApp\
+        For Windows, saves to Documents\\ResumeGeneratorApp\\
         """
         try:
             # Ensure output directory exists
@@ -1307,6 +1317,7 @@ class ResumeGeneratorGUI:
             if not os.path.exists(output_dir):
                 os.makedirs(output_dir)
 
+            # ... (rest of the code remains the same)
             # Collect selected sections
             selected_sections = []
             for section in self.master_resume:
