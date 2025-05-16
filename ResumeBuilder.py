@@ -1535,14 +1535,26 @@ class ResumeGeneratorGUI:
             elif event.num == 5:
                 self.canvas.yview_scroll(1, "units")
 
+        def _bind_scrolling():
+            # Bind the appropriate scroll events based on platform
+            if platform.system() == 'Darwin':  # macOS
+                self.root.bind_all("<Button-4>", _on_mousewheel_mac)
+                self.root.bind_all("<Button-5>", _on_mousewheel_mac)
+            else:  # Windows
+                self.root.bind_all("<MouseWheel>", _on_mousewheel)
+
+        def _unbind_scrolling():
+            # Unbind all scroll events
+            self.root.unbind_all("<MouseWheel>")
+            self.root.unbind_all("<Button-4>")
+            self.root.unbind_all("<Button-5>")
+
         def _on_enter(event):
             # Bind scrolling when mouse enters any widget in the canvas
             widget = event.widget
             while widget and widget != self.root:
                 if widget == self.canvas:
-                    self.root.bind_all("<MouseWheel>", _on_mousewheel)
-                    self.root.bind_all("<Button-4>", _on_mousewheel_mac)
-                    self.root.bind_all("<Button-5>", _on_mousewheel_mac)
+                    _bind_scrolling()
                     break
                 widget = widget.master
 
@@ -1551,15 +1563,25 @@ class ResumeGeneratorGUI:
             widget = event.widget
             while widget and widget != self.root:
                 if widget == self.canvas:
-                    self.root.unbind_all("<MouseWheel>")
-                    self.root.unbind_all("<Button-4>")
-                    self.root.unbind_all("<Button-5>")
+                    _unbind_scrolling()
                     break
                 widget = widget.master
+                
+        def _on_focus_in(event):
+            # Rebind scrolling when window regains focus
+            # This ensures scrolling works when returning from another window
+            # Simply bind scrolling when the window gets focus - we'll rely on _on_leave to unbind when needed
+            _bind_scrolling()
 
         # Bind enter/leave events to the canvas and all its children
         self.canvas.bind("<Enter>", _on_enter)
         self.canvas.bind("<Leave>", _on_leave)
+        
+        # Bind focus events to the root window
+        self.root.bind("<FocusIn>", _on_focus_in)
+        
+        # Apply initial binding - we'll let the enter/leave events manage it afterward
+        _bind_scrolling()
 
 if __name__ == "__main__":
     root = tk.Tk()
