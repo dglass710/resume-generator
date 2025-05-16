@@ -33,13 +33,6 @@
         ]
     },
     {
-        "title": "Certifications",
-        "content": [
-            "CompTIA Security+ (SY0-701) - Certified",
-            "CompTIA PenTest+ (PTO-003) - In Progress"
-        ]
-    },
-    {
         "title": "Education",
         "content": [
             [
@@ -49,6 +42,54 @@
                 "DePaul University: Graduated March 2022",
                 "B.S. in Applied and Computational Mathematics; Minors in Computer Science and Physics."
             ]
+        ]
+    },
+    {
+        "title": "Professional Experience",
+        "content": [
+            {
+                "subtitle": "Mathnasium \u2013 Mathematics Instructor",
+                "date": "April 2023 \u2013 Present, Chicago, IL",
+                "details": [
+                    "Instructed 370 students in mathematical concepts.",
+                    "Enhanced security of iPads used in instruction by implementing guided access controls."
+                ]
+            },
+            {
+                "subtitle": "DePaul University Math Department \u2013 Undergraduate Student Researcher",
+                "date": "November 2020 \u2013 May 2022, Chicago, IL",
+                "details": [
+                    "Developed Python tools for research, focusing on preventing rounding errors in fraction representations.",
+                    "Advanced the understanding of the Frobenius coin problem and computed symmetry in large data sets."
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Technical Projects",
+        "content": [
+            "Designed and executed custom Python scripts to automate vulnerability scanning and mitigate risks across an organization\u2019s network infrastructure.",
+            "Configured and monitored a Splunk SIEM environment to analyze security logs, correlate events, and respond to potential threats.",
+            "Performed application penetration tests to identify vulnerabilities, providing detailed reports and remediation strategies to developers for secure software improvements.",
+            "Developed a secure file-sharing application using encryption protocols like AES and RSA to ensure confidentiality and integrity during data transfer.",
+            "Designed and executed vulnerability scans on virtualized networks, identifying and prioritizing remediation for high-risk exposures.",
+            "Automated user account creation and permissions assignment with Bash scripts, improving efficiency for onboarding processes.",
+            "Built and managed a virtual private cloud (VPC) on Azure, deploying virtual machines and configuring secure remote access via SSH.",
+            "Deployed and maintained Docker containers for streamlined application development and environment consistency.",
+            "Configured cron jobs to automate system maintenance, including backups, log rotation, and system updates.",
+            "Conducted penetration tests and network traffic analysis using Metasploit, Nmap, and Wireshark to identify and exploit vulnerabilities in simulated environments.",
+            "Created secure Docker container deployments, configuring firewalls and access controls to minimize attack surfaces in production environments.",
+            "Implemented SSL/TLS encryption for a web application and managed secure certificate handling, ensuring encrypted communication between users and servers.",
+            "Developed and implemented firewall policies using UFW and firewalld to ensure secure server configurations and restrict unauthorized access.",
+            "Created an offline version of the 'Have I Been Pwned' database using Docker, enabling secure local queries of compromised credentials.",
+            "Developed and implemented firewall policies using UFW and firewalld to ensure secure network configurations."
+        ]
+    },
+    {
+        "title": "Certifications",
+        "content": [
+            "CompTIA Security+ (SY0-701) - Certified",
+            "CompTIA PenTest+ (PTO-003) - In Progress"
         ]
     },
     {
@@ -106,47 +147,6 @@
             "Application Security",
             "Secure System Design",
             "Google Dorking"
-        ]
-    },
-    {
-        "title": "Professional Experience",
-        "content": [
-            {
-                "subtitle": "Mathnasium \u2013 Mathematics Instructor",
-                "date": "April 2023 \u2013 Present, Chicago, IL",
-                "details": [
-                    "Instructed 370 students in mathematical concepts.",
-                    "Enhanced security of iPads used in instruction by implementing guided access controls."
-                ]
-            },
-            {
-                "subtitle": "DePaul University Math Department \u2013 Undergraduate Student Researcher",
-                "date": "November 2020 \u2013 May 2022, Chicago, IL",
-                "details": [
-                    "Developed Python tools for research, focusing on preventing rounding errors in fraction representations.",
-                    "Advanced the understanding of the Frobenius coin problem and computed symmetry in large data sets."
-                ]
-            }
-        ]
-    },
-    {
-        "title": "Technical Projects",
-        "content": [
-            "Designed and executed custom Python scripts to automate vulnerability scanning and mitigate risks across an organization\u2019s network infrastructure.",
-            "Configured and monitored a Splunk SIEM environment to analyze security logs, correlate events, and respond to potential threats.",
-            "Performed application penetration tests to identify vulnerabilities, providing detailed reports and remediation strategies to developers for secure software improvements.",
-            "Developed a secure file-sharing application using encryption protocols like AES and RSA to ensure confidentiality and integrity during data transfer.",
-            "Designed and executed vulnerability scans on virtualized networks, identifying and prioritizing remediation for high-risk exposures.",
-            "Automated user account creation and permissions assignment with Bash scripts, improving efficiency for onboarding processes.",
-            "Built and managed a virtual private cloud (VPC) on Azure, deploying virtual machines and configuring secure remote access via SSH.",
-            "Deployed and maintained Docker containers for streamlined application development and environment consistency.",
-            "Configured cron jobs to automate system maintenance, including backups, log rotation, and system updates.",
-            "Conducted penetration tests and network traffic analysis using Metasploit, Nmap, and Wireshark to identify and exploit vulnerabilities in simulated environments.",
-            "Created secure Docker container deployments, configuring firewalls and access controls to minimize attack surfaces in production environments.",
-            "Implemented SSL/TLS encryption for a web application and managed secure certificate handling, ensuring encrypted communication between users and servers.",
-            "Developed and implemented firewall policies using UFW and firewalld to ensure secure server configurations and restrict unauthorized access.",
-            "Created an offline version of the 'Have I Been Pwned' database using Docker, enabling secure local queries of compromised credentials.",
-            "Developed and implemented firewall policies using UFW and firewalld to ensure secure network configurations."
         ]
     }
 ]
