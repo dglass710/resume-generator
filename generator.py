@@ -206,6 +206,23 @@ class Generator:
 
                 doc.add_paragraph()  # Add space after section
 
+            # Special handling for Core Competencies section
+            elif title == "Core Competencies":
+                # Add section header
+                header = doc.add_paragraph()
+                header_run = header.add_run(title)
+                header_run.bold = True
+                header_run.font.size = Pt(16)
+                header_run.underline = True
+                set_single_spacing(header)
+
+                # Add content items as a comma-separated list
+                if content:
+                    comp_para = doc.add_paragraph()
+                    comp_para.paragraph_format.left_indent = Pt(18)  # 0.25 inches
+                    comp_para.add_run(", ".join(content))
+                    set_single_spacing(comp_para)
+
             # Default handling for other sections
             else:
                 # Add section header
