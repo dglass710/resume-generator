@@ -1523,25 +1523,35 @@ class ResumeGeneratorGUI:
         if not self.canvas:
             return
             
-        def _on_mousewheel(event):
+        def _on_mousewheel_windows(event):
+            # Windows mousewheel event
             if event.delta > 0:
                 self.canvas.yview_scroll(-1, "units")
             else:
                 self.canvas.yview_scroll(1, "units")
 
         def _on_mousewheel_mac(event):
+            # macOS mousewheel event (for older mice with scroll wheels)
             if event.num == 4:
                 self.canvas.yview_scroll(-1, "units")
             elif event.num == 5:
                 self.canvas.yview_scroll(1, "units")
+                
+        def _on_mousewheel_darwin(event):
+            # macOS trackpad and Magic Mouse event
+            # event.delta is in a different scale on macOS
+            self.canvas.yview_scroll(int(-1 * (event.delta)), "units")
 
         def _bind_scrolling():
             # Bind the appropriate scroll events based on platform
-            if platform.system() == 'Darwin':  # macOS
-                self.root.bind_all("<Button-4>", _on_mousewheel_mac)
-                self.root.bind_all("<Button-5>", _on_mousewheel_mac)
-            else:  # Windows
-                self.root.bind_all("<MouseWheel>", _on_mousewheel)
+            system = platform.system()
+            if system == 'Darwin':  # macOS
+                # Bind both traditional and modern macOS scroll events
+                self.root.bind_all("<Button-4>", _on_mousewheel_mac)  # Traditional mouse wheel up
+                self.root.bind_all("<Button-5>", _on_mousewheel_mac)  # Traditional mouse wheel down
+                self.root.bind_all("<MouseWheel>", _on_mousewheel_darwin)  # Trackpad/Magic Mouse
+            else:  # Windows and other platforms
+                self.root.bind_all("<MouseWheel>", _on_mousewheel_windows)
 
         def _unbind_scrolling():
             # Unbind all scroll events
