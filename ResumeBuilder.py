@@ -376,6 +376,84 @@ class ResumeGeneratorGUI:
         except Exception as e:
             messagebox.showerror("Error", f"Could not reset to default data: {e}")
 
+    def open_section_reorder_dialog(self):
+        """
+        Opens a dialog that allows the user to reorder sections in the resume.
+        Uses drag-and-drop functionality to reorder sections in the listbox.
+        """
+        # Create a new Toplevel window
+        reorder_win = tk.Toplevel(self.root)
+        reorder_win.title("Reorder Resume Sections")
+        reorder_win.geometry("500x400")
+        
+        # Instructions label
+        ttk.Label(reorder_win, text="Drag and drop sections to reorder them:", style="Custom.TLabel").pack(anchor="w", padx=10, pady=5)
+        
+        # Create a frame for the listbox and scrollbar
+        list_frame = ttk.Frame(reorder_win)
+        list_frame.pack(fill="both", expand=True, padx=10, pady=5)
+        
+        # Create a listbox to display sections
+        sections_listbox = tk.Listbox(list_frame, font=("Arial", 12), height=15)
+        sections_listbox.pack(side="left", fill="both", expand=True)
+        
+        # Add a scrollbar
+        scrollbar = ttk.Scrollbar(list_frame, orient="vertical", command=sections_listbox.yview)
+        scrollbar.pack(side="right", fill="y")
+        sections_listbox.config(yscrollcommand=scrollbar.set)
+        
+        # Populate the listbox with section titles
+        for section in self.master_resume:
+            sections_listbox.insert(tk.END, section["title"])
+        
+        # Drag and drop functionality
+        def on_drag_start(event):
+            widget = event.widget
+            widget._drag_start_index = widget.nearest(event.y)
+        
+        def on_drag_motion(event):
+            widget = event.widget
+            current_index = widget.nearest(event.y)
+            if current_index != widget._drag_start_index:
+                # Get the dragged item
+                dragged_item = self.master_resume.pop(widget._drag_start_index)
+                # Insert it at the new position
+                self.master_resume.insert(current_index, dragged_item)
+                # Update the listbox
+                widget.delete(0, tk.END)
+                for section in self.master_resume:
+                    widget.insert(tk.END, section["title"])
+                # Update the drag start index
+                widget._drag_start_index = current_index
+                # Select the moved item
+                widget.selection_clear(0, tk.END)
+                widget.selection_set(current_index)
+        
+        # Bind the drag and drop events
+        sections_listbox.bind("<ButtonPress-1>", on_drag_start)
+        sections_listbox.bind("<B1-Motion>", on_drag_motion)
+        
+        # Button frame for save and cancel
+        button_frame = ttk.Frame(reorder_win)
+        button_frame.pack(fill="x", padx=10, pady=10)
+        
+        # Save button
+        def save_order():
+            self.write_master_resume()
+            messagebox.showinfo("Success", "Section order has been updated!")
+            self.refresh_main_window()
+            reorder_win.destroy()
+        
+        ttk.Button(button_frame, text="Save", command=save_order, style="Custom.TButton").pack(side="left", padx=5)
+        
+        # Cancel button
+        def cancel_reorder():
+            if messagebox.askyesno("Cancel", "Are you sure you want to cancel? Any changes to section order will be lost."):
+                self.load_master_resume()  # Reload original data
+                reorder_win.destroy()
+        
+        ttk.Button(button_frame, text="Cancel", command=cancel_reorder, style="Custom.TButton").pack(side="left", padx=5)
+    
     def open_information_window(self):
         info_window = tk.Toplevel(self.root)
         info_window.title("Help")
@@ -392,18 +470,20 @@ class ResumeGeneratorGUI:
             "Key Features:\n\n"
             "1. Customize UI\n"
             "   - Personalize the main window by changing its title, size, and font. Adjust these settings to match your preferences and ensure the app remains readable and user-friendly.\n\n"
-            "2. Browse Files\n"
+            "2. Reorder Sections\n"
+            "   - Change the order of sections in your resume with a simple drag-and-drop interface. This allows you to prioritize different sections based on the job you're applying for.\n\n"
+            "3. Browse Files\n"
             "   - Quickly access the folder where your resume files and JSON data are stored. This makes it easy to manage, back up, or share your files.\n\n"
-            "3. Reset Data\n"
+            "4. Reset Data\n"
             "   - Restore the default resume data with a single click. This is useful if you wish to start over or remove customizations (note: this will wipe all personalized information).\n\n"
-            "4. Advanced JSON Editor\n"
+            "5. Advanced JSON Editor\n"
             "   - (Advanced) Directly edit the underlying JSON data. This option is intended for power users. Please use it with caution, as incorrect modifications may lead to errors.\n\n"
             "Additional Functionalities:\n\n"
-            " - Intuitive Editing & Reordering:\n"
+            "- Intuitive Editing & Reordering:\n"
             "   Each resume section has its own editor where you can add, edit, remove, and reorder items easily. For sections such as Education and Professional Experience, items are pre-selected by default to ensure all relevant information is included.\n\n"
-            " - Selective Inclusion:\n"
+            "- Selective Inclusion:\n"
             "   Use checkboxes and radio buttons to choose which sections and individual items appear on your resume. This helps you build a focused, concise document tailored to each job application.\n\n"
-            " - Easy Saving & Refreshing:\n"
+            "- Easy Saving & Refreshing:\n"
             "   Simply click 'Save' in any editor to update your resume data. The main window refreshes automatically, ensuring that your resume is always current.\n\n"
             "For any questions, feedback, or issues, please contact the developer."
         )
@@ -484,6 +564,8 @@ class ResumeGeneratorGUI:
                 continue
             widget.destroy()
         self.create_gui()
+        # Set up scrolling after recreating the GUI
+        self.setup_scrolling()
 
     def edit_section_content(self, section):
         """
@@ -1092,6 +1174,7 @@ class ResumeGeneratorGUI:
         top_frame.pack(fill="x", pady=10)
         # New order and renamed buttons:
         ttk.Button(top_frame, text="Customize UI", command=self.open_ui_settings_editor, style="Custom.TButton").pack(side="left", padx=10)
+        ttk.Button(top_frame, text="Reorder Sections", command=self.open_section_reorder_dialog, style="Custom.TButton").pack(side="left", padx=10)
         ttk.Button(top_frame, text="Browse Files", command=self.open_app_directory, style="Custom.TButton").pack(side="left", padx=10)
         ttk.Button(top_frame, text="Help", command=self.open_information_window, style="Custom.TButton").pack(side="left", padx=10)
         ttk.Button(top_frame, text="Reset Data", command=self.reset_to_default, style="Custom.TButton").pack(side="left", padx=10)
@@ -1108,9 +1191,8 @@ class ResumeGeneratorGUI:
         self.canvas.pack(side="left", fill="both", expand=True)
         self.scrollbar.pack(side="right", fill="y")
         
-        # Bind mousewheel events
-        self.canvas.bind("<Enter>", self._on_enter)
-        self.canvas.bind("<Leave>", self._on_leave)
+        # We'll set up scrolling after all widgets are created
+        # This is now handled by setup_scrolling() which is called after create_gui()
         
         # Add sections
         for section in self.master_resume:
