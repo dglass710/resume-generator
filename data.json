@@ -12,7 +12,7 @@
         ],
         "window_title": "Master",
         "window_width": "1200",
-        "window_length": "1500",
+        "window_length": "1000",
         "editor_window_width": "900",
         "editor_window_length": "500",
         "main_window_font_size": "20",
@@ -21,22 +21,15 @@
     {
         "title": "Objective",
         "content": [
-            "To secure a position as an IT Systems Administrator, maintaining and optimizing enterprise systems and infrastructure while ensuring reliable and secure network operations across on-premises and cloud environments.",
-            "To contribute as an IT Systems Administrator by implementing automation scripts, managing cloud resources, and ensuring seamless integration of new technologies to drive operational efficiency.",
+            "To join a dynamic Security Operations Center (SOC) as an analyst, where I can leverage my skills in real-time threat monitoring, vulnerability scanning, and incident response to detect and mitigate potential security risks, ensuring the organization's infrastructure remains secure.",
             "To leverage my expertise in system configuration, user management, and security hardening to support corporate IT environments, ensuring end-users have secure and reliable access to necessary resources.",
             "To leverage my expertise in cryptography, penetration testing, and secure system design to build robust security frameworks that protect organizational assets. I aim to contribute to proactive threat mitigation and ensure the integrity of critical infrastructure.",
+            "To utilize my expertise in penetration testing, ethical hacking, and security assessments to identify and remediate vulnerabilities, ensuring comprehensive protection for enterprise systems against cyber threats.",
+            "To apply my technical skills and hands-on experience with cybersecurity tools and methodologies in a challenging analyst role, contributing to organizational security through proactive risk mitigation and incident handling.",
             "To utilize my knowledge of encryption protocols, secure software development, and penetration testing to design, implement, and maintain applications and systems with a focus on minimizing vulnerabilities and maximizing resilience.",
             "To apply my skills in penetration testing, vulnerability assessment, and cryptographic methods to anticipate and mitigate threats, ensuring enterprise systems are prepared for emerging cybersecurity challenges.",
-            "To join a dynamic Security Operations Center (SOC) as an analyst, where I can leverage my skills in real-time threat monitoring, vulnerability scanning, and incident response to detect and mitigate potential security risks, ensuring the organization's infrastructure remains secure.",
-            "To utilize my expertise in penetration testing, ethical hacking, and security assessments to identify and remediate vulnerabilities, ensuring comprehensive protection for enterprise systems against cyber threats.",
-            "To apply my technical skills and hands-on experience with cybersecurity tools and methodologies in a challenging analyst role, contributing to organizational security through proactive risk mitigation and incident handling."
-        ]
-    },
-    {
-        "title": "Certifications",
-        "content": [
-            "CompTIA Security+ (SY0-701) - Certified",
-            "CompTIA PenTest+ (PTO-003) - In Progress"
+            "To secure a position as an IT Systems Administrator, maintaining and optimizing enterprise systems and infrastructure while ensuring reliable and secure network operations across on-premises and cloud environments.",
+            "To contribute as an IT Systems Administrator by implementing automation scripts, managing cloud resources, and ensuring seamless integration of new technologies to drive operational efficiency."
         ]
     },
     {
@@ -49,6 +42,54 @@
                 "DePaul University: Graduated March 2022",
                 "B.S. in Applied and Computational Mathematics; Minors in Computer Science and Physics."
             ]
+        ]
+    },
+    {
+        "title": "Professional Experience",
+        "content": [
+            {
+                "subtitle": "Mathnasium \u2013 Mathematics Instructor",
+                "date": "April 2023 \u2013 Present, Chicago, IL",
+                "details": [
+                    "Instructed 370 students in mathematical concepts.",
+                    "Enhanced security of iPads used in instruction by implementing guided access controls."
+                ]
+            },
+            {
+                "subtitle": "DePaul University Math Department \u2013 Undergraduate Student Researcher",
+                "date": "November 2020 \u2013 May 2022, Chicago, IL",
+                "details": [
+                    "Developed Python tools for research, focusing on preventing rounding errors in fraction representations.",
+                    "Advanced the understanding of the Frobenius coin problem and computed symmetry in large data sets."
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Technical Projects",
+        "content": [
+            "Designed and executed custom Python scripts to automate vulnerability scanning and mitigate risks across an organization\u2019s network infrastructure.",
+            "Configured and monitored a Splunk SIEM environment to analyze security logs, correlate events, and respond to potential threats.",
+            "Performed application penetration tests to identify vulnerabilities, providing detailed reports and remediation strategies to developers for secure software improvements.",
+            "Developed a secure file-sharing application using encryption protocols like AES and RSA to ensure confidentiality and integrity during data transfer.",
+            "Designed and executed vulnerability scans on virtualized networks, identifying and prioritizing remediation for high-risk exposures.",
+            "Automated user account creation and permissions assignment with Bash scripts, improving efficiency for onboarding processes.",
+            "Built and managed a virtual private cloud (VPC) on Azure, deploying virtual machines and configuring secure remote access via SSH.",
+            "Deployed and maintained Docker containers for streamlined application development and environment consistency.",
+            "Configured cron jobs to automate system maintenance, including backups, log rotation, and system updates.",
+            "Conducted penetration tests and network traffic analysis using Metasploit, Nmap, and Wireshark to identify and exploit vulnerabilities in simulated environments.",
+            "Created secure Docker container deployments, configuring firewalls and access controls to minimize attack surfaces in production environments.",
+            "Implemented SSL/TLS encryption for a web application and managed secure certificate handling, ensuring encrypted communication between users and servers.",
+            "Developed and implemented firewall policies using UFW and firewalld to ensure secure server configurations and restrict unauthorized access.",
+            "Created an offline version of the 'Have I Been Pwned' database using Docker, enabling secure local queries of compromised credentials.",
+            "Developed and implemented firewall policies using UFW and firewalld to ensure secure network configurations."
+        ]
+    },
+    {
+        "title": "Certifications",
+        "content": [
+            "CompTIA Security+ (SY0-701) - Certified",
+            "CompTIA PenTest+ (PTO-003) - In Progress"
         ]
     },
     {
@@ -106,47 +147,6 @@
             "Application Security",
             "Secure System Design",
             "Google Dorking"
-        ]
-    },
-    {
-        "title": "Professional Experience",
-        "content": [
-            {
-                "subtitle": "Mathnasium \u2013 Mathematics Instructor",
-                "date": "April 2023 \u2013 Present, Chicago, IL",
-                "details": [
-                    "Instructed 370 students in mathematical concepts.",
-                    "Enhanced security of iPads used in instruction by implementing guided access controls."
-                ]
-            },
-            {
-                "subtitle": "DePaul University Math Department \u2013 Undergraduate Student Researcher",
-                "date": "November 2020 \u2013 May 2022, Chicago, IL",
-                "details": [
-                    "Developed Python tools for research, focusing on preventing rounding errors in fraction representations.",
-                    "Advanced the understanding of the Frobenius coin problem and computed symmetry in large data sets."
-                ]
-            }
-        ]
-    },
-    {
-        "title": "Technical Projects",
-        "content": [
-            "Developed and implemented firewall policies using UFW and firewalld to ensure secure server configurations and restrict unauthorized access.",
-            "Automated user account creation and permissions assignment with Bash scripts, improving efficiency for onboarding processes.",
-            "Built and managed a virtual private cloud (VPC) on Azure, deploying virtual machines and configuring secure remote access via SSH.",
-            "Deployed and maintained Docker containers for streamlined application development and environment consistency.",
-            "Configured cron jobs to automate system maintenance, including backups, log rotation, and system updates.",
-            "Developed a secure file-sharing application using encryption protocols like AES and RSA to ensure confidentiality and integrity during data transfer.",
-            "Performed application penetration tests to identify vulnerabilities, providing detailed reports and remediation strategies to developers for secure software improvements.",
-            "Implemented SSL/TLS encryption for a web application and managed secure certificate handling, ensuring encrypted communication between users and servers.",
-            "Designed and executed custom Python scripts to automate vulnerability scanning and mitigate risks across an organization\u2019s network infrastructure.",
-            "Created secure Docker container deployments, configuring firewalls and access controls to minimize attack surfaces in production environments.",
-            "Conducted penetration tests and network traffic analysis using Metasploit, Nmap, and Wireshark to identify and exploit vulnerabilities in simulated environments.",
-            "Configured and monitored a Splunk SIEM environment to analyze security logs, correlate events, and respond to potential threats.",
-            "Designed and executed vulnerability scans on virtualized networks, identifying and prioritizing remediation for high-risk exposures.",
-            "Created an offline version of the 'Have I Been Pwned' database using Docker, enabling secure local queries of compromised credentials.",
-            "Developed and implemented firewall policies using UFW and firewalld to ensure secure network configurations."
         ]
     }
 ]
