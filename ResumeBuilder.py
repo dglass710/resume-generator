@@ -1174,9 +1174,20 @@ class ResumeGeneratorGUI:
         top_frame.pack(fill="x", pady=10)
         # New order and renamed buttons:
         ttk.Button(top_frame, text="Customize UI", command=self.open_ui_settings_editor, style="Custom.TButton").pack(side="left", padx=10)
-        ttk.Button(top_frame, text="Reorder Sections", command=self.open_section_reorder_dialog, style="Custom.TButton").pack(side="left", padx=10)
+        
         ttk.Button(top_frame, text="Browse Files", command=self.open_app_directory, style="Custom.TButton").pack(side="left", padx=10)
         ttk.Button(top_frame, text="Help", command=self.open_information_window, style="Custom.TButton").pack(side="left", padx=10)
+        # Calculate adaptive padding based on font size
+        main_font_size = self.get_main_font_size()
+        h_padding = max(int(main_font_size * 0.4), 6)  # Minimum 6px horizontal padding
+        v_padding = max(int(main_font_size * 0.25), 4)  # Minimum 4px vertical padding
+
+        # Increase padding for macOS to address the click area issue
+        if platform.system() == 'Darwin':  # macOS
+            h_padding = max(int(main_font_size * 0.6), 8)  # More horizontal padding on macOS
+            v_padding = max(int(main_font_size * 0.4), 6)  # More vertical padding on macOS
+
+        ttk.Button(top_frame, text="Reorder Sections", command=self.open_section_reorder_dialog, style="Custom.TButton", padding=(h_padding, v_padding)).pack(side="left", padx=10)
         ttk.Button(top_frame, text="Reset Data", command=self.reset_to_default, style="Custom.TButton").pack(side="left", padx=10)
         ttk.Button(top_frame, text="Advanced JSON Editor", command=self.open_advanced_editor, style="Custom.TButton").pack(side="left", padx=10)
 
