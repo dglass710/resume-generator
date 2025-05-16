@@ -1456,9 +1456,16 @@ class ResumeGeneratorGUI:
                 messagebox.showerror("Error", "No sections selected. Please select at least one section.")
                 return
 
-            # Generate output filename with timestamp to avoid overwrites
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            output_file_path = os.path.abspath(os.path.join(output_dir, f"resume_{timestamp}.docx"))
+            # Use the user-provided output filename from the text entry
+            output_filename = self.output_file_name_var.get().strip()
+            if not output_filename:
+                output_filename = "Custom Resume"
+            
+            # Add .docx extension if not already present
+            if not output_filename.lower().endswith('.docx'):
+                output_filename += '.docx'
+                
+            output_file_path = os.path.abspath(os.path.join(output_dir, output_filename))
 
             try:
                 # Generate the resume with absolute path
