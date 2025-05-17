@@ -1,9 +1,16 @@
 #!/bin/bash
 
-# Colors for output
-GREEN='\033[0;32m'
-RED='\033[0;31m'
-NC='\033[0m' # No Color
+# Set colors with fallback if tput is not available
+if command -v tput >/dev/null 2>&1; then
+    GREEN=$(tput setaf 2)
+    RED=$(tput setaf 1)
+    NC=$(tput sgr0) # No Color
+else
+    # Fallback to ANSI color codes
+    GREEN='\033[0;32m'
+    RED='\033[0;31m'
+    NC='\033[0m' # No Color
+fi
 
 # Function to calculate checksum of a file
 get_checksum() {
