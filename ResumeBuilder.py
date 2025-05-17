@@ -1538,6 +1538,14 @@ class ResumeGeneratorGUI:
             
         def _on_mousewheel_windows(event):
             # Windows mousewheel event
+            # Check if the mouse is over the application window, regardless of focus
+            x, y = self.root.winfo_pointerxy()
+            target_widget = self.root.winfo_containing(x, y)
+            
+            # Process the event if the mouse is over our window, even if it's not in focus
+            if target_widget is None or not self.root.winfo_containing(x, y).winfo_toplevel() == self.root:
+                return
+                
             if event.delta > 0:
                 self.canvas.yview_scroll(-1, "units")
             else:
@@ -1564,6 +1572,8 @@ class ResumeGeneratorGUI:
                 self.root.bind_all("<Button-5>", _on_mousewheel_mac)  # Traditional mouse wheel down
                 self.root.bind_all("<MouseWheel>", _on_mousewheel_darwin)  # Trackpad/Magic Mouse
             else:  # Windows and other platforms
+                # For Windows, we always bind to the global MouseWheel event
+                # The handler will check if the mouse is over our window
                 self.root.bind_all("<MouseWheel>", _on_mousewheel_windows)
 
         def _unbind_scrolling():
@@ -1572,38 +1582,47 @@ class ResumeGeneratorGUI:
             self.root.unbind_all("<Button-4>")
             self.root.unbind_all("<Button-5>")
 
-        def _on_enter(event):
-            # Bind scrolling when mouse enters any widget in the canvas
-            widget = event.widget
-            while widget and widget != self.root:
-                if widget == self.canvas:
-                    _bind_scrolling()
-                    break
-                widget = widget.master
+        # For Windows, we don't need enter/leave events anymore since we check mouse position in the handler
+        # For macOS, we keep the existing behavior which already works well
+        if platform.system() == 'Darwin':
+            def _on_enter(event):
+                # Bind scrolling when mouse enters any widget in the canvas
+                widget = event.widget
+                while widget and widget != self.root:
+                    if widget == self.canvas:
+                        _bind_scrolling()
+                        break
+                    widget = widget.master
 
-        def _on_leave(event):
-            # Unbind scrolling when mouse leaves the canvas area
-            widget = event.widget
-            while widget and widget != self.root:
-                if widget == self.canvas:
-                    _unbind_scrolling()
-                    break
-                widget = widget.master
-                
-        def _on_focus_in(event):
-            # Rebind scrolling when window regains focus
-            # This ensures scrolling works when returning from another window
-            # Simply bind scrolling when the window gets focus - we'll rely on _on_leave to unbind when needed
-            _bind_scrolling()
+            def _on_leave(event):
+                # Unbind scrolling when mouse leaves the canvas area
+                widget = event.widget
+                while widget and widget != self.root:
+                    if widget == self.canvas:
+                        _unbind_scrolling()
+                        break
+                    widget = widget.master
+                    
+            # Bind enter/leave events to the canvas and all its children for macOS
+            self.canvas.bind("<Enter>", _on_enter)
+            self.canvas.bind("<Leave>", _on_leave)
+        
+        # For Windows, we want to keep scrolling bound at all times
+        # For macOS, we'll still use focus events to manage binding
+        if platform.system() == 'Darwin':
+            def _on_focus_in(event):
+                # Rebind scrolling when window regains focus
+                _bind_scrolling()
+            
+            def _on_focus_out(event):
+                # Unbind scrolling when window loses focus
+                _unbind_scrolling()
 
-        # Bind enter/leave events to the canvas and all its children
-        self.canvas.bind("<Enter>", _on_enter)
-        self.canvas.bind("<Leave>", _on_leave)
+            # Bind focus events to the root window for macOS
+            self.root.bind("<FocusIn>", _on_focus_in)
+            self.root.bind("<FocusOut>", _on_focus_out)
         
-        # Bind focus events to the root window
-        self.root.bind("<FocusIn>", _on_focus_in)
-        
-        # Apply initial binding - we'll let the enter/leave events manage it afterward
+        # Apply initial binding
         _bind_scrolling()
 
 if __name__ == "__main__":
