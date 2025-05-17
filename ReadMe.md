@@ -27,20 +27,29 @@ This project is a Python-based resume generator application that allows users to
   - **Item Editors:**  
     Within a section editor, select an individual item and click "Edit" to open a small item editor. Make your changes, click "Done" to apply them, and then confirm your updates by saving the section editor.
 
+- **Section Reordering**  
+  Drag and drop resume sections to reorder them according to your preference using the "Reorder Sections" button, allowing you to customize the structure of your resume.
+
 - **Selective Inclusion via Checkboxes**  
   When you update your resume, the main window refreshes with all sections and most subsections checked by default—except for the "Core Competencies" and "Technical Projects" sections. This encourages you to selectively choose the most relevant skills and projects, ensuring a focused, concise resume.
 
 - **Optimized Display of Core Competencies**  
-  In the Core Competencies editor, skills are displayed in alphabetical order for easy selection, while in the main window they are arranged into columns in a way that most optimally uses horizontal space.
+  In the Core Competencies editor, skills are displayed in alphabetical order for easy selection, while in the main window they are displayed as a comma-separated list that efficiently uses space.
 
 - **Professional Document Generation**  
-  Generate a professionally formatted `.docx` resume with headers, bullet points, and indented details for education and professional experience.
+  Generate a professionally formatted `.docx` resume with headers, bullet points, and indented details for education and professional experience. The formatting follows Harvard resume template guidelines with Times New Roman font and optimized spacing.
+
+- **Custom Filename for Output**  
+  Specify your own filename when generating your resume instead of using an auto-generated timestamp.
+
+- **Flexible Education Entries**  
+  Education entries can now be added without requiring details, allowing for simpler entries like degree information without additional bullet points.
 
 - **Reset to Default Data**  
   Easily restore the resume data to its default state with a single click using the "Reset to Default Data" option.
 
 - **Cross-Platform Compatibility**  
-  Designed to work on Windows, macOS, and Linux, with platform-specific handling for opening files and directories.
+  Designed to work on Windows, macOS, and Linux, with platform-specific handling for opening files and directories and improved scrolling functionality for macOS users.
 
 ## Getting Started
 
@@ -82,8 +91,14 @@ This project is a Python-based resume generator application that allows users to
 
 To build the application as a standalone executable, use the provided build script:
 
+**On Linux/macOS:**
 ```bash
 ./build.sh
+```
+
+**On Windows:**
+```bash
+.\build.bat
 ```
 
 This script will:
@@ -95,9 +110,17 @@ This script will:
 
 To update your local repository with the latest changes:
 
+**On Linux/macOS:**
 ```bash
 ./update.sh
 ```
+
+**On Windows:**
+```bash
+.\update.bat
+```
+
+The Windows .bat files are helper scripts that execute the corresponding .sh scripts using Git Bash, making it easier for Windows users to run the scripts without having to remember the exact Git Bash command syntax.
 
 ## Data Format
 
@@ -113,7 +136,7 @@ The resume data is structured in JSON format:
   An array of strings listing your certifications.
   
 - **Education:**  
-  An array of arrays. The first element of each sub-array is the header (e.g., institution and graduation info), and any additional elements provide further details (displayed as indented text in the generated resume).
+  An array of arrays. The first element of each sub-array is the header (e.g., institution and graduation info), and any additional elements provide further details (displayed as indented text in the generated resume). Details are now optional for education entries, allowing for simpler entries without bullet points.
   
 - **Core Competencies:**  
   An array of strings representing your skills. In the section editor, these are displayed in alphabetical order, while in the main window they are arranged into columns that most optimally use horizontal space.
