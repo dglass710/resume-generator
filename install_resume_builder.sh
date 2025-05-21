@@ -15,7 +15,7 @@ mkdir -p "$TEMP_DIR"
 unzip -o "$SOURCE" -d "$TEMP_DIR"
 
 # Calculate checksums for the existing app and the new app
-EXISTING_CHECKSUM=$(calculate_checksums "$DESTINATION/dist/ResumeBuilder.app")
+EXISTING_CHECKSUM=$(calculate_checksums "$DESTINATION/ResumeBuilder.app")
 NEW_CHECKSUM=$(calculate_checksums "$TEMP_DIR/dist/ResumeBuilder.app")
 
 # Compare checksums
@@ -26,11 +26,11 @@ if [ "$EXISTING_CHECKSUM" == "$NEW_CHECKSUM" ]; then
 fi
 
 # Copy the new app to the Applications folder
-cp -r "$TEMP_DIR/dist/ResumeBuilder.app" "$DESTINATION/dist/"
+cp -r "$TEMP_DIR/dist/ResumeBuilder.app" "$DESTINATION/"
 
 # Confirm the installation
-if [ -d "$DESTINATION/dist/ResumeBuilder.app" ]; then
-    echo "ResumeBuilder installed successfully in $DESTINATION/dist/"
+if [ -d "$DESTINATION/ResumeBuilder.app" ]; then
+    echo "ResumeBuilder installed successfully in $DESTINATION/"
 else
     echo "Installation failed."
 fi
