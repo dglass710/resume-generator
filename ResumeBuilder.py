@@ -17,6 +17,9 @@ import os
 import sys
 import copy
 from datetime import datetime
+import urllib.request
+import urllib.error
+import threading
 from generator import Generator  # Uses python-docx to create the resume document
 
 class ResumeGeneratorGUI:
@@ -1182,6 +1185,277 @@ class ResumeGeneratorGUI:
         ttk.Button(combined_frame, text="Save", command=lambda: (self.write_master_resume(), messagebox.showinfo("Saved", "Changes saved successfully."), self.refresh_main_window(), win.destroy()), style="Custom.TButton").pack(side="left", padx=5)
         ttk.Button(combined_frame, text="Cancel", command=lambda: (section.update({"content": original_content}), win.destroy()) if messagebox.askyesno("Cancel", "Are you sure you want to cancel? All unsaved changes will be discarded.") else None, style="Custom.TButton").pack(side="left", padx=5)
 
+    # ------------------------------------------------------------------ #
+    # AI Auto-Select feature                                              #
+    # ------------------------------------------------------------------ #
+
+    OPENROUTER_MODELS = [
+        # Anthropic Claude
+        "anthropic/claude-sonnet-4.6",
+        "anthropic/claude-opus-4.6",
+        "anthropic/claude-haiku-4.5",
+        # OpenAI
+        "openai/gpt-5.4",
+        "openai/gpt-5.4-mini",
+        "openai/gpt-5.4-nano",
+        # xAI Grok
+        "x-ai/grok-4.20-beta",
+        "x-ai/grok-4.1-fast",
+        # Moonshot
+        "moonshotai/kimi-k2.5",
+    ]
+
+    def _load_openrouter_key(self):
+        try:
+            with open(self.get_file_path("openrouter.key"), "r") as f:
+                return f.read().strip()
+        except Exception:
+            return None
+
+    def _load_ai_config(self):
+        try:
+            with open(self.get_file_path("ai_config.json"), "r") as f:
+                return json.load(f)
+        except Exception:
+            return {}
+
+    def _save_ai_config(self, config):
+        try:
+            if getattr(sys, 'frozen', False):
+                path = os.path.join(self.get_app_directory(), "ai_config.json")
+            else:
+                path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ai_config.json")
+            with open(path, "w") as f:
+                json.dump(config, f, indent=4)
+        except Exception as e:
+            messagebox.showerror("Error", f"Could not save AI config: {e}")
+
+    def open_ai_autoselect_window(self):
+        ai_config = self._load_ai_config()
+
+        win = tk.Toplevel(self.root)
+        win.title("AI Auto-Select")
+        win.geometry("800x620")
+
+        # --- API Key status ---
+        api_key = self._load_openrouter_key()
+        key_text = "API key loaded from openrouter.key" if api_key else "openrouter.key not found — add the file next to ResumeBuilder.py"
+        key_color = "green" if api_key else "red"
+        ttk.Label(win, text=key_text, style="Custom.TLabel", foreground=key_color).pack(anchor="w", padx=10, pady=(10, 0))
+
+        # --- Model ---
+        ttk.Label(win, text="Model:", style="Custom.TLabel").pack(anchor="w", padx=10, pady=(8, 0))
+        model_var = tk.StringVar(value=ai_config.get("openrouter_model", self.OPENROUTER_MODELS[0]))
+        model_combo = ttk.Combobox(win, textvariable=model_var, values=self.OPENROUTER_MODELS, width=45)
+        model_combo.pack(anchor="w", padx=10)
+
+        # --- Job Posting ---
+        ttk.Label(win, text="Paste Job Posting:", style="Custom.TLabel").pack(anchor="w", padx=10, pady=(8, 0))
+        job_text = tk.Text(win, wrap="word", height=18, font=("Arial", 12))
+        job_text.pack(fill="both", expand=True, padx=10, pady=(0, 5))
+        job_scroll = ttk.Scrollbar(win, command=job_text.yview)
+        job_text.configure(yscrollcommand=job_scroll.set)
+
+        # --- Status label ---
+        status_var = tk.StringVar(value="")
+        status_label = ttk.Label(win, textvariable=status_var, style="Custom.TLabel", foreground="blue")
+        status_label.pack(anchor="w", padx=10)
+
+        # --- Button ---
+        def on_autoselect():
+            api_key = self._load_openrouter_key()
+            model = model_var.get().strip()
+            job_posting = job_text.get("1.0", tk.END).strip()
+
+            if not api_key:
+                messagebox.showerror("Missing API Key", "openrouter.key file not found or empty.", parent=win)
+                return
+            if not job_posting:
+                messagebox.showerror("Missing Job Posting", "Please paste a job posting.", parent=win)
+                return
+
+            # Persist model choice to ai_config.json (not tracked by git)
+            self._save_ai_config({"openrouter_model": model})
+
+            btn.configure(state="disabled")
+            status_var.set("Contacting AI... (attempt 1 of 3)")
+            win.update_idletasks()
+
+            def worker():
+                result, error = self._call_openrouter_with_retry(api_key, model, job_posting, status_var, win)
+                win.after(0, lambda: finish(result, error))
+
+            def finish(result, error):
+                btn.configure(state="normal")
+                if error:
+                    status_var.set("")
+                    messagebox.showerror("AI Auto-Select Failed", error, parent=win)
+                    return
+                self._apply_ai_selections(result)
+                status_var.set("Done! Selections applied.")
+                win.after(3000, lambda: status_var.set(""))
+
+            threading.Thread(target=worker, daemon=True).start()
+
+        btn = ttk.Button(win, text="Auto-Select", command=on_autoselect, style="Custom.TButton")
+        btn.pack(pady=8)
+
+    def _build_autoselect_prompt(self, job_posting):
+        objectives = self._get_section_content("Objective")
+        projects = self._get_section_content("Technical Projects")
+        competencies = self._get_section_content("Core Competencies")
+
+        numbered = lambda items: "\n".join(f"{i}: {v}" for i, v in enumerate(items))
+
+        return f"""You are a resume optimization assistant. Given a job posting and a candidate's resume data, select the best matching items by their index numbers.
+
+JOB POSTING:
+{job_posting}
+
+CANDIDATE DATA:
+Objective options (select exactly ONE — provide its index):
+{numbered(objectives)}
+
+Technical Project options (select 2 to 4 — provide their indices):
+{numbered(projects)}
+
+Core Competency options (select all that are relevant — provide their indices):
+{numbered(competencies)}
+
+INSTRUCTIONS:
+- Return ONLY valid JSON with no markdown, no code fences, no explanation.
+- Use the integer index numbers shown above — do not include the text.
+- Select exactly one objective (a single integer).
+- Select between 2 and 4 technical projects (a list of integers).
+- Select all relevant core competencies (a list of integers).
+
+Return this exact JSON structure:
+{{
+  "objective_index": 0,
+  "technical_project_indices": [0, 1],
+  "core_competency_indices": [0, 1, 2]
+}}"""
+
+    def _get_section_content(self, title):
+        for section in self.master_resume:
+            if section.get("title") == title:
+                return section.get("content", [])
+        return []
+
+    def _call_openrouter_with_retry(self, api_key, model, job_posting, status_var, win):
+        prompt = self._build_autoselect_prompt(job_posting)
+        url = "https://openrouter.ai/api/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+            "HTTP-Referer": "resume-generator-app",
+        }
+        payload = {
+            "model": model,
+            "messages": [{"role": "user", "content": prompt}],
+            "temperature": 0.2,
+        }
+
+        last_error = None
+        for attempt in range(1, 4):
+            win.after(0, lambda a=attempt: status_var.set(f"Contacting AI... (attempt {a} of 3)"))
+            try:
+                data = json.dumps(payload).encode("utf-8")
+                req = urllib.request.Request(url, data=data, headers=headers, method="POST")
+                with urllib.request.urlopen(req, timeout=60) as resp:
+                    body = json.loads(resp.read().decode("utf-8"))
+                raw_text = body["choices"][0]["message"]["content"].strip()
+
+                # Strip markdown code fences if present
+                if raw_text.startswith("```"):
+                    raw_text = raw_text.split("```")[1]
+                    if raw_text.startswith("json"):
+                        raw_text = raw_text[4:]
+                    raw_text = raw_text.strip()
+
+                parsed = json.loads(raw_text)
+                validation_error = self._validate_ai_response(parsed)
+                if validation_error:
+                    last_error = f"Attempt {attempt}: Invalid response — {validation_error}"
+                    continue
+                return parsed, None
+
+            except urllib.error.HTTPError as e:
+                last_error = f"Attempt {attempt}: HTTP {e.code} — {e.reason}"
+            except urllib.error.URLError as e:
+                last_error = f"Attempt {attempt}: Network error — {e.reason}"
+            except (json.JSONDecodeError, KeyError) as e:
+                last_error = f"Attempt {attempt}: Could not parse AI response — {e}"
+            except Exception as e:
+                last_error = f"Attempt {attempt}: Unexpected error — {e}"
+
+        return None, f"AI Auto-Select failed after 3 attempts.\n\nLast error: {last_error}"
+
+    def _validate_ai_response(self, parsed):
+        if not isinstance(parsed, dict):
+            return "Response is not a JSON object."
+
+        # objective_index
+        if "objective_index" not in parsed or not isinstance(parsed["objective_index"], int):
+            return "'objective_index' must be an integer."
+        objectives = self._get_section_content("Objective")
+        if not (0 <= parsed["objective_index"] < len(objectives)):
+            return f"'objective_index' {parsed['objective_index']} is out of range (0–{len(objectives)-1})."
+
+        # technical_project_indices
+        if "technical_project_indices" not in parsed or not isinstance(parsed["technical_project_indices"], list):
+            return "'technical_project_indices' must be a list."
+        if not (2 <= len(parsed["technical_project_indices"]) <= 4):
+            return f"'technical_project_indices' must have 2–4 items (got {len(parsed['technical_project_indices'])})."
+        projects = self._get_section_content("Technical Projects")
+        for idx in parsed["technical_project_indices"]:
+            if not isinstance(idx, int) or not (0 <= idx < len(projects)):
+                return f"technical_project_indices contains invalid index: {idx}"
+
+        # core_competency_indices
+        if "core_competency_indices" not in parsed or not isinstance(parsed["core_competency_indices"], list):
+            return "'core_competency_indices' must be a list."
+        if len(parsed["core_competency_indices"]) == 0:
+            return "'core_competency_indices' must not be empty."
+        competencies = self._get_section_content("Core Competencies")
+        for idx in parsed["core_competency_indices"]:
+            if not isinstance(idx, int) or not (0 <= idx < len(competencies)):
+                return f"core_competency_indices contains invalid index: {idx}"
+
+        return None  # valid
+
+    def _apply_ai_selections(self, result):
+        objectives = self._get_section_content("Objective")
+        projects = self._get_section_content("Technical Projects")
+        competencies = self._get_section_content("Core Competencies")
+
+        # Set objective radio button
+        self.selected_objective.set(objectives[result["objective_index"]])
+
+        # Uncheck all Technical Projects, then check selected ones
+        selected_projects = {projects[i] for i in result["technical_project_indices"]}
+        for (section, option), var in self.subsection_vars.items():
+            if section == "Technical Projects":
+                var.set(option in selected_projects)
+
+        # Uncheck all Core Competencies, then check selected ones
+        selected_comps = {competencies[i] for i in result["core_competency_indices"]}
+        for (section, option), var in self.subsection_vars.items():
+            if section == "Core Competencies":
+                var.set(option in selected_comps)
+
+        # Make sure both sections are checked at the section level
+        if "Technical Projects" in self.section_vars:
+            self.section_vars["Technical Projects"].set(True)
+        if "Core Competencies" in self.section_vars:
+            self.section_vars["Core Competencies"].set(True)
+        if "Objective" in self.section_vars:
+            self.section_vars["Objective"].set(True)
+
+    # ------------------------------------------------------------------ #
+    # End AI Auto-Select feature                                           #
+    # ------------------------------------------------------------------ #
+
     def create_gui(self):
         top_frame = ttk.Frame(self.root)
         top_frame.pack(fill="x", pady=10)
@@ -1203,6 +1477,7 @@ class ResumeGeneratorGUI:
         ttk.Button(top_frame, text="Reorder Sections", command=self.open_section_reorder_dialog, style="Custom.TButton", padding=(h_padding, v_padding)).pack(side="left", padx=10)
         ttk.Button(top_frame, text="Reset Data", command=self.reset_to_default, style="Custom.TButton").pack(side="left", padx=10)
         ttk.Button(top_frame, text="Advanced JSON Editor", command=self.open_advanced_editor, style="Custom.TButton").pack(side="left", padx=10)
+        ttk.Button(top_frame, text="AI Auto-Select", command=self.open_ai_autoselect_window, style="Custom.TButton").pack(side="left", padx=10)
 
         main_frame = ttk.Frame(self.root)
         main_frame.pack(fill="both", expand=True)
