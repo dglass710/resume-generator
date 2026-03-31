@@ -82,7 +82,8 @@
             "Implemented SSL/TLS encryption for a web application and managed secure certificate handling, ensuring encrypted communication between users and servers.",
             "Developed and implemented firewall policies using UFW and firewalld to ensure secure server configurations and restrict unauthorized access.",
             "Created an offline version of the 'Have I Been Pwned' database using Docker, enabling secure local queries of compromised credentials.",
-            "Developed and implemented firewall policies using UFW and firewalld to ensure secure network configurations."
+            "Developed and implemented firewall policies using UFW and firewalld to ensure secure network configurations.",
+            "Built a Python CLI tool that integrates LLM APIs (Claude/OpenRouter) to automate document generation, processing structured JSON data and producing formatted output via prompt engineering and API orchestration."
         ]
     },
     {
