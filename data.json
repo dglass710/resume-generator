@@ -149,7 +149,10 @@
             "Git",
             "Data Visualization",
             "AI/LLM Integration",
-            "Machine Learning"
+            "Machine Learning",
+            "DNS/DHCP",
+            "S3",
+            "VPN Configuration"
         ]
     }
 ]
