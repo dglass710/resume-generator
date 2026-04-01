@@ -1286,15 +1286,33 @@ class ResumeGeneratorGUI:
                     api_key, model, job_posting,
                     on_progress=lambda msg: win.after(0, lambda m=msg: status_var.set(m))
                 )
-                win.after(0, lambda: finish(result, error))
+                if error:
+                    win.after(0, lambda: finish(result, error, None))
+                    return
 
-            def finish(result, error):
+                # Round 2: reorder selected items
+                projects = selector._get_section_content("Technical Projects")
+                competencies = selector._get_section_content("Core Competencies")
+                selected_projects = [projects[i] for i in result["technical_project_indices"]]
+                selected_comps = [competencies[i] for i in result["core_competency_indices"]]
+
+                reorder, reorder_error = selector.call_reorder(
+                    api_key, model, job_posting, selected_projects, selected_comps,
+                    on_progress=lambda msg: win.after(0, lambda m=msg: status_var.set(m))
+                )
+                if reorder_error:
+                    # Proceed without reorder on failure
+                    win.after(0, lambda: finish(result, None, None))
+                else:
+                    win.after(0, lambda: finish(result, None, reorder))
+
+            def finish(result, error, reorder):
                 btn.configure(state="normal")
                 if error:
                     status_var.set("")
                     messagebox.showerror("AI Auto-Select Failed", error, parent=win)
                     return
-                self._apply_ai_selections(result)
+                self._apply_ai_selections(result, reorder)
                 status_var.set("Done! Selections applied.")
                 win.after(3000, lambda: status_var.set(""))
 
@@ -1306,7 +1324,7 @@ class ResumeGeneratorGUI:
     def _get_section_content(self, title):
         return AISelector(self.master_resume)._get_section_content(title)
 
-    def _apply_ai_selections(self, result):
+    def _apply_ai_selections(self, result, reorder=None):
         objectives = self._get_section_content("Objective")
         projects = self._get_section_content("Technical Projects")
         competencies = self._get_section_content("Core Competencies")
@@ -1314,14 +1332,34 @@ class ResumeGeneratorGUI:
         # Set objective radio button
         self.selected_objective.set(objectives[result["objective_index"]])
 
+        # Build selected lists (preserving selection order from round 1)
+        selected_project_list = [projects[i] for i in result["technical_project_indices"]]
+        selected_comp_list = [competencies[i] for i in result["core_competency_indices"]]
+
+        # Apply reorder if provided
+        if reorder:
+            selected_project_list = [selected_project_list[i] for i in reorder["technical_project_order"]]
+            selected_comp_list = [selected_comp_list[i] for i in reorder["core_competency_order"]]
+
+            # Reorder items in master_resume so the GUI and generator use the new order
+            for section in self.master_resume:
+                if section["title"] == "Technical Projects":
+                    selected_set = set(selected_project_list)
+                    unselected = [p for p in section["content"] if p not in selected_set]
+                    section["content"] = selected_project_list + unselected
+                elif section["title"] == "Core Competencies":
+                    selected_set = set(selected_comp_list)
+                    unselected = [c for c in section["content"] if c not in selected_set]
+                    section["content"] = selected_comp_list + unselected
+
         # Uncheck all Technical Projects, then check selected ones
-        selected_projects = {projects[i] for i in result["technical_project_indices"]}
+        selected_projects = set(selected_project_list)
         for (section, option), var in self.subsection_vars.items():
             if section == "Technical Projects":
                 var.set(option in selected_projects)
 
         # Uncheck all Core Competencies, then check selected ones
-        selected_comps = {competencies[i] for i in result["core_competency_indices"]}
+        selected_comps = set(selected_comp_list)
         for (section, option), var in self.subsection_vars.items():
             if section == "Core Competencies":
                 var.set(option in selected_comps)

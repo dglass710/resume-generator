@@ -91,7 +91,21 @@ def main():
         print(f"\nError: {error}", file=sys.stderr)
         sys.exit(1)
 
-    selected_sections = selector.build_selected_sections(result)
+    # Build the selected items for the reorder prompt
+    projects = selector._get_section_content("Technical Projects")
+    competencies = selector._get_section_content("Core Competencies")
+    selected_projects = [projects[i] for i in result["technical_project_indices"]]
+    selected_comps = [competencies[i] for i in result["core_competency_indices"]]
+
+    reorder, reorder_error = selector.call_reorder(
+        api_key, model, args.job_posting, selected_projects, selected_comps,
+        on_progress=print
+    )
+    if reorder_error:
+        print(f"\nReorder warning: {reorder_error}", file=sys.stderr)
+        print("Proceeding with default order.", file=sys.stderr)
+
+    selected_sections = selector.build_selected_sections(result, reorder=reorder)
 
     try:
         Generator(selected_sections).generate(args.output_path)

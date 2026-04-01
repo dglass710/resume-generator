@@ -57,6 +57,48 @@ Return this exact JSON structure:
   "core_competency_indices": [0, 1, 2]
 }}"""
 
+    def _build_reorder_prompt(self, job_posting, selected_projects, selected_competencies):
+        numbered = lambda items: "\n".join(f"{i}: {v}" for i, v in enumerate(items))
+
+        return f"""You are a resume optimization assistant. Given a job posting and already-selected resume items, determine the best ordering so the most relevant items appear first.
+
+JOB POSTING:
+{job_posting}
+
+SELECTED TECHNICAL PROJECTS (reorder these):
+{numbered(selected_projects)}
+
+SELECTED CORE COMPETENCIES (reorder these):
+{numbered(selected_competencies)}
+
+INSTRUCTIONS:
+- Return ONLY valid JSON with no markdown, no code fences, no explanation.
+- Each list must contain ALL of the indices shown above, rearranged into the best order (most relevant to the job posting first).
+- Do not add or remove any indices — just reorder them.
+
+Return this exact JSON structure:
+{{
+  "technical_project_order": [0, 1],
+  "core_competency_order": [0, 1, 2]
+}}"""
+
+    def _validate_reorder_response(self, parsed, num_projects, num_competencies):
+        if not isinstance(parsed, dict):
+            return "Response is not a JSON object."
+
+        for key, expected_len in [
+            ("technical_project_order", num_projects),
+            ("core_competency_order", num_competencies),
+        ]:
+            if key not in parsed or not isinstance(parsed[key], list):
+                return f"'{key}' must be a list."
+            if len(parsed[key]) != expected_len:
+                return f"'{key}' must have exactly {expected_len} items (got {len(parsed[key])})."
+            if sorted(parsed[key]) != list(range(expected_len)):
+                return f"'{key}' must be a permutation of 0–{expected_len - 1}."
+
+        return None  # valid
+
     def _validate_ai_response(self, parsed):
         if not isinstance(parsed, dict):
             return "Response is not a JSON object."
@@ -149,7 +191,63 @@ Return this exact JSON structure:
 
         return None, f"AI Auto-Select failed after 3 attempts.\n\nLast error: {last_error}"
 
-    def build_selected_sections(self, result):
+    def call_reorder(self, api_key, model, job_posting, selected_projects, selected_competencies, on_progress=None):
+        """
+        Second-round API call: reorder already-selected projects and competencies.
+
+        Returns (reorder_dict, None) on success, or (None, error_str) on failure.
+        """
+        prompt = self._build_reorder_prompt(job_posting, selected_projects, selected_competencies)
+        url = "https://openrouter.ai/api/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+            "HTTP-Referer": "resume-generator-app",
+        }
+        payload = {
+            "model": model,
+            "messages": [{"role": "user", "content": prompt}],
+            "temperature": 0.2,
+        }
+
+        last_error = None
+        for attempt in range(1, 4):
+            if on_progress:
+                on_progress(f"Reordering selections... (attempt {attempt} of 3)")
+            try:
+                data = json.dumps(payload).encode("utf-8")
+                req = urllib.request.Request(url, data=data, headers=headers, method="POST")
+                with urllib.request.urlopen(req, timeout=60) as resp:
+                    body = json.loads(resp.read().decode("utf-8"))
+                raw_text = body["choices"][0]["message"]["content"].strip()
+
+                if raw_text.startswith("```"):
+                    raw_text = raw_text.split("```")[1]
+                    if raw_text.startswith("json"):
+                        raw_text = raw_text[4:]
+                    raw_text = raw_text.strip()
+
+                parsed = json.loads(raw_text)
+                validation_error = self._validate_reorder_response(
+                    parsed, len(selected_projects), len(selected_competencies)
+                )
+                if validation_error:
+                    last_error = f"Attempt {attempt}: Invalid response — {validation_error}"
+                    continue
+                return parsed, None
+
+            except urllib.error.HTTPError as e:
+                last_error = f"Attempt {attempt}: HTTP {e.code} — {e.reason}"
+            except urllib.error.URLError as e:
+                last_error = f"Attempt {attempt}: Network error — {e.reason}"
+            except (json.JSONDecodeError, KeyError) as e:
+                last_error = f"Attempt {attempt}: Could not parse AI response — {e}"
+            except Exception as e:
+                last_error = f"Attempt {attempt}: Unexpected error — {e}"
+
+        return None, f"AI reorder failed after 3 attempts.\n\nLast error: {last_error}"
+
+    def build_selected_sections(self, result, reorder=None):
         """
         Convert an AI result dict (with index fields) into a selected_sections
         list ready to pass to Generator.
@@ -163,9 +261,14 @@ Return this exact JSON structure:
         projects = self._get_section_content("Technical Projects")
         competencies = self._get_section_content("Core Competencies")
 
-        selected_projects = {projects[i] for i in result["technical_project_indices"]}
-        selected_comps = {competencies[i] for i in result["core_competency_indices"]}
+        selected_project_list = [projects[i] for i in result["technical_project_indices"]]
+        selected_comp_list = [competencies[i] for i in result["core_competency_indices"]]
         chosen_objective = objectives[result["objective_index"]]
+
+        # Apply reorder if provided
+        if reorder:
+            selected_project_list = [selected_project_list[i] for i in reorder["technical_project_order"]]
+            selected_comp_list = [selected_comp_list[i] for i in reorder["core_competency_order"]]
 
         selected_sections = []
         for section in self.master_resume:
@@ -173,18 +276,14 @@ Return this exact JSON structure:
             content = section["content"]
 
             if title == "Objective":
-                selected_sections.append({"title": title, "content": [chosen_objective]})
+                selected_sections.append({"title": title, "content": chosen_objective})
             elif title == "Technical Projects":
-                filtered = [p for p in content if p in selected_projects]
-                if filtered:
-                    selected_sections.append({"title": title, "content": filtered})
+                if selected_project_list:
+                    selected_sections.append({"title": title, "content": selected_project_list})
             elif title == "Core Competencies":
-                filtered = [c for c in content if c in selected_comps]
-                if filtered:
-                    selected_sections.append({"title": title, "content": filtered})
+                if selected_comp_list:
+                    selected_sections.append({"title": title, "content": selected_comp_list})
             else:
-                # Personal Information, Education, Professional Experience,
-                # Certifications, and any other sections — include in full.
                 selected_sections.append({"title": title, "content": content})
 
         return selected_sections
