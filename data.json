@@ -69,6 +69,7 @@
         "title": "Technical Projects",
         "content": [
             "Built a Python CLI tool that integrates LLM APIs (Claude/OpenRouter) to automate document generation, processing structured JSON data and producing formatted output via prompt engineering and API orchestration.",
+            "Built a DevSecOps CI/CD pipeline using GitHub Actions to automate security scanning of a Flask application, integrating TruffleHog, Semgrep, Trivy, and Checkov for secret detection, SAST, dependency/container scanning, and IaC analysis.",
             "Configured and monitored a Splunk SIEM environment to analyze security logs, correlate events, and respond to potential threats.",
             "Designed and executed custom Python scripts to automate vulnerability scanning and mitigate risks across an organization\u2019s network infrastructure.",
             "Conducted penetration tests and network traffic analysis using Metasploit, Nmap, and Wireshark to identify and exploit vulnerabilities in simulated environments.",
@@ -152,7 +153,18 @@
             "Google Dorking",
             "Data Visualization",
             "Machine Learning",
-            "S3"
+            "S3",
+            "OWASP",
+            "SAST/DAST",
+            "CI/CD",
+            "WAF",
+            "IDS/IPS",
+            "DevSecOps",
+            "GitHub Actions",
+            "Trivy",
+            "Semgrep",
+            "Checkov",
+            "TruffleHog"
         ]
     }
 ]
