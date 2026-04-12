@@ -3,17 +3,14 @@
 resume_cli.py
 
 Command-line tool to generate a tailored resume using AI auto-selection.
+Uses the Claude Agent SDK with your Claude subscription for AI calls.
 
 Usage:
-    python resume_cli.py <output_path> <job_posting> [--model MODEL]
+    python resume_cli.py <output_path> <job_posting>
 
 Arguments:
     output_path     Path for the generated .docx file
     job_posting     Job posting text (as a string)
-
-Options:
-    --model MODEL   OpenRouter model ID to use.
-                    Priority: --model arg > ai_config.json > default (claude-opus-4.6)
 """
 
 import argparse
@@ -24,7 +21,6 @@ import sys
 from ai_selector import AISelector
 from generator import Generator
 
-DEFAULT_MODEL = "anthropic/claude-opus-4.6"
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -39,27 +35,6 @@ def load_data():
     sys.exit(1)
 
 
-def load_api_key():
-    key_path = os.path.join(SCRIPT_DIR, "openrouter.key")
-    if not os.path.isfile(key_path):
-        print("Error: openrouter.key not found. Add the file next to resume_cli.py.", file=sys.stderr)
-        sys.exit(1)
-    key = open(key_path).read().strip()
-    if not key:
-        print("Error: openrouter.key is empty.", file=sys.stderr)
-        sys.exit(1)
-    return key
-
-
-def load_model_from_config():
-    config_path = os.path.join(SCRIPT_DIR, "ai_config.json")
-    try:
-        with open(config_path, "r") as f:
-            return json.load(f).get("openrouter_model")
-    except Exception:
-        return None
-
-
 def main():
     parser = argparse.ArgumentParser(
         description="Generate a tailored resume using AI to select the best options."
@@ -69,22 +44,16 @@ def main():
     parser.add_argument(
         "--model",
         default=None,
-        help=f"OpenRouter model ID (default: {DEFAULT_MODEL})",
+        help="Claude model to use (e.g., sonnet, opus, haiku)",
     )
     args = parser.parse_args()
 
-    # Resolve model: CLI arg > ai_config.json > hardcoded default
-    model = args.model or load_model_from_config() or DEFAULT_MODEL
-
-    api_key = load_api_key()
     master_resume = load_data()
-
-    print(f"Model: {model}")
     print(f"Output: {args.output_path}")
 
     selector = AISelector(master_resume)
-    result, error = selector.call_openrouter_with_retry(
-        api_key, model, args.job_posting, on_progress=print
+    result, error = selector.call_with_retry(
+        args.job_posting, model=args.model, on_progress=print
     )
 
     if error:
@@ -98,8 +67,8 @@ def main():
     selected_comps = [competencies[i] for i in result["core_competency_indices"]]
 
     reorder, reorder_error = selector.call_reorder(
-        api_key, model, args.job_posting, selected_projects, selected_comps,
-        on_progress=print
+        args.job_posting, selected_projects, selected_comps,
+        model=args.model, on_progress=print
     )
     if reorder_error:
         print(f"\nReorder warning: {reorder_error}", file=sys.stderr)

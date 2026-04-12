@@ -3,12 +3,11 @@
 ai_selector.py
 
 Shared AI selection logic used by both the GUI (ResumeBuilder.py) and the
-CLI (resume_cli.py). No tkinter dependency.
+CLI (resume_cli.py). Uses the Claude Agent SDK with subscription auth.
 """
 
+import asyncio
 import json
-import urllib.request
-import urllib.error
 
 
 class AISelector:
@@ -95,7 +94,7 @@ Return this exact JSON structure:
             if len(parsed[key]) != expected_len:
                 return f"'{key}' must have exactly {expected_len} items (got {len(parsed[key])})."
             if sorted(parsed[key]) != list(range(expected_len)):
-                return f"'{key}' must be a permutation of 0–{expected_len - 1}."
+                return f"'{key}' must be a permutation of 0\u2013{expected_len - 1}."
 
         return None  # valid
 
@@ -132,9 +131,29 @@ Return this exact JSON structure:
 
         return None  # valid
 
-    def call_openrouter_with_retry(self, api_key, model, job_posting, on_progress=None):
+    async def _call_claude(self, prompt, model=None):
+        """Call Claude via the Agent SDK using subscription auth."""
+        from claude_agent_sdk import query, ClaudeAgentOptions
+        result = ""
+        async for msg in query(
+            prompt=prompt,
+            options=ClaudeAgentOptions(
+                allowed_tools=[],
+                thinking={"type": "adaptive"},
+                model=model,
+            ),
+        ):
+            if hasattr(msg, "result"):
+                result = msg.result
+        return result
+
+    def _call_claude_sync(self, prompt, model=None):
+        """Sync wrapper around the async Agent SDK call."""
+        return asyncio.run(self._call_claude(prompt, model=model))
+
+    def call_with_retry(self, job_posting, model=None, on_progress=None):
         """
-        Call the OpenRouter API, retrying up to 3 times on failure.
+        Call Claude via the Agent SDK, retrying up to 3 times on failure.
 
         on_progress: optional callable(str) for status messages.
                      GUI passes a lambda that updates a status label;
@@ -143,28 +162,13 @@ Return this exact JSON structure:
         Returns (result_dict, None) on success, or (None, error_str) on failure.
         """
         prompt = self._build_autoselect_prompt(job_posting)
-        url = "https://openrouter.ai/api/v1/chat/completions"
-        headers = {
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-            "HTTP-Referer": "resume-generator-app",
-        }
-        payload = {
-            "model": model,
-            "messages": [{"role": "user", "content": prompt}],
-            "temperature": 0.2,
-        }
 
         last_error = None
         for attempt in range(1, 4):
             if on_progress:
                 on_progress(f"Contacting AI... (attempt {attempt} of 3)")
             try:
-                data = json.dumps(payload).encode("utf-8")
-                req = urllib.request.Request(url, data=data, headers=headers, method="POST")
-                with urllib.request.urlopen(req, timeout=60) as resp:
-                    body = json.loads(resp.read().decode("utf-8"))
-                raw_text = body["choices"][0]["message"]["content"].strip()
+                raw_text = self._call_claude_sync(prompt, model=model)
 
                 # Strip markdown code fences if present
                 if raw_text.startswith("```"):
@@ -180,10 +184,6 @@ Return this exact JSON structure:
                     continue
                 return parsed, None
 
-            except urllib.error.HTTPError as e:
-                last_error = f"Attempt {attempt}: HTTP {e.code} \u2014 {e.reason}"
-            except urllib.error.URLError as e:
-                last_error = f"Attempt {attempt}: Network error \u2014 {e.reason}"
             except (json.JSONDecodeError, KeyError) as e:
                 last_error = f"Attempt {attempt}: Could not parse AI response \u2014 {e}"
             except Exception as e:
@@ -191,35 +191,20 @@ Return this exact JSON structure:
 
         return None, f"AI Auto-Select failed after 3 attempts.\n\nLast error: {last_error}"
 
-    def call_reorder(self, api_key, model, job_posting, selected_projects, selected_competencies, on_progress=None):
+    def call_reorder(self, job_posting, selected_projects, selected_competencies, model=None, on_progress=None):
         """
-        Second-round API call: reorder already-selected projects and competencies.
+        Second-round call: reorder already-selected projects and competencies.
 
         Returns (reorder_dict, None) on success, or (None, error_str) on failure.
         """
         prompt = self._build_reorder_prompt(job_posting, selected_projects, selected_competencies)
-        url = "https://openrouter.ai/api/v1/chat/completions"
-        headers = {
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-            "HTTP-Referer": "resume-generator-app",
-        }
-        payload = {
-            "model": model,
-            "messages": [{"role": "user", "content": prompt}],
-            "temperature": 0.2,
-        }
 
         last_error = None
         for attempt in range(1, 4):
             if on_progress:
                 on_progress(f"Reordering selections... (attempt {attempt} of 3)")
             try:
-                data = json.dumps(payload).encode("utf-8")
-                req = urllib.request.Request(url, data=data, headers=headers, method="POST")
-                with urllib.request.urlopen(req, timeout=60) as resp:
-                    body = json.loads(resp.read().decode("utf-8"))
-                raw_text = body["choices"][0]["message"]["content"].strip()
+                raw_text = self._call_claude_sync(prompt, model=model)
 
                 if raw_text.startswith("```"):
                     raw_text = raw_text.split("```")[1]
@@ -232,18 +217,14 @@ Return this exact JSON structure:
                     parsed, len(selected_projects), len(selected_competencies)
                 )
                 if validation_error:
-                    last_error = f"Attempt {attempt}: Invalid response — {validation_error}"
+                    last_error = f"Attempt {attempt}: Invalid response \u2014 {validation_error}"
                     continue
                 return parsed, None
 
-            except urllib.error.HTTPError as e:
-                last_error = f"Attempt {attempt}: HTTP {e.code} — {e.reason}"
-            except urllib.error.URLError as e:
-                last_error = f"Attempt {attempt}: Network error — {e.reason}"
             except (json.JSONDecodeError, KeyError) as e:
-                last_error = f"Attempt {attempt}: Could not parse AI response — {e}"
+                last_error = f"Attempt {attempt}: Could not parse AI response \u2014 {e}"
             except Exception as e:
-                last_error = f"Attempt {attempt}: Unexpected error — {e}"
+                last_error = f"Attempt {attempt}: Unexpected error \u2014 {e}"
 
         return None, f"AI reorder failed after 3 attempts.\n\nLast error: {last_error}"
 

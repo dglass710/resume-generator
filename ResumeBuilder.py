@@ -1188,64 +1188,16 @@ class ResumeGeneratorGUI:
     # AI Auto-Select feature                                              #
     # ------------------------------------------------------------------ #
 
-    OPENROUTER_MODELS = [
-        # Anthropic Claude
-        "anthropic/claude-sonnet-4.6",
-        "anthropic/claude-opus-4.6",
-        "anthropic/claude-haiku-4.5",
-        # OpenAI
-        "openai/gpt-5.4",
-        "openai/gpt-5.4-mini",
-        "openai/gpt-5.4-nano",
-        # xAI Grok
-        "x-ai/grok-4.20-beta",
-        "x-ai/grok-4.1-fast",
-        # Moonshot
-        "moonshotai/kimi-k2.5",
-    ]
-
-    def _load_openrouter_key(self):
-        try:
-            with open(self.get_file_path("openrouter.key"), "r") as f:
-                return f.read().strip()
-        except Exception:
-            return None
-
-    def _load_ai_config(self):
-        try:
-            with open(self.get_file_path("ai_config.json"), "r") as f:
-                return json.load(f)
-        except Exception:
-            return {}
-
-    def _save_ai_config(self, config):
-        try:
-            if getattr(sys, 'frozen', False):
-                path = os.path.join(self.get_app_directory(), "ai_config.json")
-            else:
-                path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ai_config.json")
-            with open(path, "w") as f:
-                json.dump(config, f, indent=4)
-        except Exception as e:
-            messagebox.showerror("Error", f"Could not save AI config: {e}")
-
     def open_ai_autoselect_window(self):
-        ai_config = self._load_ai_config()
-
         win = tk.Toplevel(self.root)
         win.title("AI Auto-Select")
-        win.geometry("800x620")
-
-        # --- API Key status ---
-        api_key = self._load_openrouter_key()
-        key_text = "API key loaded from openrouter.key" if api_key else "openrouter.key not found — add the file next to ResumeBuilder.py"
-        key_color = "green" if api_key else "red"
-        ttk.Label(win, text=key_text, style="Custom.TLabel", foreground=key_color).pack(anchor="w", padx=10, pady=(10, 0))
+        win.geometry("800x580")
 
         # --- Model ---
-        ttk.Label(win, text="Model:", style="Custom.TLabel").pack(anchor="w", padx=10, pady=(8, 0))
-        model_var = tk.StringVar(value=ai_config.get("openrouter_model", self.OPENROUTER_MODELS[0]))
-        model_combo = ttk.Combobox(win, textvariable=model_var, values=self.OPENROUTER_MODELS, width=45)
+        CLAUDE_MODELS = ["sonnet", "opus", "haiku"]
+        ttk.Label(win, text="Model:", style="Custom.TLabel").pack(anchor="w", padx=10, pady=(10, 0))
+        model_var = tk.StringVar(value=CLAUDE_MODELS[0])
+        model_combo = ttk.Combobox(win, textvariable=model_var, values=CLAUDE_MODELS, width=45)
         model_combo.pack(anchor="w", padx=10)
 
         # --- Job Posting ---
@@ -1262,19 +1214,12 @@ class ResumeGeneratorGUI:
 
         # --- Button ---
         def on_autoselect():
-            api_key = self._load_openrouter_key()
-            model = model_var.get().strip()
+            model = model_var.get().strip() or None
             job_posting = job_text.get("1.0", tk.END).strip()
 
-            if not api_key:
-                messagebox.showerror("Missing API Key", "openrouter.key file not found or empty.", parent=win)
-                return
             if not job_posting:
                 messagebox.showerror("Missing Job Posting", "Please paste a job posting.", parent=win)
                 return
-
-            # Persist model choice to ai_config.json (not tracked by git)
-            self._save_ai_config({"openrouter_model": model})
 
             btn.configure(state="disabled")
             status_var.set("Contacting AI... (attempt 1 of 3)")
@@ -1282,8 +1227,9 @@ class ResumeGeneratorGUI:
 
             def worker():
                 selector = AISelector(self.master_resume)
-                result, error = selector.call_openrouter_with_retry(
-                    api_key, model, job_posting,
+                result, error = selector.call_with_retry(
+                    job_posting,
+                    model=model,
                     on_progress=lambda msg: win.after(0, lambda m=msg: status_var.set(m))
                 )
                 if error:
@@ -1297,7 +1243,8 @@ class ResumeGeneratorGUI:
                 selected_comps = [competencies[i] for i in result["core_competency_indices"]]
 
                 reorder, reorder_error = selector.call_reorder(
-                    api_key, model, job_posting, selected_projects, selected_comps,
+                    job_posting, selected_projects, selected_comps,
+                    model=model,
                     on_progress=lambda msg: win.after(0, lambda m=msg: status_var.set(m))
                 )
                 if reorder_error:
