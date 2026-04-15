@@ -68,6 +68,7 @@
     {
         "title": "Technical Projects",
         "content": [
+            "Deployed Cloudflare Zero Trust tunnels across multi-site infrastructure, enforcing Google OAuth access policies per service to securely expose dashboards and self-hosted applications without opening inbound firewall ports or relying on VPN connections.",
             "Designed a multi-agent security review system using Claude Code custom agents, implementing least-privilege tool access, model routing, and structured output templates to automate OWASP Top 10 vulnerability scanning and CWE classification.",
             "Built a Python CLI tool that integrates LLM APIs (Claude/OpenRouter) to automate document generation, processing structured JSON data and producing formatted output via prompt engineering and API orchestration.",
             "Built a DevSecOps CI/CD pipeline using GitHub Actions to automate security scanning of a Flask application, integrating TruffleHog, Semgrep, Trivy, and Checkov for secret detection, SAST, dependency/container scanning, and IaC analysis.",
@@ -172,7 +173,13 @@
             "NIST 800-53",
             "PCI-DSS",
             "CFAA",
-            "MITRE ATT&CK"
+            "MITRE ATT&CK",
+            "Cloudflare Zero Trust",
+            "Zero Trust Network Access (ZTNA)",
+            "Reverse Proxy / Tunnel Configuration",
+            "Identity-Aware Access Controls",
+            "OAuth Integration",
+            "Cloudflare Access Policies"
         ]
     }
 ]
