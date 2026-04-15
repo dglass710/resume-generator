@@ -179,7 +179,8 @@
             "Reverse Proxy / Tunnel Configuration",
             "Identity-Aware Access Controls",
             "OAuth Integration",
-            "Cloudflare Access Policies"
+            "Cloudflare Access Policies",
+            "Data Loss Prevention (DLP)"
         ]
     }
 ]
