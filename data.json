@@ -180,7 +180,10 @@
             "Identity-Aware Access Controls",
             "OAuth Integration",
             "Cloudflare Access Policies",
-            "Data Loss Prevention (DLP)"
+            "Data Loss Prevention (DLP)",
+            "Java",
+            "JavaScript",
+            "GitLab"
         ]
     }
 ]
