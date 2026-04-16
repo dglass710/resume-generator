@@ -68,6 +68,7 @@
     {
         "title": "Technical Projects",
         "content": [
+            "Built a SOAR lab using Shuffle and TheHive deployed via Docker Compose and Docker Swarm, designing playbooks that automate SOC alert triage through parallel threat intelligence enrichment (URLhaus, AbuseIPDB), threshold-based verdict routing, and REST API case creation with attached IOC observables, mapping each pattern to enterprise equivalents in Splunk SOAR, Cortex XSOAR, and QRadar SOAR.",
             "Deployed Cloudflare Zero Trust tunnels across multi-site infrastructure, enforcing Google OAuth access policies per service to securely expose dashboards and self-hosted applications without opening inbound firewall ports or relying on VPN connections.",
             "Designed a multi-agent security review system using Claude Code custom agents, implementing least-privilege tool access, model routing, and structured output templates to automate OWASP Top 10 vulnerability scanning and CWE classification.",
             "Built a Python CLI tool that integrates LLM APIs (Claude/OpenRouter) to automate document generation, processing structured JSON data and producing formatted output via prompt engineering and API orchestration.",
@@ -187,7 +188,14 @@
             "Claude Code",
             "Codex",
             "Burp Suite",
-            "IAM"
+            "IAM",
+            "SOAR",
+            "Shuffle",
+            "TheHive",
+            "Threat Intelligence Enrichment",
+            "Playbook Development",
+            "Docker Swarm",
+            "REST API Integration"
         ]
     }
 ]
