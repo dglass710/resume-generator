@@ -68,24 +68,22 @@
     {
         "title": "Technical Projects",
         "content": [
-            "Built a SOAR lab using Shuffle and TheHive deployed via Docker Compose and Docker Swarm, designing playbooks that automate SOC alert triage through parallel threat intelligence enrichment (URLhaus, AbuseIPDB), threshold-based verdict routing, and REST API case creation with attached IOC observables, mapping each pattern to enterprise equivalents in Splunk SOAR, Cortex XSOAR, and QRadar SOAR.",
-            "Deployed Cloudflare Zero Trust tunnels across multi-site infrastructure, enforcing Google OAuth access policies per service to securely expose dashboards and self-hosted applications without opening inbound firewall ports or relying on VPN connections.",
-            "Designed a multi-agent security review system using Claude Code custom agents, implementing least-privilege tool access, model routing, and structured output templates to automate OWASP Top 10 vulnerability scanning and CWE classification.",
-            "Built a Python CLI tool that integrates LLM APIs (Claude/OpenRouter) to automate document generation, processing structured JSON data and producing formatted output via prompt engineering and API orchestration.",
-            "Built a DevSecOps CI/CD pipeline using GitHub Actions to automate security scanning of a Flask application, integrating TruffleHog, Semgrep, Trivy, and Checkov for secret detection, SAST, dependency/container scanning, and IaC analysis.",
-            "Configured and monitored a Splunk SIEM environment to analyze security logs, correlate events, and respond to potential threats.",
-            "Designed and executed custom Python scripts to automate vulnerability scanning and mitigate risks across an organization\u2019s network infrastructure.",
-            "Conducted penetration tests and network traffic analysis using Metasploit, Nmap, and Wireshark to identify and exploit vulnerabilities in simulated environments.",
-            "Created an offline version of the 'Have I Been Pwned' database using Docker, enabling secure local queries of compromised credentials.",
-            "Performed application penetration tests to identify vulnerabilities, providing detailed reports and remediation strategies to developers for secure software improvements.",
-            "Designed and executed vulnerability scans on virtualized networks, identifying and prioritizing remediation for high-risk exposures.",
-            "Built and managed a virtual private cloud (VPC) on Azure, deploying virtual machines and configuring secure remote access via SSH.",
-            "Created secure Docker container deployments, configuring firewalls and access controls to minimize attack surfaces in production environments.",
-            "Developed a secure file-sharing application using encryption protocols like AES and RSA to ensure confidentiality and integrity during data transfer.",
-            "Implemented SSL/TLS encryption for a web application and managed secure certificate handling, ensuring encrypted communication between users and servers.",
-            "Developed and implemented firewall policies using UFW and firewalld to ensure secure server configurations and restrict unauthorized access.",
-            "Automated user account creation and permissions assignment with Bash scripts, improving efficiency for onboarding processes.",
-            "Configured cron jobs to automate system maintenance, including backups, log rotation, and system updates."
+            "Built a Shuffle + TheHive SOAR lab on Docker Swarm; designed playbooks that triage SOC alerts via parallel URLhaus/AbuseIPDB enrichment, threshold-based verdict routing, and automated case creation through REST APIs.",
+            "Deployed Cloudflare Zero Trust tunnels across multi-site infrastructure with per-service Google OAuth policies, exposing self-hosted dashboards and applications without inbound firewall ports or VPN.",
+            "Designed a Claude Code multi-agent security review system with least-privilege tool access and structured output templates, automating OWASP Top 10 scanning and CWE classification.",
+            "Engineered a Python CLI that integrates Claude and OpenRouter APIs to generate tailored resume variants from structured JSON, using prompt engineering to format output for specific roles.",
+            "Architected a DevSecOps CI/CD pipeline in GitHub Actions for a Flask app, integrating TruffleHog, Semgrep, Trivy, and Checkov to automate secret detection, SAST, dependency/container, and IaC scanning.",
+            "Configured a Splunk SIEM environment with custom correlation searches and dashboards, ingesting logs from Linux and Windows endpoints to detect and triage suspicious activity.",
+            "Developed Python scripts wrapping Nmap to automate recurring network scans across lab segments, parsing results into prioritized remediation lists.",
+            "Conducted network penetration tests in lab environments using Metasploit, Nmap, and Wireshark to enumerate services, exploit known CVEs, and document attack paths to domain compromise.",
+            "Stood up an offline Have I Been Pwned \"Pwned Passwords\" database in Docker, enabling air-gapped lookups against 850M+ compromised password hashes without external API calls.",
+            "Performed web application penetration tests using Burp Suite against OWASP Top 10 targets, with emphasis on authentication flaws and credential brute-forcing alongside SQL injection and XSS exploration.",
+            "Provisioned an Azure virtual network with segmented subnets, deploying hardened Linux VMs and configuring NSG rules and key-based SSH for secure remote administration.",
+            "Hardened Docker container deployments with non-root users, read-only filesystems, and host-level UFW rules to reduce attack surface on self-hosted services.",
+            "Built a secure file-sharing application using RSA for key exchange and AES for symmetric encryption, protecting confidentiality during client-server data transfer.",
+            "Implemented TLS for a self-hosted web application with Let's Encrypt certificates and automated renewal via certbot, enforcing HSTS and redirecting HTTP traffic to HTTPS.",
+            "Authored host-level firewall policies with UFW and firewalld on Linux servers, enforcing default-deny ingress rules and permitting only required services.",
+            "Automated Linux user provisioning and configuration management across multiple web hosts with Ansible playbooks, enforcing consistent account policies and permissions via SSH."
         ]
     },
     {
@@ -195,7 +193,8 @@
             "Threat Intelligence Enrichment",
             "Playbook Development",
             "Docker Swarm",
-            "REST API Integration"
+            "REST API Integration",
+            "Ansible"
         ]
     }
 ]
